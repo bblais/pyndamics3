@@ -29,6 +29,13 @@ nb_path: "00_core.ipynb"
 </div>
     {% endraw %}
 
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Supporting functions</p>
+
+</div>
+</div>
+</div>
     {% raw %}
     
 <div class="cell border-box-sizing code_cell rendered">
@@ -40,9 +47,247 @@ nb_path: "00_core.ipynb"
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h4 id="say_hello" class="doc_header"><code>say_hello</code><a href="https://github.com/bblais/pyndamics3/tree/master/pyndamics3/core.py#L6" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>say_hello</code>(<strong><code>to</code></strong>)</p>
+<h4 id="mapsolve" class="doc_header"><code>mapsolve</code><a href="https://github.com/bblais/pyndamics3/tree/master/pyndamics3/core.py#L7" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>mapsolve</code>(<strong><code>function</code></strong>, <strong><code>y0</code></strong>, <strong><code>t_mat</code></strong>, <strong>*<code>args</code></strong>)</p>
 </blockquote>
-<p>Say hello to somebody</p>
+
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_markdown rendered_html output_subarea ">
+<h4 id="euler" class="doc_header"><code>euler</code><a href="https://github.com/bblais/pyndamics3/tree/master/pyndamics3/core.py#L22" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>euler</code>(<strong><code>function</code></strong>, <strong><code>y0</code></strong>, <strong><code>t_mat</code></strong>, <strong>*<code>args</code></strong>, <strong>**<code>kwargs</code></strong>)</p>
+</blockquote>
+
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_markdown rendered_html output_subarea ">
+<h4 id="rk2" class="doc_header"><code>rk2</code><a href="https://github.com/bblais/pyndamics3/tree/master/pyndamics3/core.py#L41" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>rk2</code>(<strong><code>function</code></strong>, <strong><code>y0</code></strong>, <strong><code>t_mat</code></strong>, <strong>*<code>args</code></strong>, <strong>**<code>kwargs</code></strong>)</p>
+</blockquote>
+
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_markdown rendered_html output_subarea ">
+<h4 id="rk4" class="doc_header"><code>rk4</code><a href="https://github.com/bblais/pyndamics3/tree/master/pyndamics3/core.py#L63" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>rk4</code>(<strong><code>function</code></strong>, <strong><code>y0</code></strong>, <strong><code>t_mat</code></strong>, <strong>*<code>args</code></strong>, <strong>**<code>kwargs</code></strong>)</p>
+</blockquote>
+
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_markdown rendered_html output_subarea ">
+<h4 id="rkwrapper" class="doc_header"><code>rkwrapper</code><a href="https://github.com/bblais/pyndamics3/tree/master/pyndamics3/core.py#L98" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>rkwrapper</code>(<strong><code>function</code></strong>, <strong><code>_self</code></strong>)</p>
+</blockquote>
+
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_markdown rendered_html output_subarea ">
+<h4 id="rk45" class="doc_header"><code>rk45</code><a href="https://github.com/bblais/pyndamics3/tree/master/pyndamics3/core.py#L103" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>rk45</code>(<strong><code>function</code></strong>, <strong><code>y0</code></strong>, <strong><code>t_mat</code></strong>, <strong><code>_self</code></strong>, <strong>*<code>args</code></strong>, <strong>**<code>kwargs</code></strong>)</p>
+</blockquote>
+
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_markdown rendered_html output_subarea ">
+<h4 id="simfunc" class="doc_header"><code>simfunc</code><a href="https://github.com/bblais/pyndamics3/tree/master/pyndamics3/core.py#L125" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>simfunc</code>(<strong><code>_vec</code></strong>, <strong><code>t</code></strong>, <strong><code>_sim</code></strong>)</p>
+</blockquote>
+
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_markdown rendered_html output_subarea ">
+<h4 id="phase_plot" class="doc_header"><code>phase_plot</code><a href="https://github.com/bblais/pyndamics3/tree/master/pyndamics3/core.py#L186" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>phase_plot</code>(<strong><code>sim</code></strong>, <strong><code>x</code></strong>, <strong><code>y</code></strong>, <strong><code>z</code></strong>=<em><code>None</code></em>, <strong>**<code>kwargs</code></strong>)</p>
+</blockquote>
+<p>Make a Phase Plot of two or three variables.</p>
+<h2 id="Parameters">Parameters<a class="anchor-link" href="#Parameters"> </a></h2><p>sim : Simulation
+    This is a simulation object.
+x : str
+    Name of the variable to plot on the x-axis
+y : str
+    Name of the variable to plot on the y-axis
+z : str, optional
+    Name of the variable to plot on the (optional) z-axis</p>
+<h2 id="Returns">Returns<a class="anchor-link" href="#Returns"> </a></h2>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_markdown rendered_html output_subarea ">
+<h4 id="vector_field" class="doc_header"><code>vector_field</code><a href="https://github.com/bblais/pyndamics3/tree/master/pyndamics3/core.py#L217" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>vector_field</code>(<strong><code>sim</code></strong>, <strong><code>rescale</code></strong>=<em><code>False</code></em>, <strong>**<code>kwargs</code></strong>)</p>
+</blockquote>
+
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_markdown rendered_html output_subarea ">
+<h2 id="Component" class="doc_header"><code>class</code> <code>Component</code><a href="https://github.com/bblais/pyndamics3/tree/master/pyndamics3/core.py#L269" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>Component</code>(<strong><code>diffstr</code></strong>, <strong><code>initial_value</code></strong>=<em><code>0</code></em>, <strong><code>min</code></strong>=<em><code>None</code></em>, <strong><code>max</code></strong>=<em><code>None</code></em>, <strong><code>plot</code></strong>=<em><code>False</code></em>, <strong><code>save</code></strong>=<em><code>None</code></em>)</p>
+</blockquote>
 
 </div>
 
@@ -63,27 +308,19 @@ nb_path: "00_core.ipynb"
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Some examples</p>
-<p>{% raw %}
-$$E=mc^2 \times \sqrt{\frac{1}{1-v^2/c^2}}$$
-{% endraw %}</p>
-
+<h2 id="Examples-of-Components">Examples of Components<a class="anchor-link" href="#Examples-of-Components"> </a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="This-is-the-primary-class-to-use">This is the primary class to use<a class="anchor-link" href="#This-is-the-primary-class-to-use"> </a></h1>
 </div>
 </div>
 </div>
     {% raw %}
     
 <div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">say_hello</span><span class="p">(</span><span class="s2">&quot;Me!&quot;</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
 
 <div class="output_wrapper">
 <div class="output">
@@ -91,13 +328,265 @@ $$E=mc^2 \times \sqrt{\frac{1}{1-v^2/c^2}}$$
 <div class="output_area">
 
 
+<div class="output_markdown rendered_html output_subarea ">
+<h2 id="Simulation" class="doc_header"><code>class</code> <code>Simulation</code><a href="https://github.com/bblais/pyndamics3/tree/master/pyndamics3/core.py#L352" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>Simulation</code>(<strong><code>method</code></strong>=<em><code>'odeint'</code></em>, <strong><code>verbose</code></strong>=<em><code>False</code></em>, <strong><code>plot_style</code></strong>=<em><code>'.-'</code></em>)</p>
+</blockquote>
 
-<div class="output_text output_subarea output_execute_result">
-<pre>&#39;Hello Me!!&#39;</pre>
 </div>
 
 </div>
 
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Some-useful-functions">Some useful functions<a class="anchor-link" href="#Some-useful-functions"> </a></h2>
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_markdown rendered_html output_subarea ">
+<h4 id="repeat" class="doc_header"><code>repeat</code><a href="https://github.com/bblais/pyndamics3/tree/master/pyndamics3/core.py#L1132" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>repeat</code>(<strong><code>S_orig</code></strong>, <strong><code>t_min</code></strong>, <strong><code>t_max</code></strong>, <strong>**<code>kwargs</code></strong>)</p>
+</blockquote>
+
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_markdown rendered_html output_subarea ">
+<h4 id="model" class="doc_header"><code>model</code><a href="https://github.com/bblais/pyndamics3/tree/master/pyndamics3/core.py#L1156" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>model</code>(<strong><code>params</code></strong>, <strong><code>xd</code></strong>, <strong><code>sim</code></strong>, <strong><code>varname</code></strong>, <strong><code>parameters</code></strong>)</p>
+</blockquote>
+
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_markdown rendered_html output_subarea ">
+<h4 id="mse_from_sim" class="doc_header"><code>mse_from_sim</code><a href="https://github.com/bblais/pyndamics3/tree/master/pyndamics3/core.py#L1178" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>mse_from_sim</code>(<strong><code>params</code></strong>, <strong><code>extra</code></strong>)</p>
+</blockquote>
+
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">class</span> <span class="nc">particle</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">parameters</span><span class="p">,</span><span class="n">fitness_function</span><span class="p">,</span><span class="n">extra</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">chi</span><span class="o">=</span><span class="mf">0.72</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="o">=</span><span class="mf">1.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">c1</span><span class="o">=</span><span class="mf">2.05</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">c2</span><span class="o">=</span><span class="mf">2.05</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extra</span><span class="o">=</span><span class="n">extra</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">fitness_function</span><span class="o">=</span><span class="n">fitness_function</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">parameters</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="o">=</span><span class="n">parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parameter_names</span><span class="o">=</span><span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">=</span><span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="o">=</span><span class="p">[]</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parameter_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">()</span><span class="o">*</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span><span class="o">+</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="mi">2</span><span class="o">*</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">()</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">=</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="o">=</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">best</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[:]</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">best_val</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fitness_function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">best_val</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fitness_function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">extra</span><span class="p">)</span>
+        
+    <span class="k">def</span> <span class="nf">fitness</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">val</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fitness_function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">val</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fitness_function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">extra</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">val</span><span class="o">&lt;</span><span class="bp">self</span><span class="o">.</span><span class="n">best_val</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">best_val</span><span class="o">=</span><span class="n">val</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">best</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[:]</span>
+            
+        <span class="k">return</span> <span class="n">val</span>
+        
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">global_best</span><span class="p">):</span>
+    
+        <span class="n">r1</span><span class="o">=</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">))</span>
+        <span class="n">r2</span><span class="o">=</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">))</span>
+        
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">v</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">chi</span><span class="o">*</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">v</span> <span class="o">+</span> 
+                    <span class="bp">self</span><span class="o">.</span><span class="n">c1</span><span class="o">*</span><span class="n">r1</span><span class="o">*</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">best</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span><span class="o">+</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">c2</span><span class="o">*</span><span class="n">r2</span><span class="o">*</span><span class="p">(</span><span class="n">global_best</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">v</span>     
+        
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">s</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">):</span>
+            <span class="n">s</span><span class="o">+=</span><span class="s2">&quot;(</span><span class="si">%s</span><span class="s2">: </span><span class="si">%f</span><span class="s2">) &quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameter_names</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">s</span>
+        
+<span class="k">class</span> <span class="nc">swarm</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">parameters</span><span class="p">,</span><span class="n">fitness</span><span class="p">,</span>
+                        <span class="n">number_of_particles</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span><span class="n">extra</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="o">=</span><span class="p">[</span><span class="n">particle</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span><span class="n">fitness</span><span class="p">,</span><span class="n">extra</span><span class="p">)</span> 
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">number_of_particles</span><span class="p">)]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">best_val</span><span class="o">=</span><span class="mf">1e500</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">best</span><span class="o">=</span><span class="kc">None</span>
+        
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    
+        <span class="n">vals</span><span class="o">=</span><span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">fitness</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">]</span>
+            
+        <span class="n">i</span><span class="o">=</span><span class="n">argmin</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span>    
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_best</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">x</span><span class="p">[:]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_val</span><span class="o">=</span><span class="n">vals</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_val</span><span class="o">&lt;</span><span class="bp">self</span><span class="o">.</span><span class="n">best_val</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">best_val</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">current_val</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">best</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">current_best</span><span class="p">[:]</span>
+            
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">:</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">best</span><span class="p">)</span>  
+            
+                
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">particles</span><span class="p">)</span>
+             
+                
+<span class="k">def</span> <span class="nf">pso_fit_sim</span><span class="p">(</span><span class="n">varname</span><span class="p">,</span><span class="n">xd</span><span class="p">,</span><span class="n">yd</span><span class="p">,</span><span class="n">sim</span><span class="p">,</span><span class="n">parameters</span><span class="p">,</span>
+        <span class="n">n_particles</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span><span class="n">n_iterations</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">progress_interval</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+    <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span><span class="n">xd</span><span class="p">,</span><span class="s1">&#39;y&#39;</span><span class="p">:</span><span class="n">yd</span><span class="p">,</span><span class="s1">&#39;model&#39;</span><span class="p">:</span><span class="n">sim</span><span class="p">,</span><span class="s1">&#39;varname&#39;</span><span class="p">:</span><span class="n">varname</span><span class="p">,</span>
+        <span class="s1">&#39;parameters&#39;</span><span class="p">:</span><span class="n">parameters</span><span class="p">}</span>
+        
+    <span class="n">old_plots</span><span class="o">=</span><span class="p">[]</span>    
+    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">sim</span><span class="o">.</span><span class="n">components</span><span class="p">:</span>
+        <span class="n">old_plots</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">plot</span><span class="p">)</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">plot</span><span class="o">=</span><span class="kc">False</span>
+        
+    <span class="n">s</span><span class="o">=</span><span class="n">swarm</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span><span class="n">mse_from_sim</span><span class="p">,</span><span class="n">n_particles</span><span class="p">,</span><span class="n">extra</span><span class="p">)</span>
+
+
+    <span class="n">iterations</span><span class="o">=</span><span class="mi">0</span>
+    <span class="n">stop</span><span class="o">=</span><span class="kc">False</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="n">stop</span><span class="p">:</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">iterations</span><span class="o">%</span><span class="k">progress_interval</span>==0:
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;iterations&quot;</span><span class="p">,</span> <span class="n">iterations</span><span class="p">,</span><span class="s2">&quot; min fitness: &quot;</span><span class="p">,</span><span class="n">s</span><span class="o">.</span><span class="n">best_val</span><span class="p">,</span> <span class="s2">&quot; with vals &quot;</span><span class="p">,</span><span class="n">s</span><span class="o">.</span><span class="n">best</span><span class="p">)</span>
+                
+                <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+                    <span class="n">pylab</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+                    
+                    <span class="n">pylab</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xd</span><span class="p">,</span><span class="n">yd</span><span class="p">,</span><span class="s1">&#39;o-&#39;</span><span class="p">)</span>        
+                    
+                    <span class="n">params</span><span class="o">=</span><span class="n">s</span><span class="o">.</span><span class="n">best</span>
+                    <span class="n">y</span><span class="o">=</span><span class="n">model</span><span class="p">(</span><span class="n">params</span><span class="p">,</span><span class="n">xd</span><span class="p">,</span><span class="n">sim</span><span class="p">,</span><span class="n">varname</span><span class="p">,</span><span class="n">parameters</span><span class="p">)</span>
+
+                    <span class="n">pylab</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xd</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="s1">&#39;-&#39;</span><span class="p">,</span><span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+                    
+                    <span class="n">pylab</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+                    <span class="c1">#pylab.show()</span>
+            <span class="n">iterations</span><span class="o">+=</span><span class="mi">1</span>
+            <span class="k">if</span> <span class="n">n_iterations</span><span class="o">&gt;</span><span class="mi">0</span> <span class="ow">and</span> <span class="n">iterations</span><span class="o">&gt;=</span><span class="n">n_iterations</span><span class="p">:</span>
+                <span class="n">stop</span><span class="o">=</span><span class="kc">True</span>
+    <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="k">for</span> <span class="n">c</span><span class="p">,</span><span class="n">op</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">sim</span><span class="o">.</span><span class="n">components</span><span class="p">,</span><span class="n">old_plots</span><span class="p">):</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">plot</span><span class="o">=</span><span class="n">op</span>
+
+    
+    <span class="n">params</span><span class="o">=</span><span class="n">s</span><span class="o">.</span><span class="n">best</span>
+    <span class="n">params_dict</span><span class="o">=</span><span class="p">{}</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">parameters</span><span class="p">):</span>
+        <span class="n">params_dict</span><span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    
+    <span class="k">return</span> <span class="n">params_dict</span>
+
+      
+</pre></div>
+
+    </div>
 </div>
 </div>
 
@@ -106,8 +595,7 @@ $$E=mc^2 \times \sqrt{\frac{1}{1-v^2/c^2}}$$
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>make sure to include the parameter, or you'll get an error.</p>
-
+<h2 id="Some-tests">Some tests<a class="anchor-link" href="#Some-tests"> </a></h2>
 </div>
 </div>
 </div>
@@ -118,29 +606,15 @@ $$E=mc^2 \times \sqrt{\frac{1}{1-v^2/c^2}}$$
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">say_hello</span><span class="p">()</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">myfunc</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">p</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">t</span><span class="o">&lt;</span><span class="mi">5</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">2</span><span class="o">*</span><span class="n">p</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">p</span><span class="o">/</span><span class="mf">5000.0</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="o">-.</span><span class="mi">3</span><span class="o">*</span><span class="n">p</span>
+  
 </pre></div>
 
     </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-<div class="output_area">
-
-<div class="output_subarea output_text output_error">
-<pre>
-<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
-<span class="ansi-red-fg">TypeError</span>                                 Traceback (most recent call last)
-<span class="ansi-green-fg">&lt;ipython-input-4-faa5fc24272a&gt;</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span><span class="ansi-blue-fg">()</span>
-<span class="ansi-green-fg">----&gt; 1</span><span class="ansi-red-fg"> </span>say_hello<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">)</span>
-
-<span class="ansi-red-fg">TypeError</span>: say_hello() missing 1 required positional argument: &#39;to&#39;</pre>
-</div>
-</div>
-
 </div>
 </div>
 
@@ -154,7 +628,57 @@ $$E=mc^2 \times \sqrt{\frac{1}{1-v^2/c^2}}$$
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="k">assert</span> <span class="n">say_hello</span><span class="p">(</span><span class="s2">&quot;Jeremy&quot;</span><span class="p">)</span><span class="o">==</span><span class="s2">&quot;Hello Jeremy!&quot;</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">test1</span><span class="p">():</span>
+    <span class="n">sim</span><span class="o">=</span><span class="n">Simulation</span><span class="p">()</span>
+    <span class="n">sim</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;p&#39;=a*p*(1-p/K)&quot;</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="n">plot</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">sim</span><span class="o">.</span><span class="n">params</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span><span class="n">K</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+    
+    <span class="n">sim</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">50</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">test2</span><span class="p">():</span>
+    <span class="n">sim</span><span class="o">=</span><span class="n">Simulation</span><span class="p">()</span>
+    <span class="n">sim</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;x=a*x*(1-x)&quot;</span><span class="p">,</span><span class="mf">0.11</span><span class="p">,</span><span class="n">plot</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">sim</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;y=a*y*(1-y)&quot;</span><span class="p">,</span><span class="mf">0.12</span><span class="p">,</span><span class="n">plot</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">sim</span><span class="o">.</span><span class="n">params</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mf">3.5</span><span class="p">)</span>
+    
+    <span class="n">sim</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">50</span><span class="p">,</span><span class="n">discrete</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    
+<span class="k">def</span> <span class="nf">test3</span><span class="p">():</span>
+    <span class="n">sim</span><span class="o">=</span><span class="n">Simulation</span><span class="p">(</span><span class="s1">&#39;map&#39;</span><span class="p">)</span>
+    <span class="n">sim</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;x=a*x*(1-x)&quot;</span><span class="p">,</span><span class="mf">0.11</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">linspace</span><span class="p">(</span><span class="o">.</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">200</span><span class="p">):</span>
+        <span class="n">sim</span><span class="o">.</span><span class="n">params</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="n">a</span><span class="p">)</span>
+        <span class="n">sim</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1000</span><span class="p">)</span>
+    
+        <span class="n">x</span><span class="o">=</span><span class="n">sim</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">100</span><span class="p">:]</span>
+        
+        <span class="n">plot</span><span class="p">(</span><span class="n">a</span><span class="o">*</span><span class="n">ones</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span><span class="n">x</span><span class="p">,</span><span class="s1">&#39;k.&#39;</span><span class="p">)</span>
+        
+    <span class="c1">#show()</span>
+
+<span class="k">def</span> <span class="nf">test4</span><span class="p">():</span>
+    <span class="n">sim</span><span class="o">=</span><span class="n">Simulation</span><span class="p">()</span>
+    <span class="n">sim</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;growth_rate=a*(1-p/K)&quot;</span><span class="p">,</span><span class="n">plot</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">sim</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;p&#39;=growth_rate*p&quot;</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="n">plot</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">sim</span><span class="o">.</span><span class="n">params</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span><span class="n">K</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+    
+    <span class="n">sim</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">50</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">test_repeat</span><span class="p">():</span>  <span class="c1"># doesn&#39;t work yet</span>
+    <span class="n">sim</span><span class="o">=</span><span class="n">Simulation</span><span class="p">()</span>
+    <span class="n">sim</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;growth_rate=a*(1-p/K)&quot;</span><span class="p">)</span>
+    <span class="n">sim</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;p&#39;=growth_rate*p&quot;</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span>
+    <span class="n">sim</span><span class="o">.</span><span class="n">params</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span><span class="n">K</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+
+    <span class="n">sim</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">50</span><span class="p">,</span><span class="n">a</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">])</span>
+
+<span class="k">def</span> <span class="nf">test_higher_order</span><span class="p">():</span>
+    <span class="n">sim</span><span class="o">=</span><span class="n">Simulation</span><span class="p">()</span>
+    <span class="n">sim</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;x&#39;&#39;=-k*x/m -b*x&#39;&quot;</span><span class="p">,[</span><span class="mi">10</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="n">plot</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">sim</span><span class="o">.</span><span class="n">params</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span><span class="n">m</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span><span class="n">b</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+ 
+    <span class="n">sim</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">20</span><span class="p">)</span>
 </pre></div>
 
     </div>

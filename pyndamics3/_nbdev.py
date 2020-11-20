@@ -2,7 +2,20 @@
 
 __all__ = ["index", "modules", "custom_doc_links", "git_url"]
 
-index = {"say_hello": "00_core.ipynb"}
+index = {"mapsolve": "00_core.ipynb",
+         "euler": "00_core.ipynb",
+         "rk2": "00_core.ipynb",
+         "rk4": "00_core.ipynb",
+         "rkwrapper": "00_core.ipynb",
+         "rk45": "00_core.ipynb",
+         "simfunc": "00_core.ipynb",
+         "phase_plot": "00_core.ipynb",
+         "vector_field": "00_core.ipynb",
+         "Component": "00_core.ipynb",
+         "Simulation": "00_core.ipynb",
+         "repeat": "00_core.ipynb",
+         "model": "00_core.ipynb",
+         "mse_from_sim": "00_core.ipynb"}
 
 modules = ["core.py"]
 
