@@ -15,7 +15,10 @@ index = {"mapsolve": "00_core.ipynb",
          "Simulation": "00_core.ipynb",
          "repeat": "00_core.ipynb",
          "model": "00_core.ipynb",
-         "mse_from_sim": "00_core.ipynb"}
+         "mse_from_sim": "00_core.ipynb",
+         "particle": "00_core.ipynb",
+         "swarm": "00_core.ipynb",
+         "pso_fit_sim": "00_core.ipynb"}
 
 modules = ["core.py"]
 

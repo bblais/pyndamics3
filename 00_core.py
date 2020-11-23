@@ -11,14 +11,14 @@
 # 
 # > The main simulation functions used for adding, running, and visualizing ODEs
 
-# In[1]:
+# In[2]:
 
 
 #hide
 from nbdev.showdoc import *
 
 
-# In[ ]:
+# In[3]:
 
 
 #hide
@@ -45,7 +45,7 @@ import os
 import sys
 
 
-# In[ ]:
+# In[4]:
 
 
 #hide
@@ -80,7 +80,7 @@ devnull = open(os.devnull, 'w')
     
 
 
-# In[ ]:
+# In[5]:
 
 
 #hide
@@ -99,10 +99,41 @@ def from_values(var,*args):
     
     return interp(var,x,y)
 
+def array_wrap(f):
+    # allow a function to be written for float values, but be handed array
+    # values and return an array
+    
+    def what(*args,**kw):
+        try:
+            val=f(*args,**kw)
+        except ValueError:  # array treated as float
+            for a in args:
+                if isinstance(a,ndarray):
+                    L=len(a)
+                    break
+            val=[]
+            for i in range(L):
+                newargs=[]
+                for a in args:
+                    if isinstance(a,ndarray):
+                        newargs.append(a[i])
+                    else:
+                        newargs.append(a)
+                newargs=tuple(newargs)
+                
+                val.append(f(*newargs,**kw))
+            val=array(val)
+#        except TypeError: # float treated as array
+        
+        return val
+        
+    return what
+
+
 
 # Supporting functions
 
-# In[ ]:
+# In[6]:
 
 
 #export
@@ -284,7 +315,7 @@ def simfunc(_vec,t,_sim):
     return _diff
 
 
-# In[ ]:
+# In[7]:
 
 
 #export
@@ -371,7 +402,7 @@ def vector_field(sim,rescale=False,**kwargs):
     
 
 
-# In[ ]:
+# In[8]:
 
 
 #export
@@ -458,7 +489,7 @@ class Component(object):
   
 
 
-# In[ ]:
+# In[9]:
 
 
 #hide
@@ -477,7 +508,7 @@ numpy_functions=(sin,cos,exp,tan,abs,floor,ceil,radians,degrees,
 
 # # This is the primary class to use
 
-# In[ ]:
+# In[10]:
 
 
 # export
@@ -1262,7 +1293,7 @@ class Simulation(object):
 
 # ## Some useful functions
 
-# In[ ]:
+# In[11]:
 
 
 #export
@@ -1328,9 +1359,10 @@ def mse_from_sim(params,extra):
 
 
 
-# In[ ]:
+# In[12]:
 
 
+#export
 class particle(object):
 
     def __init__(self,parameters,fitness_function,extra=None):
@@ -1478,7 +1510,7 @@ def pso_fit_sim(varname,xd,yd,sim,parameters,
 
 # ## Some tests
 
-# In[7]:
+# In[13]:
 
 
 def myfunc(t,p):
@@ -1489,7 +1521,7 @@ def myfunc(t,p):
   
 
 
-# In[ ]:
+# In[14]:
 
 
 def test1():
@@ -1543,4 +1575,20 @@ def test_higher_order():
     sim.params(k=1.0,m=1.0,b=0.5)
  
     sim.run(0,20)
+
+
+# In[15]:
+
+
+sim=Simulation()
+sim.add("p'=a*p*(1-p/K)",100,plot=True)
+sim.params(a=1.5,K=300)
+
+sim.run(0,50)
+
+
+# In[ ]:
+
+
+
 
