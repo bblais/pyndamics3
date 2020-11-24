@@ -4,6 +4,9 @@ __all__ = ["index", "modules", "custom_doc_links", "git_url"]
 
 index = {"size": "00_core.ipynb",
          "family": "00_core.ipynb",
+         "copy_func": "00_core.ipynb",
+         "patch_to": "00_core.ipynb",
+         "patch": "00_core.ipynb",
          "InterpFunction": "00_core.ipynb",
          "RedirectStdStreams": "00_core.ipynb",
          "devnull": "00_core.ipynb",
@@ -52,13 +55,10 @@ index = {"size": "00_core.ipynb",
          "Cauchy": "01_mcmc.ipynb",
          "Beta": "01_mcmc.ipynb",
          "MCMCModel": "01_mcmc.ipynb",
-         "MCMCModelReg": "01_mcmc.ipynb",
-         "red": "02_testit.ipynb",
-         "cyan": "02_testit.ipynb"}
+         "MCMCModelReg": "01_mcmc.ipynb"}
 
 modules = ["core.py",
-           "mcmc.py",
-           "testit.py"]
+           "mcmc.py"]
 
 doc_url = "https://bblais.github.io/pyndamics3/"
 

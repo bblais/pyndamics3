@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[ ]:
 
 
 # default_exp core
@@ -11,14 +11,9 @@
 # 
 # > The main simulation functions used for adding, running, and visualizing ODEs
 
+# ## Preliminaries
+
 # In[2]:
-
-
-#hide
-from nbdev.showdoc import *
-
-
-# In[3]:
 
 
 #export
@@ -45,7 +40,40 @@ import os
 import sys
 
 
-# In[21]:
+# In[3]:
+
+
+#export
+import functools
+from types import FunctionType
+
+def copy_func(f):
+    "Copy a non-builtin function (NB `copy.copy` does not work for this)"
+    if not isinstance(f,FunctionType): return copy(f)
+    fn = FunctionType(f.__code__, f.__globals__, f.__name__, f.__defaults__, f.__closure__)
+    fn.__dict__.update(f.__dict__)
+    return fn
+
+def patch_to(cls, as_prop=False):
+    "Decorator: add `f` to `cls`"
+    if not isinstance(cls, (tuple,list)): cls=(cls,)
+    def _inner(f):
+        for c_ in cls:
+            nf = copy_func(f)
+            # `functools.update_wrapper` when passing patched function to `Pipeline`, so we do it manually
+            for o in functools.WRAPPER_ASSIGNMENTS: setattr(nf, o, getattr(f,o))
+            nf.__qualname__ = f"{c_.__name__}.{f.__name__}"
+            setattr(c_, f.__name__, property(nf) if as_prop else nf)
+        return f
+    return _inner
+
+def patch(f):
+    "Decorator: add `f` to the first parameter's class (based on f's type annotations)"
+    cls = next(iter(f.__annotations__.values()))
+    return patch_to(cls)(f)
+
+
+# In[4]:
 
 
 #export
@@ -80,7 +108,7 @@ class RedirectStdStreams(object):
 devnull = open(os.devnull, 'w')
 
 
-# In[4]:
+# In[5]:
 
 
 #export
@@ -129,9 +157,9 @@ def array_wrap(f):
     return what
 
 
-# Supporting functions
+# ## Supporting functions for solving ODE and MAPS
 
-# In[5]:
+# In[6]:
 
 
 #export
@@ -313,7 +341,7 @@ def simfunc(_vec,t,_sim):
     return _diff
 
 
-# In[6]:
+# In[7]:
 
 
 #export
@@ -400,7 +428,7 @@ def vector_field(sim,rescale=False,**kwargs):
     
 
 
-# In[7]:
+# In[8]:
 
 
 #export
@@ -487,7 +515,7 @@ class Component(object):
   
 
 
-# In[8]:
+# In[9]:
 
 
 #export
@@ -496,17 +524,11 @@ numpy_functions=(sin,cos,exp,tan,abs,floor,ceil,radians,degrees,
                          min,max,sqrt,log,log10,mean,median)
 
 
-# In[ ]:
-
-
-
-
-
 # ## Examples of Components
 
-# # This is the primary class to use
+# # The `Simulation` class is the primary one to use
 
-# In[9]:
+# In[10]:
 
 
 # export
@@ -643,32 +665,6 @@ class Simulation(object):
 
         return locals()['_simfunc']
          
-        
-    def inflow(self,cname,s):
-        
-        c=[x for x in self.components if x.name==cname]
-        
-        if not c:
-            raise ValueError('No component named "%s"' % cname)
-            
-        c[0].inflow(s)
-        
-    def outflow(self,cname,s):
-
-        c=[x for x in self.components if x.name==cname]
-
-        if not c:
-            raise ValueError('No component named "%s"' % cname)
-
-        c[0].outflow(s)
-
-    def stock(self,name,initial_value=0,
-                    min=None,max=None,
-                    plot=False,save=None):
-                    
-        c=Component(name+"'=",initial_value,min,max,plot,save)
-        self.components.append(c)
-        return c
         
         
     def equations(self):
@@ -1289,9 +1285,65 @@ class Simulation(object):
                 raise IndexError("Unknown Index %s" % str(y))
 
 
+# ## An alternate way of specifying the equations - stocks, inflows and outflows
+
+# In[11]:
+
+
+@patch
+def inflow(self:Simulation,cname,s):
+
+    c=[x for x in self.components if x.name==cname]
+
+    if not c:
+        raise ValueError('No component named "%s"' % cname)
+
+    c[0].inflow(s)
+
+@patch
+def outflow(self:Simulation,cname,s):
+
+    c=[x for x in self.components if x.name==cname]
+
+    if not c:
+        raise ValueError('No component named "%s"' % cname)
+
+    c[0].outflow(s)
+
+@patch
+def stock(self:Simulation,name,initial_value=0,
+                min=None,max=None,
+                plot=False,save=None):
+
+    c=Component(name+"'=",initial_value,min,max,plot,save)
+    self.components.append(c)
+    return c
+
+
+
+# In[37]:
+
+
+sim=Simulation()
+sim.add("y'=a - b*y",100)
+sim.params(a=10,b=2)
+print(sim.equations())
+
+
+# In[39]:
+
+
+sim=Simulation()
+sim.stock("y",100)
+sim.inflow('y','a')
+sim.outflow('y','b*y')
+sim.params(a=10,b=2)
+print(sim.equations())
+
+
 # ## Some useful functions
 
-# In[10]:
+# In[13]:
 
 
 #export
@@ -1357,7 +1409,7 @@ def mse_from_sim(params,extra):
 
 
 
-# In[11]:
+# In[14]:
 
 
 #export
@@ -1506,72 +1558,11 @@ def pso_fit_sim(varname,xd,yd,sim,parameters,
       
 
 
-# ## Some Examples
-
-# In[12]:
-
-
-def myfunc(t,p):
-    if t<5:
-        return 2*p*(1-p/5000.0)
-    else:
-        return -.3*p
-  
-
-
-# In[13]:
-
-
-
-def test2():
-    sim=Simulation()
-    sim.add("x=a*x*(1-x)",0.11,plot=1)
-    sim.add("y=a*y*(1-y)",0.12,plot=1)
-    sim.params(a=3.5)
-    
-    sim.run(0,50,discrete=True)
-    
-def test3():
-    sim=Simulation('map')
-    sim.add("x=a*x*(1-x)",0.11)
-
-    for a in linspace(.1,4,200):
-        sim.params(a=a)
-        sim.run(0,1000)
-    
-        x=sim['x'][-100:]
-        
-        plot(a*ones(x.shape),x,'k.')
-        
-    #show()
-
-def test4():
-    sim=Simulation()
-    sim.add("growth_rate=a*(1-p/K)",plot=True)
-    sim.add("p'=growth_rate*p",100,plot=True)
-    sim.params(a=1.5,K=300)
-    
-    sim.run(0,50)
-
-def test_repeat():  # doesn't work yet
-    sim=Simulation()
-    sim.add("growth_rate=a*(1-p/K)")
-    sim.add("p'=growth_rate*p",100)
-    sim.params(a=1.5,K=300)
-
-    sim.repeat(0,50,a=[1,2,3,4])
-
-def test_higher_order():
-    sim=Simulation()
-    sim.add("x''=-k*x/m -b*x'",[10,0],plot=True)
-    sim.params(k=1.0,m=1.0,b=0.5)
- 
-    sim.run(0,20)
-
+# # Some Examples
 
 # ## Logistic
 
-# In[14]:
+# In[17]:
 
 
 sim=Simulation()
@@ -1581,7 +1572,7 @@ sim.params(a=1.5,K=300)
 sim.run(0,50)
 
 
-# In[15]:
+# In[18]:
 
 
 sim=Simulation()
@@ -1611,7 +1602,7 @@ for a in linspace(.1,4,600):
 
 # ## Repeat
 
-# In[38]:
+# In[20]:
 
 
 sim=Simulation()
@@ -1626,6 +1617,24 @@ t=sim['t']
 for res in result:
     p=res['p']
     plot(t,p)
+
+
+# ## Higher Order
+
+# In[21]:
+
+
+sim=Simulation()
+sim.add("x''=-k*x/m -b*x'",[10,0],plot=True)
+sim.params(k=1.0,m=1.0,b=0.5)
+
+sim.run(0,20)
+
+
+# In[27]:
+
+
+phase_plot(sim,"x","x_p_")
 
 
 # In[ ]:

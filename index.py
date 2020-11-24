@@ -1,14 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[2]:
-
-
-#hide
-from pyndamics3.core import *
-from pyndamics3.mcmc import MCMCModel
-
-
 # # Pyndamics3
 # 
 # > An Update of the Python Numerical Dynamics library pyndamics
@@ -23,13 +15,13 @@ from pyndamics3.mcmc import MCMCModel
 
 # Some simple examples.
 
-# In[4]:
+# In[2]:
 
 
-from pyndamics3.core import Simulation
+from pyndamics3 import Simulation
 
 
-# In[5]:
+# In[3]:
 
 
 sim=Simulation()

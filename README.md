@@ -13,7 +13,7 @@ This file will become your README and also the index of your documentation.
 Some simple examples.
 
 ```python
-from pyndamics3.core import Simulation
+from pyndamics3 import Simulation
 ```
 
 ```python
