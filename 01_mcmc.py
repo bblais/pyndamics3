@@ -7,7 +7,7 @@
 # default_exp mcmc
 
 
-# # MCMC (useing emcee package)
+# # MCMC (using emcee package)
 
 # In[2]:
 

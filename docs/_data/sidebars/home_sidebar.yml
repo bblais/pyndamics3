@@ -13,7 +13,7 @@ entries:
       title: Simulation
       url: core.html
     - output: web,pdf
-      title: MCMC (useing emcee package)
+      title: MCMC (using emcee package)
       url: mcmc.html
     output: web
     title: pyndamics3
