@@ -6,7 +6,7 @@
 
 #hide
 from pyndamics3.core import *
-from pyndamics import Simulation
+from pyndamics3.mcmc import MCMCModel
 
 
 # # Pyndamics3
@@ -23,7 +23,13 @@ from pyndamics import Simulation
 
 # Some simple examples.
 
-# In[3]:
+# In[4]:
+
+
+from pyndamics3.core import Simulation
+
+
+# In[5]:
 
 
 sim=Simulation()

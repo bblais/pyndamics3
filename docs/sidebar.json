@@ -1,6 +1,8 @@
 {
   "pyndamics3": {
     "Overview": "/",
-    "Simulation": "core.html"
+    "Simulation": "core.html",
+    "MCMC (useing emcee package)": "mcmc.html",
+    "Title": "testit.html"
   }
 }

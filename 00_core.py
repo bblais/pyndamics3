@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[ ]:
+# In[1]:
 
 
 # default_exp core
@@ -21,7 +21,7 @@ from nbdev.showdoc import *
 # In[3]:
 
 
-#hide
+#export
 from scipy.integrate import odeint,ode
 from pylab import *
 from numpy import *
@@ -45,10 +45,10 @@ import os
 import sys
 
 
-# In[4]:
+# In[21]:
 
 
-#hide
+#export
 class InterpFunction(object):
     
     def __init__(self,x,y,name):
@@ -60,6 +60,7 @@ class InterpFunction(object):
         from numpy import interp
         y=interp(x,self.x,self.y)
         return y
+
 
 class RedirectStdStreams(object):
     def __init__(self, stdout=None, stderr=None):
@@ -77,13 +78,12 @@ class RedirectStdStreams(object):
         sys.stderr = self.old_stderr
 
 devnull = open(os.devnull, 'w')
-    
 
 
-# In[5]:
+# In[4]:
 
 
-#hide
+#export
 def from_values(var,*args):
     if len(args)==1:        
         y=[v[1] for v in args[0]]
@@ -123,17 +123,15 @@ def array_wrap(f):
                 
                 val.append(f(*newargs,**kw))
             val=array(val)
-#        except TypeError: # float treated as array
         
         return val
         
     return what
 
 
-
 # Supporting functions
 
-# In[6]:
+# In[5]:
 
 
 #export
@@ -315,7 +313,7 @@ def simfunc(_vec,t,_sim):
     return _diff
 
 
-# In[7]:
+# In[6]:
 
 
 #export
@@ -402,7 +400,7 @@ def vector_field(sim,rescale=False,**kwargs):
     
 
 
-# In[8]:
+# In[7]:
 
 
 #export
@@ -489,10 +487,10 @@ class Component(object):
   
 
 
-# In[9]:
+# In[8]:
 
 
-#hide
+#export
 numpy_functions=(sin,cos,exp,tan,abs,floor,ceil,radians,degrees,
                          sinh,cosh,tanh,arccos,arcsin,arctan,arctan2,
                          min,max,sqrt,log,log10,mean,median)
@@ -508,7 +506,7 @@ numpy_functions=(sin,cos,exp,tan,abs,floor,ceil,radians,degrees,
 
 # # This is the primary class to use
 
-# In[10]:
+# In[9]:
 
 
 # export
@@ -1293,7 +1291,7 @@ class Simulation(object):
 
 # ## Some useful functions
 
-# In[11]:
+# In[10]:
 
 
 #export
@@ -1359,7 +1357,7 @@ def mse_from_sim(params,extra):
 
 
 
-# In[12]:
+# In[11]:
 
 
 #export
@@ -1508,9 +1506,9 @@ def pso_fit_sim(varname,xd,yd,sim,parameters,
       
 
 
-# ## Some tests
+# ## Some Examples
 
-# In[13]:
+# In[12]:
 
 
 def myfunc(t,p):
@@ -1521,15 +1519,9 @@ def myfunc(t,p):
   
 
 
-# In[14]:
+# In[13]:
 
 
-def test1():
-    sim=Simulation()
-    sim.add("p'=a*p*(1-p/K)",100,plot=True)
-    sim.params(a=1.5,K=300)
-    
-    sim.run(0,50)
 
 def test2():
     sim=Simulation()
@@ -1577,7 +1569,9 @@ def test_higher_order():
     sim.run(0,20)
 
 
-# In[15]:
+# ## Logistic
+
+# In[14]:
 
 
 sim=Simulation()
@@ -1585,6 +1579,53 @@ sim.add("p'=a*p*(1-p/K)",100,plot=True)
 sim.params(a=1.5,K=300)
 
 sim.run(0,50)
+
+
+# In[15]:
+
+
+sim=Simulation()
+sim.add("x=a*x*(1-x)",0.11,plot=1)
+sim.add("y=a*y*(1-y)",0.12,plot=1)
+sim.params(a=3.5)
+
+sim.run(0,50,discrete=True)
+
+
+# ## Map
+
+# In[19]:
+
+
+sim=Simulation('map')
+sim.add("x=a*x*(1-x)",0.11)
+figure(figsize=(12,8))
+for a in linspace(.1,4,600):
+    sim.params(a=a)
+    sim.run(0,1000)
+
+    x=sim['x'][-100:]
+
+    plot(a*ones(x.shape),x,'k.',markersize=1)
+
+
+# ## Repeat
+
+# In[38]:
+
+
+sim=Simulation()
+sim.add("growth_rate=a*(1-p/K)")
+sim.add("p'=growth_rate*p",100)
+sim.params(a=1.5,K=300)
+
+
+result=sim.repeat(0,10,a=[1,2,3,4])
+t=sim['t']
+
+for res in result:
+    p=res['p']
+    plot(t,p)
 
 
 # In[ ]:

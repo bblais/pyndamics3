@@ -13,6 +13,10 @@ This file will become your README and also the index of your documentation.
 Some simple examples.
 
 ```python
+from pyndamics3.core import Simulation
+```
+
+```python
 sim=Simulation()
 sim.add("p'=a*p*(1-p/K)",1,plot=True)
 sim.params(a=1,K=50)
@@ -20,7 +24,7 @@ sim.run(50)
 ```
 
 
-![png](docs/images/output_5_0.png)
+![png](docs/images/output_6_0.png)
 
 
 
