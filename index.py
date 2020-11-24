@@ -15,13 +15,13 @@
 
 # Some simple examples.
 
-# In[2]:
+# In[1]:
 
 
 from pyndamics3 import Simulation
 
 
-# In[3]:
+# In[2]:
 
 
 sim=Simulation()
