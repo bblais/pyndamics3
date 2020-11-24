@@ -54,6 +54,7 @@ index = {"size": "00_core.ipynb",
          "LogNormal": "01_mcmc.ipynb",
          "Cauchy": "01_mcmc.ipynb",
          "Beta": "01_mcmc.ipynb",
+         "lnprior_function": "01_mcmc.ipynb",
          "MCMCModel": "01_mcmc.ipynb",
          "MCMCModelReg": "01_mcmc.ipynb"}
 

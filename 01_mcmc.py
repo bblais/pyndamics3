@@ -1,25 +1,18 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[ ]:
+# In[1]:
 
 
 # default_exp mcmc
 
 
-# In[ ]:
-
-
-#hide
-from nbdev.showdoc import *
-
-
 # # MCMC (useing emcee package)
 
-# In[1]:
+# In[2]:
 
 
-#hide
+#export
 import emcee
 from scipy.stats import distributions as D
 import numpy as np
@@ -31,7 +24,7 @@ from scipy.special import logsumexp
 
 # ## Useful Functions
 
-# In[ ]:
+# In[3]:
 
 
 #export
@@ -184,7 +177,7 @@ def time2str(tm):
 
 # ## Distributions -- Defined for Speed
 
-# In[2]:
+# In[4]:
 
 
 #export
@@ -271,7 +264,7 @@ def loglognormalpdf(x,mn,sig):
 
 # ## Distribution Classes
 
-# In[4]:
+# In[5]:
 
 
 #export
@@ -417,10 +410,10 @@ class Beta(object):
 
 # ## Emcee functions
 
-# In[5]:
+# In[6]:
 
 
-#hide
+#export
 def lnprior_function(model):
     def _lnprior(x):
         return model.lnprior(x)
@@ -429,7 +422,7 @@ def lnprior_function(model):
 
 
 
-# In[6]:
+# In[7]:
 
 
 #export
@@ -970,7 +963,7 @@ class MCMCModel(object):
  
 
 
-# In[7]:
+# In[8]:
 
 
 #export
@@ -1066,6 +1059,208 @@ class MCMCModelReg(MCMCModel):
 
         self.model_results=model_results
 
+
+
+# # A linear growth example
+# 
+# Data from [http://www.seattlecentral.edu/qelp/sets/009/009.html](http://www.seattlecentral.edu/qelp/sets/009/009.html)
+# 
+
+# In[10]:
+
+
+from pyndamics3 import Simulation
+
+
+# In[21]:
+
+
+t=np.array([7,14,21,28,35,42,49,56,63,70,77,84],float)
+h=np.array([17.93,36.36,67.76,98.10,131,169.5,205.5,228.3,247.1,250.5,253.8,254.5])
+
+py.plot(t,h,'-o')
+py.xlabel('Days')
+py.ylabel('Height [cm]')
+
+
+# ## Run an initial (and bad) simulation
+
+# In[23]:
+
+
+sim=Simulation()
+sim.add("h'=a",1,plot=True)
+sim.add_data(t=t,h=h,plot=True)
+sim.params(a=1)
+sim.run(0,90)
+
+
+# ## Fitting $a$
+
+# In[27]:
+
+
+model=MCMCModel(sim,a=Uniform(-10,10))
+
+
+# In[28]:
+
+
+model.run_mcmc(500)
+model.plot_chains()
+
+
+# Although this looked converged, you might have situations where you want to repeat the mcmc-resample loop (i.e. resample parameters from the 95% CI of the current samples)
+
+# In[29]:
+
+
+model.run_mcmc(100,repeat=3)
+model.plot_chains()
+
+
+# In[30]:
+
+
+model.best_estimates()
+
+
+# In[31]:
+
+
+sim.run(0,90)
+
+
+# In[32]:
+
+
+model.plot_distributions()
+
+
+# ## Fitting with $a$ and the initial $h$
+
+# In[33]:
+
+
+model=MCMCModel(sim,
+                a=Uniform(-10,10),
+                initial_h=Uniform(0,180),
+                )
+
+
+# In[34]:
+
+
+model.run_mcmc(500,repeat=2)
+model.plot_chains()
+
+
+# In[35]:
+
+
+sim.run(0,90)
+
+
+# In[36]:
+
+
+model.plot_distributions()
+
+
+# In[37]:
+
+
+model.plot_many(0,90,'h')
+
+
+# # Logistic with the Same Data
+
+# In[38]:
+
+
+t=np.array([7,14,21,28,35,42,49,56,63,70,77,84],float)
+h=np.array([17.93,36.36,67.76,98.10,131,169.5,205.5,228.3,247.1,250.5,253.8,254.5])
+
+sim=Simulation()
+sim.add("h'=a*h*(1-h/K)",1,plot=True)
+sim.add_data(t=t,h=h,plot=True)
+sim.params(a=1,K=500)
+sim.run(0,90)
+
+
+# In[47]:
+
+
+model=MCMCModel(sim,
+                a=Uniform(.001,5),
+                K=Uniform(100,500),
+                initial_h=Uniform(0,100),
+                )
+
+
+# In[48]:
+
+
+model.run_mcmc(500,repeat=3)
+model.plot_chains()
+
+
+# In[49]:
+
+
+model.best_estimates()
+
+
+# In[50]:
+
+
+sim.run(0,90)
+
+
+# In[51]:
+
+
+model.plot_distributions()
+
+
+# In[52]:
+
+
+model.triangle_plot()
+
+
+# In[53]:
+
+
+model.plot_many(0,90,'h')
+
+
+# In[54]:
+
+
+sim.noplots=True  # turn off the simulation plots
+saved_h=[]
+for i in range(500):
+    model.draw()
+    sim.run(0,150)
+    py.plot(sim.t,sim.h,'g-',alpha=.05)
+    saved_h.append(sim.h)
+sim.noplots=False  # gotta love a double-negative
+py.plot(t,h,'bo')  # plot the data
+saved_h=np.array(saved_h)
+
+
+# In[55]:
+
+
+med=np.percentile(saved_h,50,axis=0)
+lower=np.percentile(saved_h,2.5,axis=0)
+upper=np.percentile(saved_h,97.5,axis=0)
+py.plot(sim.t,med,'r-')
+py.plot(sim.t,lower,'r:')
+py.plot(sim.t,upper,'r:')
+
+py.plot(t,h,'bo')  # plot the data
 
 
 # In[ ]:

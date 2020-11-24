@@ -3,7 +3,16 @@
 __all__ = ['histogram', 'corner', 'timeit', 'time2str', 'greek', 'lognchoosek', 'loguniformpdf', 'logjeffreyspdf',
            'logexponpdf', 'logcauchypdf', 'loghalfcauchypdf', 'loghalfnormalpdf', 'lognormalpdf', 'logbetapdf',
            'loglognormalpdf', 'Normal', 'Exponential', 'Uniform', 'Jeffreys', 'HalfCauchy', 'HalfNormal', 'LogNormal',
-           'Cauchy', 'Beta', 'MCMCModel', 'MCMCModelReg']
+           'Cauchy', 'Beta', 'lnprior_function', 'MCMCModel', 'MCMCModelReg']
+
+# Cell
+import emcee
+from scipy.stats import distributions as D
+import numpy as np
+import pylab as py
+import matplotlib.pyplot as pl
+import scipy.optimize as op
+from scipy.special import logsumexp
 
 # Cell
 def histogram(y,bins=50,plot=True):
@@ -373,6 +382,15 @@ class Beta(object):
 
     def __str__(self):
         return "Beta(h=%g,N=%g)" % (self.h,self.N)
+
+
+# Cell
+def lnprior_function(model):
+    def _lnprior(x):
+        return model.lnprior(x)
+
+    return _lnprior
+
 
 
 # Cell
