@@ -1452,7 +1452,7 @@ class Storage(object):
         return vstack(self.arrays())
 
 
-# In[18]:
+# In[19]:
 
 
 y=1
@@ -1473,7 +1473,7 @@ x,y=S.arrays()  # returns an array representation of all those data points
 plot(x,y)
 
 
-# In[14]:
+# In[20]:
 
 
 x,y
