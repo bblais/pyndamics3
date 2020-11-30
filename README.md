@@ -16,6 +16,9 @@ Some simple examples.
 from pyndamics3 import Simulation
 ```
 
+    pyndamics3  version  0.0.2
+
+
 ```python
 sim=Simulation()
 sim.add("p'=a*p*(1-p/K)",1,plot=True)

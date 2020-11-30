@@ -2,8 +2,8 @@
 
 __all__ = ['size', 'family', 'copy_func', 'patch_to', 'patch', 'InterpFunction', 'RedirectStdStreams', 'devnull',
            'from_values', 'array_wrap', 'mapsolve', 'euler', 'rk2', 'rk4', 'rkwrapper', 'rk45', 'simfunc', 'phase_plot',
-           'vector_field', 'Component', 'numpy_functions', 'Simulation', 'repeat', 'model', 'mse_from_sim', 'particle',
-           'swarm', 'pso_fit_sim']
+           'vector_field', 'Component', 'numpy_functions', 'Simulation', 'repeat', 'model', 'mse_from_sim', 'Storage',
+           'particle', 'swarm', 'pso_fit_sim']
 
 # Cell
 from scipy.integrate import odeint,ode
@@ -1302,6 +1302,43 @@ def mse_from_sim(params,extra):
     return mse
 
 
+
+# Cell
+class Storage(object):
+    def __init__(self):
+        self.data=[]
+
+    def __add__(self,other):
+        s=Storage()
+        s+=other
+        return s
+
+    def __iadd__(self,other):
+        self.append(*other)
+        return self
+
+    def append(self,*args):
+        if not self.data:
+            for arg in args:
+                self.data.append([arg])
+
+        else:
+            for d,a in zip(self.data,args):
+                d.append(a)
+
+    def arrays(self):
+        for i in range(len(self.data)):
+            self.data[i]=array(self.data[i])
+
+        ret=tuple(self.data)
+        if len(ret)==1:
+            return ret[0]
+        else:
+            return ret
+
+    def __array__(self):
+        from numpy import vstack
+        return vstack(self.arrays())
 
 # Cell
 class particle(object):
