@@ -421,7 +421,6 @@ def lnprior_function(model):
     return _lnprior
 
 
-
 # In[7]:
 
 
@@ -1058,7 +1057,6 @@ class MCMCModelReg(MCMCModel):
             print(model)
 
         self.model_results=model_results
-
 
 
 # # A linear growth example

@@ -3,6 +3,14 @@
 
 # # Introduction to MCMC on Dynamical Systems Using Zombies
 
+# In[ ]:
+
+
+#hide
+#skip
+get_ipython().system(' [ -e /content ] && pip install -Uqq pyndamics3 emcee # upgrade pyndamics3 on colab')
+
+
 # In[1]:
 
 

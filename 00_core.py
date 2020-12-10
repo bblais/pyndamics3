@@ -1320,7 +1320,6 @@ def stock(self:Simulation,name,initial_value=0,
     return c
 
 
-
 # In[37]:
 
 
@@ -1406,7 +1405,6 @@ def mse_from_sim(params,extra):
     mse=((array(yd)-y)**2).mean()
             
     return mse     
-
 
 
 # ### This is my solution to an age-old problem of storing data in loops
