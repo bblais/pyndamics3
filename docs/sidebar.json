@@ -1,7 +1,8 @@
 {
   "pyndamics3": {
     "Overview": "/",
-    "Simulation": "core.html",
-    "MCMC (using emcee package)": "mcmc.html"
+    "Simulation": "/core",
+    "MCMC (using emcee package)": "/mcmc",
+    "Introduction to MCMC on Dynamical Systems Using Zombies": "/tutorial.zombies"
   }
 }
