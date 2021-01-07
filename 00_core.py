@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[2]:
 
 
 # default_exp core
@@ -13,7 +13,7 @@
 
 # ## Preliminaries
 
-# In[2]:
+# In[3]:
 
 
 #export
@@ -40,7 +40,7 @@ import os
 import sys
 
 
-# In[3]:
+# In[4]:
 
 
 #export
@@ -73,7 +73,7 @@ def patch(f):
     return patch_to(cls)(f)
 
 
-# In[4]:
+# In[5]:
 
 
 #export
@@ -108,7 +108,7 @@ class RedirectStdStreams(object):
 devnull = open(os.devnull, 'w')
 
 
-# In[5]:
+# In[6]:
 
 
 #export
@@ -159,7 +159,7 @@ def array_wrap(f):
 
 # ## Supporting functions for solving ODE and MAPS
 
-# In[6]:
+# In[7]:
 
 
 #export
@@ -341,7 +341,7 @@ def simfunc(_vec,t,_sim):
     return _diff
 
 
-# In[7]:
+# In[8]:
 
 
 #export
@@ -428,7 +428,7 @@ def vector_field(sim,rescale=False,**kwargs):
     
 
 
-# In[8]:
+# In[9]:
 
 
 #export
@@ -515,7 +515,7 @@ class Component(object):
   
 
 
-# In[9]:
+# In[10]:
 
 
 #export
@@ -528,7 +528,7 @@ numpy_functions=(sin,cos,exp,tan,abs,floor,ceil,radians,degrees,
 
 # # The `Simulation` class is the primary one to use
 
-# In[10]:
+# In[11]:
 
 
 # export
@@ -1287,7 +1287,7 @@ class Simulation(object):
 
 # ## An alternate way of specifying the equations - stocks, inflows and outflows
 
-# In[11]:
+# In[12]:
 
 
 @patch
@@ -1320,7 +1320,7 @@ def stock(self:Simulation,name,initial_value=0,
     return c
 
 
-# In[37]:
+# In[13]:
 
 
 sim=Simulation()
@@ -1329,7 +1329,7 @@ sim.params(a=10,b=2)
 print(sim.equations())
 
 
-# In[39]:
+# In[14]:
 
 
 sim=Simulation()
@@ -1342,7 +1342,7 @@ print(sim.equations())
 
 # ## Some useful functions
 
-# In[13]:
+# In[15]:
 
 
 #export
@@ -1409,7 +1409,7 @@ def mse_from_sim(params,extra):
 
 # ### This is my solution to an age-old problem of storing data in loops
 
-# In[11]:
+# In[16]:
 
 
 #export
@@ -1450,7 +1450,7 @@ class Storage(object):
         return vstack(self.arrays())
 
 
-# In[19]:
+# In[17]:
 
 
 y=1
@@ -1471,13 +1471,13 @@ x,y=S.arrays()  # returns an array representation of all those data points
 plot(x,y)
 
 
-# In[20]:
+# In[18]:
 
 
 x,y
 
 
-# In[14]:
+# In[19]:
 
 
 #export
@@ -1630,7 +1630,7 @@ def pso_fit_sim(varname,xd,yd,sim,parameters,
 
 # ## Logistic
 
-# In[17]:
+# In[20]:
 
 
 sim=Simulation()
@@ -1703,6 +1703,148 @@ sim.run(0,20)
 
 
 phase_plot(sim,"x","x_p_")
+
+
+# ## Exploring parameters
+
+# In[44]:
+
+
+#export
+def explore_parameters(S_orig,t_min,t_max=None,**kwargs):
+    keys=list(kwargs.keys())
+    num_times=len(kwargs[keys[0]])
+        
+    all_sims=[]
+    for i in range(num_times):
+        S=S_orig.copy()
+        params=S.myparams  # parameter dictionary
+    
+        
+        # update the parameters
+        updated_params={}
+        for k in keys:
+            updated_params[k]=kwargs[k][i]
+        params.update(updated_params)
+        S.params(**params)
+        
+        S.noplots=True
+        S.run(t_min,t_max)
+        S.noplots=False
+        all_sims.append(S)
+        
+    figures=[]
+        
+    for si,S in enumerate(all_sims):
+        
+        label_text=''
+        for k in keys:
+            label_text+='%s=%g ' % (k,kwargs[k][si])
+        label_text=":"+label_text.strip()
+        
+        count=1
+        legends={1:[]}
+        max_figure=0
+        drawit=False  # flag to call draw()
+        
+        t=S.t
+        
+        for c in S.components+S.assignments:
+            
+            if not c.save is None:
+                with open(c.save,'wt') as fid: 
+                    for tt,vv in zip(t,c.values):
+                        fid.write('%f,%f\n' % (tt,vv))
+            
+            
+            if c.plot:
+                
+                if c.plot is True:
+                    fig=figure(count,figsize=S.figsize)
+                    if fig not in figures:
+                        figures.append(fig)
+                        
+                    max_figure=count
+                    clf()
+                    
+                    legends[count].append(c.label+label_text)
+                    count+=1
+                    legends[count]=[]
+                else:
+                    fig=figure(c.plot,figsize=S.figsize)
+                    if fig not in figures:
+                        figures.append(fig)
+                    
+                    if c.plot>max_figure:
+                        max_figure=c.plot
+                    
+                    if c.plot>=count:
+                        clf()
+                        count+=1
+                        legends[count]=[]
+                    legends[c.plot].append(c.label+label_text)
+                    
+
+                if isinstance(c.values,float):
+                    c.values=c.values*ones(t.shape)
+                h=plot(t,c.values,S.plot_style,label=c.label+label_text)
+                color=h[0].get_color()
+                
+                if c.data and si==0:  # only plot the data on the first one
+                    if c.data['plot']:
+                        plot(c.data['t'],c.data['value'],'s',color=color)
+                        legends[c.plot].append(c.label+" data")
+                
+                
+                pylab.xlabel(xlabel)
+                pylab.grid(True)
+                
+                ylabel(c.label)
+                gca().yaxis.set_major_formatter(ScalarFormatter(useOffset=False))
+
+                drawit=True
+
+        if count>1:
+            
+            for l in legends:
+                if len(legends[l])>1:
+                    figure(l,figsize=S.figsize)
+                    legend(legends[l],loc='best')
+                    ylabel('Value')
+              
+            if S.show:
+                show()
+            
+        if drawit:
+            draw()
+        
+        
+        
+    return all_sims
+        
+
+
+# In[45]:
+
+
+sim=Simulation()
+sim.add("p'=a*p*(1-p/K)",100,plot=True)
+sim.add("K'=(50-K)/Kt",300,plot=False)
+sim.params(a=1.5,Kt=30)
+
+sim.run(0,50)
+
+
+# In[46]:
+
+
+results=explore_parameters(sim,50,Kt=linspace(10,100,10))
+
+
+# In[36]:
+
+
+results
 
 
 # In[ ]:

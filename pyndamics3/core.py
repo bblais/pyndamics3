@@ -3,7 +3,7 @@
 __all__ = ['size', 'family', 'copy_func', 'patch_to', 'patch', 'InterpFunction', 'RedirectStdStreams', 'devnull',
            'from_values', 'array_wrap', 'mapsolve', 'euler', 'rk2', 'rk4', 'rkwrapper', 'rk45', 'simfunc', 'phase_plot',
            'vector_field', 'Component', 'numpy_functions', 'Simulation', 'repeat', 'model', 'mse_from_sim', 'Storage',
-           'particle', 'swarm', 'pso_fit_sim']
+           'particle', 'swarm', 'pso_fit_sim', 'explore_parameters']
 
 # Cell
 from scipy.integrate import odeint,ode
@@ -1482,4 +1482,118 @@ def pso_fit_sim(varname,xd,yd,sim,parameters,
         params_dict[p[0]]=params[i]
 
     return params_dict
+
+
+
+# Cell
+def explore_parameters(S_orig,t_min,t_max=None,**kwargs):
+    keys=list(kwargs.keys())
+    num_times=len(kwargs[keys[0]])
+
+    all_sims=[]
+    for i in range(num_times):
+        S=S_orig.copy()
+        params=S.myparams  # parameter dictionary
+
+
+        # update the parameters
+        updated_params={}
+        for k in keys:
+            updated_params[k]=kwargs[k][i]
+        params.update(updated_params)
+        S.params(**params)
+
+        S.noplots=True
+        S.run(t_min,t_max)
+        S.noplots=False
+        all_sims.append(S)
+
+    figures=[]
+
+    for si,S in enumerate(all_sims):
+
+        label_text=''
+        for k in keys:
+            label_text+='%s=%g ' % (k,kwargs[k][si])
+        label_text=":"+label_text.strip()
+
+        count=1
+        legends={1:[]}
+        max_figure=0
+        drawit=False  # flag to call draw()
+
+        t=S.t
+
+        for c in S.components+S.assignments:
+
+            if not c.save is None:
+                with open(c.save,'wt') as fid:
+                    for tt,vv in zip(t,c.values):
+                        fid.write('%f,%f\n' % (tt,vv))
+
+
+            if c.plot:
+
+                if c.plot is True:
+                    fig=figure(count,figsize=S.figsize)
+                    if fig not in figures:
+                        figures.append(fig)
+
+                    max_figure=count
+                    clf()
+
+                    legends[count].append(c.label+label_text)
+                    count+=1
+                    legends[count]=[]
+                else:
+                    fig=figure(c.plot,figsize=S.figsize)
+                    if fig not in figures:
+                        figures.append(fig)
+
+                    if c.plot>max_figure:
+                        max_figure=c.plot
+
+                    if c.plot>=count:
+                        clf()
+                        count+=1
+                        legends[count]=[]
+                    legends[c.plot].append(c.label+label_text)
+
+
+                if isinstance(c.values,float):
+                    c.values=c.values*ones(t.shape)
+                h=plot(t,c.values,S.plot_style,label=c.label+label_text)
+                color=h[0].get_color()
+
+                if c.data and si==0:  # only plot the data on the first one
+                    if c.data['plot']:
+                        plot(c.data['t'],c.data['value'],'s',color=color)
+                        legends[c.plot].append(c.label+" data")
+
+
+                pylab.xlabel(xlabel)
+                pylab.grid(True)
+
+                ylabel(c.label)
+                gca().yaxis.set_major_formatter(ScalarFormatter(useOffset=False))
+
+                drawit=True
+
+        if count>1:
+
+            for l in legends:
+                if len(legends[l])>1:
+                    figure(l,figsize=S.figsize)
+                    legend(legends[l],loc='best')
+                    ylabel('Value')
+
+            if S.show:
+                show()
+
+        if drawit:
+            draw()
+
+
+
+    return all_sims
 
