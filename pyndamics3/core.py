@@ -1486,114 +1486,72 @@ def pso_fit_sim(varname,xd,yd,sim,parameters,
 
 
 # Cell
-def explore_parameters(S_orig,t_min,t_max=None,**kwargs):
-    keys=list(kwargs.keys())
-    num_times=len(kwargs[keys[0]])
+def explore_parameters(sim,figsize=None,**kwargs):
 
-    all_sims=[]
-    for i in range(num_times):
-        S=S_orig.copy()
-        params=S.myparams  # parameter dictionary
+    if figsize is None:
+        figsize=sim.figsize
 
 
-        # update the parameters
+    cnames,cfigs=zip(*[(c.name,c.plot) for c in sim.components+sim.assignments])
+    max_int_fig=max(cfigs)
+
+    figs={}
+    vars={}
+
+    count=max_int_fig+1
+    for name,f in zip(cnames,cfigs):
+        if f is True:  # one more fig
+            figs[name]=count
+            count+=1
+        else:
+            figs[name]=f
+
+        if not figs[name] in vars:
+            vars[figs[name]]=[name]
+        else:
+            vars[figs[name]].append(name)
+
+    sim.noplots=True
+    parameter_names=list(kwargs.keys())
+
+    for pname in parameter_names:
+        kwargs[pname]=array(kwargs[pname]).ravel()
+
+    number_of_values=len(kwargs[parameter_names[0]])
+
+    for i in range(number_of_values):
+
         updated_params={}
-        for k in keys:
-            updated_params[k]=kwargs[k][i]
-        params.update(updated_params)
-        S.params(**params)
+        labels=[]
+        for pname in parameter_names:
+            updated_params[pname]=kwargs[pname][i]
+            labels.append("%s:%g" % (pname,updated_params[pname]))
 
-        S.noplots=True
-        S.run(t_min,t_max)
-        S.noplots=False
-        all_sims.append(S)
+        sim.params(**updated_params)
+        sim.run(sim.maximum_t)
 
-    figures=[]
+        for name in cnames:
+            if not figs[name]:
+                continue
 
-    for si,S in enumerate(all_sims):
+            t,v=sim.t,sim[name]
+            figure(figs[name],figsize=figsize)
+            plot(t,v,label=name+":"+",".join(labels))
 
-        label_text=''
-        for k in keys:
-            label_text+='%s=%g ' % (k,kwargs[k][si])
-        label_text=":"+label_text.strip()
-
-        count=1
-        legends={1:[]}
-        max_figure=0
-        drawit=False  # flag to call draw()
-
-        t=S.t
-
-        for c in S.components+S.assignments:
-
-            if not c.save is None:
-                with open(c.save,'wt') as fid:
-                    for tt,vv in zip(t,c.values):
-                        fid.write('%f,%f\n' % (tt,vv))
+            xlabel('time')
 
 
-            if c.plot:
+    for name in cnames:
+        if not figs[name]:
+            continue
+        figure(figs[name])
 
-                if c.plot is True:
-                    fig=figure(count,figsize=S.figsize)
-                    if fig not in figures:
-                        figures.append(fig)
-
-                    max_figure=count
-                    clf()
-
-                    legends[count].append(c.label+label_text)
-                    count+=1
-                    legends[count]=[]
-                else:
-                    fig=figure(c.plot,figsize=S.figsize)
-                    if fig not in figures:
-                        figures.append(fig)
-
-                    if c.plot>max_figure:
-                        max_figure=c.plot
-
-                    if c.plot>=count:
-                        clf()
-                        count+=1
-                        legends[count]=[]
-                    legends[c.plot].append(c.label+label_text)
+        if len(vars[figs[name]])==1:
+            ylabel(name)
+        else:
+            ylabel(",".join(vars[figs[name]]))
 
 
-                if isinstance(c.values,float):
-                    c.values=c.values*ones(t.shape)
-                h=plot(t,c.values,S.plot_style,label=c.label+label_text)
-                color=h[0].get_color()
+        legend()
 
-                if c.data and si==0:  # only plot the data on the first one
-                    if c.data['plot']:
-                        plot(c.data['t'],c.data['value'],'s',color=color)
-                        legends[c.plot].append(c.label+" data")
-
-
-                pylab.xlabel(xlabel)
-                pylab.grid(True)
-
-                ylabel(c.label)
-                gca().yaxis.set_major_formatter(ScalarFormatter(useOffset=False))
-
-                drawit=True
-
-        if count>1:
-
-            for l in legends:
-                if len(legends[l])>1:
-                    figure(l,figsize=S.figsize)
-                    legend(legends[l],loc='best')
-                    ylabel('Value')
-
-            if S.show:
-                show()
-
-        if drawit:
-            draw()
-
-
-
-    return all_sims
 

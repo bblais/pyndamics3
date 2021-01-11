@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[2]:
+# In[1]:
 
 
 # default_exp core
@@ -13,7 +13,7 @@
 
 # ## Preliminaries
 
-# In[3]:
+# In[2]:
 
 
 #export
@@ -40,7 +40,7 @@ import os
 import sys
 
 
-# In[4]:
+# In[3]:
 
 
 #export
@@ -73,7 +73,7 @@ def patch(f):
     return patch_to(cls)(f)
 
 
-# In[5]:
+# In[4]:
 
 
 #export
@@ -108,7 +108,7 @@ class RedirectStdStreams(object):
 devnull = open(os.devnull, 'w')
 
 
-# In[6]:
+# In[5]:
 
 
 #export
@@ -159,7 +159,7 @@ def array_wrap(f):
 
 # ## Supporting functions for solving ODE and MAPS
 
-# In[7]:
+# In[6]:
 
 
 #export
@@ -341,7 +341,7 @@ def simfunc(_vec,t,_sim):
     return _diff
 
 
-# In[8]:
+# In[7]:
 
 
 #export
@@ -428,7 +428,7 @@ def vector_field(sim,rescale=False,**kwargs):
     
 
 
-# In[9]:
+# In[8]:
 
 
 #export
@@ -515,7 +515,7 @@ class Component(object):
   
 
 
-# In[10]:
+# In[9]:
 
 
 #export
@@ -528,7 +528,7 @@ numpy_functions=(sin,cos,exp,tan,abs,floor,ceil,radians,degrees,
 
 # # The `Simulation` class is the primary one to use
 
-# In[11]:
+# In[10]:
 
 
 # export
@@ -1287,7 +1287,7 @@ class Simulation(object):
 
 # ## An alternate way of specifying the equations - stocks, inflows and outflows
 
-# In[12]:
+# In[11]:
 
 
 @patch
@@ -1320,7 +1320,7 @@ def stock(self:Simulation,name,initial_value=0,
     return c
 
 
-# In[13]:
+# In[12]:
 
 
 sim=Simulation()
@@ -1329,7 +1329,7 @@ sim.params(a=10,b=2)
 print(sim.equations())
 
 
-# In[14]:
+# In[13]:
 
 
 sim=Simulation()
@@ -1342,7 +1342,7 @@ print(sim.equations())
 
 # ## Some useful functions
 
-# In[15]:
+# In[14]:
 
 
 #export
@@ -1409,7 +1409,7 @@ def mse_from_sim(params,extra):
 
 # ### This is my solution to an age-old problem of storing data in loops
 
-# In[16]:
+# In[15]:
 
 
 #export
@@ -1630,7 +1630,7 @@ def pso_fit_sim(varname,xd,yd,sim,parameters,
 
 # ## Logistic
 
-# In[20]:
+# In[16]:
 
 
 sim=Simulation()
@@ -1707,124 +1707,81 @@ phase_plot(sim,"x","x_p_")
 
 # ## Exploring parameters
 
-# In[44]:
+# In[18]:
 
 
 #export
-def explore_parameters(S_orig,t_min,t_max=None,**kwargs):
-    keys=list(kwargs.keys())
-    num_times=len(kwargs[keys[0]])
-        
-    all_sims=[]
-    for i in range(num_times):
-        S=S_orig.copy()
-        params=S.myparams  # parameter dictionary
-    
-        
-        # update the parameters
+def explore_parameters(sim,figsize=None,**kwargs):
+
+    if figsize is None:
+        figsize=sim.figsize
+
+
+    cnames,cfigs=zip(*[(c.name,c.plot) for c in sim.components+sim.assignments])
+    max_int_fig=max(cfigs)
+
+    figs={}
+    vars={}
+
+    count=max_int_fig+1
+    for name,f in zip(cnames,cfigs):
+        if f is True:  # one more fig
+            figs[name]=count
+            count+=1
+        else:
+            figs[name]=f
+
+        if not figs[name] in vars:
+            vars[figs[name]]=[name]
+        else:
+            vars[figs[name]].append(name)
+
+    sim.noplots=True
+    parameter_names=list(kwargs.keys())
+
+    for pname in parameter_names:
+        kwargs[pname]=array(kwargs[pname]).ravel()
+
+    number_of_values=len(kwargs[parameter_names[0]])
+
+    for i in range(number_of_values):
+
         updated_params={}
-        for k in keys:
-            updated_params[k]=kwargs[k][i]
-        params.update(updated_params)
-        S.params(**params)
-        
-        S.noplots=True
-        S.run(t_min,t_max)
-        S.noplots=False
-        all_sims.append(S)
-        
-    figures=[]
-        
-    for si,S in enumerate(all_sims):
-        
-        label_text=''
-        for k in keys:
-            label_text+='%s=%g ' % (k,kwargs[k][si])
-        label_text=":"+label_text.strip()
-        
-        count=1
-        legends={1:[]}
-        max_figure=0
-        drawit=False  # flag to call draw()
-        
-        t=S.t
-        
-        for c in S.components+S.assignments:
-            
-            if not c.save is None:
-                with open(c.save,'wt') as fid: 
-                    for tt,vv in zip(t,c.values):
-                        fid.write('%f,%f\n' % (tt,vv))
-            
-            
-            if c.plot:
-                
-                if c.plot is True:
-                    fig=figure(count,figsize=S.figsize)
-                    if fig not in figures:
-                        figures.append(fig)
-                        
-                    max_figure=count
-                    clf()
-                    
-                    legends[count].append(c.label+label_text)
-                    count+=1
-                    legends[count]=[]
-                else:
-                    fig=figure(c.plot,figsize=S.figsize)
-                    if fig not in figures:
-                        figures.append(fig)
-                    
-                    if c.plot>max_figure:
-                        max_figure=c.plot
-                    
-                    if c.plot>=count:
-                        clf()
-                        count+=1
-                        legends[count]=[]
-                    legends[c.plot].append(c.label+label_text)
-                    
+        labels=[]
+        for pname in parameter_names:
+            updated_params[pname]=kwargs[pname][i]
+            labels.append("%s:%g" % (pname,updated_params[pname]))
 
-                if isinstance(c.values,float):
-                    c.values=c.values*ones(t.shape)
-                h=plot(t,c.values,S.plot_style,label=c.label+label_text)
-                color=h[0].get_color()
-                
-                if c.data and si==0:  # only plot the data on the first one
-                    if c.data['plot']:
-                        plot(c.data['t'],c.data['value'],'s',color=color)
-                        legends[c.plot].append(c.label+" data")
-                
-                
-                pylab.xlabel(xlabel)
-                pylab.grid(True)
-                
-                ylabel(c.label)
-                gca().yaxis.set_major_formatter(ScalarFormatter(useOffset=False))
+        sim.params(**updated_params)
+        sim.run(sim.maximum_t)
 
-                drawit=True
+        for name in cnames:
+            if not figs[name]:
+                continue
 
-        if count>1:
-            
-            for l in legends:
-                if len(legends[l])>1:
-                    figure(l,figsize=S.figsize)
-                    legend(legends[l],loc='best')
-                    ylabel('Value')
-              
-            if S.show:
-                show()
-            
-        if drawit:
-            draw()
-        
-        
-        
-    return all_sims
-        
+            t,v=sim.t,sim[name]
+            figure(figs[name],figsize=figsize)
+            plot(t,v,label=name+":"+",".join(labels))
+
+            xlabel('time')
 
 
-# In[45]:
+    for name in cnames:
+        if not figs[name]:
+            continue
+        figure(figs[name])    
+
+        if len(vars[figs[name]])==1:
+            ylabel(name)
+        else:
+            ylabel(",".join(vars[figs[name]]))
+
+
+        legend()
+
+
+
+# In[19]:
 
 
 sim=Simulation()
@@ -1835,16 +1792,42 @@ sim.params(a=1.5,Kt=30)
 sim.run(0,50)
 
 
-# In[46]:
+# In[20]:
 
 
-results=explore_parameters(sim,50,Kt=linspace(10,100,10))
+explore_parameters(sim,Kt=linspace(10,100,10))
 
 
-# In[36]:
+# In[21]:
 
 
-results
+sim=Simulation()
+sim.figsize=(8,4)
+sim.add("S'=-β*S*I/N",100,plot=1)
+sim.add("I'=+β*S*I/N - γ*I",1,plot=2)
+sim.add("R'=+γ*I",0,plot=0)
+sim.add("N=S+I+R",plot=0)
+sim.params(β=0.2,γ=0.1)
+sim.run(150)
+
+
+# In[23]:
+
+
+explore_parameters(sim,figsize=(12,8),β=linspace(0,0.2,11))
+
+
+# In[25]:
+
+
+explore_parameters(sim,figsize=(12,8),β=[0,.1,.2,0,.1,.2],γ=[.1,.1,.1,.3,.3,.3])
+
+
+# In[27]:
+
+
+β,γ=meshgrid([0,.1,.2],[0,.1,.2])
+explore_parameters(sim,figsize=(12,8),β=β,γ=γ)
 
 
 # In[ ]:
