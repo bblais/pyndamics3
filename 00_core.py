@@ -1830,6 +1830,22 @@ explore_parameters(sim,figsize=(12,8),β=[0,.1,.2,0,.1,.2],γ=[.1,.1,.1,.3,.3,.3
 explore_parameters(sim,figsize=(12,8),β=β,γ=γ)
 
 
+# ## Functions of time
+
+# In[35]:
+
+
+def a_vs_time(t):
+    return 20*t
+    
+sim=Simulation()
+sim.add("a=a_vs_time(t)",plot=1)
+sim.add("y'=-a*y",100,plot=2)
+sim.functions(a_vs_time)
+
+sim.run(10)
+
+
 # In[ ]:
 
 
