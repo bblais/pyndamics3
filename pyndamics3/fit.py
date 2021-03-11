@@ -62,6 +62,17 @@ def fit(sim,
     for arg in args:
         fitparams+=arg
 
+    for key in fitparams.keys():
+        if key.startswith('initial_'):
+            name=key.split('initial_')[1]
+            try:
+                _c=sim.get_component(name)
+            except IndexError:
+                raise ValueError("%s is a bad initial variable because %s is not a variable in the dynamical model." % (key,name))
+        else:
+            if not key in sim.original_params:
+                raise ValueError("%s is not a parameter in the dynamical model.  Parameters are %s" % (key,str(sim.original_params)))
+
 
     result = minimize(residual, fitparams, args=(sim,), method='leastsq')
 
