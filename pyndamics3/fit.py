@@ -6,6 +6,11 @@ __all__ = ['Parameter', 'residual', 'fit']
 import lmfit
 
 # Cell
+import numpy as np
+from lmfit import minimize, Parameters, report_fit
+
+
+# Cell
 def Parameter(name,**kwargs):
     from lmfit import Parameters
     params = Parameters()
@@ -33,7 +38,7 @@ def residual(ps, sim):
     sim.run_fast()
 
     # compare with data
-    value=0.0
+    values=[]
     for _c in sim.components:
         if not _c.data:
             continue
@@ -48,13 +53,13 @@ def residual(ps, sim):
             return -np.inf
 
 
-        value+=(y-y_fit)
+        values.append(y-y_fit)
 
-    return value
+    return np.concatenate(values).ravel()
 
 
 def fit(sim,
-       *args):
+       *args,method='leastsq'):
 
     from lmfit import Parameters,minimize
 
@@ -74,7 +79,7 @@ def fit(sim,
                 raise ValueError("%s is not a parameter in the dynamical model.  Parameters are %s" % (key,str(sim.original_params)))
 
 
-    result = minimize(residual, fitparams, args=(sim,), method='leastsq')
+    result = minimize(residual, fitparams, args=(sim,), method=method)
 
     params={}
     ps=result.params
