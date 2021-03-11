@@ -11,13 +11,16 @@ entries:
       url: /
     - output: web,pdf
       title: Simulation
-      url: /core
+      url: core.html
     - output: web,pdf
       title: MCMC (using emcee package)
-      url: /mcmc
+      url: mcmc.html
     - output: web,pdf
       title: Introduction to MCMC on Dynamical Systems Using Zombies
-      url: /tutorial.zombies
+      url: tutorial.zombies.html
+    - output: web,pdf
+      title: Parameter Fitting (using lmfit)
+      url: fit.html
     output: web
     title: pyndamics3
   output: web

@@ -1,8 +1,9 @@
 {
   "pyndamics3": {
     "Overview": "/",
-    "Simulation": "/core",
-    "MCMC (using emcee package)": "/mcmc",
-    "Introduction to MCMC on Dynamical Systems Using Zombies": "/tutorial.zombies"
+    "Simulation": "core.html",
+    "MCMC (using emcee package)": "mcmc.html",
+    "Introduction to MCMC on Dynamical Systems Using Zombies": "tutorial.zombies.html",
+    "Parameter Fitting (using lmfit)": "fit.html"
   }
 }

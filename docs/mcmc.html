@@ -2,6 +2,7 @@
 
 title: MCMC (using emcee package)
 
+
 keywords: fastai
 sidebar: home_sidebar
 
@@ -31,7 +32,7 @@ nb_path: "01_mcmc.ipynb"
 <div class="output_area">
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>pyndamics3  version  0.0.2
+<pre>pyndamics3  version  0.0.3
 </pre>
 </div>
 </div>
@@ -55,13 +56,6 @@ nb_path: "01_mcmc.ipynb"
 </div>
 </div>
 </div>
-    {% raw %}
-    
-<div class="cell border-box-sizing code_cell rendered">
-
-</div>
-    {% endraw %}
-
     {% raw %}
     
 <div class="cell border-box-sizing code_cell rendered">
@@ -158,6 +152,13 @@ nb_path: "01_mcmc.ipynb"
 </div>
     {% endraw %}
 
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+</div>
+    {% endraw %}
+
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Distributions----Defined-for-Speed">Distributions -- Defined for Speed<a class="anchor-link" href="#Distributions----Defined-for-Speed"> </a></h2>
@@ -168,13 +169,6 @@ nb_path: "01_mcmc.ipynb"
     
 <div class="cell border-box-sizing code_cell rendered">
 
-</div>
-    {% endraw %}
-
-    {% raw %}
-    
-<div class="cell border-box-sizing code_cell rendered">
-
 <div class="output_wrapper">
 <div class="output">
 
@@ -182,7 +176,7 @@ nb_path: "01_mcmc.ipynb"
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h4 id="lognchoosek" class="doc_header"><code>lognchoosek</code><a href="__main__.py#L4" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>lognchoosek</code>(<strong><code>N</code></strong>, <strong><code>k</code></strong>)</p>
+<h4 id="lognchoosek" class="doc_header"><code>lognchoosek</code><a href="https://github.com/bblais/pyndamics3/tree/master/pyndamics3/mcmc.py#L168" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>lognchoosek</code>(<strong><code>N</code></strong>, <strong><code>k</code></strong>)</p>
 </blockquote>
 
 </div>
@@ -206,7 +200,7 @@ nb_path: "01_mcmc.ipynb"
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h4 id="loguniformpdf" class="doc_header"><code>loguniformpdf</code><a href="__main__.py#L7" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>loguniformpdf</code>(<strong><code>x</code></strong>, <strong><code>mn</code></strong>, <strong><code>mx</code></strong>)</p>
+<h4 id="loguniformpdf" class="doc_header"><code>loguniformpdf</code><a href="https://github.com/bblais/pyndamics3/tree/master/pyndamics3/mcmc.py#L171" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>loguniformpdf</code>(<strong><code>x</code></strong>, <strong><code>mn</code></strong>, <strong><code>mx</code></strong>)</p>
 </blockquote>
 
 </div>
@@ -230,7 +224,7 @@ nb_path: "01_mcmc.ipynb"
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h4 id="logjeffreyspdf" class="doc_header"><code>logjeffreyspdf</code><a href="__main__.py#L12" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>logjeffreyspdf</code>(<strong><code>x</code></strong>)</p>
+<h4 id="logjeffreyspdf" class="doc_header"><code>logjeffreyspdf</code><a href="https://github.com/bblais/pyndamics3/tree/master/pyndamics3/mcmc.py#L176" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>logjeffreyspdf</code>(<strong><code>x</code></strong>)</p>
 </blockquote>
 
 </div>
@@ -254,7 +248,7 @@ nb_path: "01_mcmc.ipynb"
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h4 id="logexponpdf" class="doc_header"><code>logexponpdf</code><a href="__main__.py#L17" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>logexponpdf</code>(<strong><code>x</code></strong>, <strong><code>_lambda</code></strong>)</p>
+<h4 id="logexponpdf" class="doc_header"><code>logexponpdf</code><a href="https://github.com/bblais/pyndamics3/tree/master/pyndamics3/mcmc.py#L181" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>logexponpdf</code>(<strong><code>x</code></strong>, <strong><code>_lambda</code></strong>)</p>
 </blockquote>
 
 </div>
@@ -278,7 +272,7 @@ nb_path: "01_mcmc.ipynb"
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h4 id="logcauchypdf" class="doc_header"><code>logcauchypdf</code><a href="__main__.py#L21" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>logcauchypdf</code>(<strong><code>x</code></strong>, <strong><code>x0</code></strong>, <strong><code>scale</code></strong>)</p>
+<h4 id="logcauchypdf" class="doc_header"><code>logcauchypdf</code><a href="https://github.com/bblais/pyndamics3/tree/master/pyndamics3/mcmc.py#L185" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>logcauchypdf</code>(<strong><code>x</code></strong>, <strong><code>x0</code></strong>, <strong><code>scale</code></strong>)</p>
 </blockquote>
 
 </div>
@@ -302,7 +296,7 @@ nb_path: "01_mcmc.ipynb"
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h4 id="loghalfcauchypdf" class="doc_header"><code>loghalfcauchypdf</code><a href="__main__.py#L24" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>loghalfcauchypdf</code>(<strong><code>x</code></strong>, <strong><code>x0</code></strong>, <strong><code>scale</code></strong>)</p>
+<h4 id="loghalfcauchypdf" class="doc_header"><code>loghalfcauchypdf</code><a href="https://github.com/bblais/pyndamics3/tree/master/pyndamics3/mcmc.py#L188" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>loghalfcauchypdf</code>(<strong><code>x</code></strong>, <strong><code>x0</code></strong>, <strong><code>scale</code></strong>)</p>
 </blockquote>
 
 </div>
@@ -326,7 +320,7 @@ nb_path: "01_mcmc.ipynb"
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h4 id="loghalfnormalpdf" class="doc_header"><code>loghalfnormalpdf</code><a href="__main__.py#L35" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>loghalfnormalpdf</code>(<strong><code>x</code></strong>, <strong><code>sig</code></strong>)</p>
+<h4 id="loghalfnormalpdf" class="doc_header"><code>loghalfnormalpdf</code><a href="https://github.com/bblais/pyndamics3/tree/master/pyndamics3/mcmc.py#L199" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>loghalfnormalpdf</code>(<strong><code>x</code></strong>, <strong><code>sig</code></strong>)</p>
 </blockquote>
 
 </div>
@@ -350,7 +344,7 @@ nb_path: "01_mcmc.ipynb"
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h4 id="lognormalpdf" class="doc_header"><code>lognormalpdf</code><a href="__main__.py#L47" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>lognormalpdf</code>(<strong><code>x</code></strong>, <strong><code>mn</code></strong>, <strong><code>sig</code></strong>, <strong><code>all_positive</code></strong>=<em><code>False</code></em>)</p>
+<h4 id="lognormalpdf" class="doc_header"><code>lognormalpdf</code><a href="https://github.com/bblais/pyndamics3/tree/master/pyndamics3/mcmc.py#L211" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>lognormalpdf</code>(<strong><code>x</code></strong>, <strong><code>mn</code></strong>, <strong><code>sig</code></strong>, <strong><code>all_positive</code></strong>=<em><code>False</code></em>)</p>
 </blockquote>
 
 </div>
@@ -374,7 +368,7 @@ nb_path: "01_mcmc.ipynb"
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h4 id="logbetapdf" class="doc_header"><code>logbetapdf</code><a href="__main__.py#L67" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>logbetapdf</code>(<strong><code>theta</code></strong>, <strong><code>h</code></strong>, <strong><code>N</code></strong>)</p>
+<h4 id="logbetapdf" class="doc_header"><code>logbetapdf</code><a href="https://github.com/bblais/pyndamics3/tree/master/pyndamics3/mcmc.py#L231" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>logbetapdf</code>(<strong><code>theta</code></strong>, <strong><code>h</code></strong>, <strong><code>N</code></strong>)</p>
 </blockquote>
 
 </div>
@@ -398,7 +392,7 @@ nb_path: "01_mcmc.ipynb"
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h4 id="loglognormalpdf" class="doc_header"><code>loglognormalpdf</code><a href="__main__.py#L70" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>loglognormalpdf</code>(<strong><code>x</code></strong>, <strong><code>mn</code></strong>, <strong><code>sig</code></strong>)</p>
+<h4 id="loglognormalpdf" class="doc_header"><code>loglognormalpdf</code><a href="https://github.com/bblais/pyndamics3/tree/master/pyndamics3/mcmc.py#L234" class="source_link" style="float:right">[source]</a></h4><blockquote><p><code>loglognormalpdf</code>(<strong><code>x</code></strong>, <strong><code>mn</code></strong>, <strong><code>sig</code></strong>)</p>
 </blockquote>
 
 </div>
@@ -407,6 +401,13 @@ nb_path: "01_mcmc.ipynb"
 
 </div>
 </div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
 
 </div>
     {% endraw %}
@@ -417,13 +418,6 @@ nb_path: "01_mcmc.ipynb"
 </div>
 </div>
 </div>
-    {% raw %}
-    
-<div class="cell border-box-sizing code_cell rendered">
-
-</div>
-    {% endraw %}
-
     {% raw %}
     
 <div class="cell border-box-sizing code_cell rendered">
@@ -640,12 +634,6 @@ nb_path: "01_mcmc.ipynb"
 </div>
     {% endraw %}
 
-<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Emcee-functions">Emcee functions<a class="anchor-link" href="#Emcee-functions"> </a></h2>
-</div>
-</div>
-</div>
     {% raw %}
     
 <div class="cell border-box-sizing code_cell rendered">
@@ -653,6 +641,12 @@ nb_path: "01_mcmc.ipynb"
 </div>
     {% endraw %}
 
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Emcee-functions">Emcee functions<a class="anchor-link" href="#Emcee-functions"> </a></h2>
+</div>
+</div>
+</div>
     {% raw %}
     
 <div class="cell border-box-sizing code_cell rendered">
@@ -726,7 +720,7 @@ nb_path: "01_mcmc.ipynb"
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h2 id="MCMCModelReg" class="doc_header"><code>class</code> <code>MCMCModelReg</code><a href="https://github.com/bblais/pyndamics3/tree/master/pyndamics3/mcmc.py#L935" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>MCMCModelReg</code>(<strong><code>sim</code></strong>, <strong><code>verbose</code></strong>=<em><code>True</code></em>, <strong>**<code>kwargs</code></strong>) :: <a href="/pyndamics3/mcmc#MCMCModel"><code>MCMCModel</code></a></p>
+<h2 id="MCMCModelReg" class="doc_header"><code>class</code> <code>MCMCModelReg</code><a href="https://github.com/bblais/pyndamics3/tree/master/pyndamics3/mcmc.py#L935" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>MCMCModelReg</code>(<strong><code>sim</code></strong>, <strong><code>verbose</code></strong>=<em><code>True</code></em>, <strong>**<code>kwargs</code></strong>) :: <a href="/pyndamics3/mcmc.html#MCMCModel"><code>MCMCModel</code></a></p>
 </blockquote>
 
 </div>
@@ -735,6 +729,13 @@ nb_path: "01_mcmc.ipynb"
 
 </div>
 </div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
 
 </div>
     {% endraw %}
