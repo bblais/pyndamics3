@@ -39,7 +39,7 @@ def residual(ps, sim):
 
     # compare with data
     values=[]
-    for _c in sim.components:
+    for _c in sim.components+sim.assignments:
         if not _c.data:
             continue
         t=np.array(_c.data['t']).ravel()
@@ -47,13 +47,11 @@ def residual(ps, sim):
         y_fit=sim.interpolate(t,_c.name)
 
         if any(np.isnan(y_fit)):
-            return -np.inf
-
-        if any(abs(y_fit)>1e100):
-            return -np.inf
-
-
-        values.append(y-y_fit)
+            values.append([-np.inf])
+        elif any(abs(y_fit)>1e100):
+            values.append([-np.inf])
+        else:
+            values.append(y-y_fit)
 
     return np.concatenate(values).ravel()
 
