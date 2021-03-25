@@ -1151,7 +1151,12 @@ class Simulation(object):
 
     def add_data(self,t,plot=False,**kwargs):
         for key in kwargs:
+            found=[c for c in self.components+self.assignments if c.name==key]
+            if not found:
+                raise ValueError("The variable '%s' is not a variable in the simulation." % key)
+
             c=self.get_component(key)
+
             c.data={'t':t,'plot':plot,'value':kwargs[key]}
             mx=max(t)
             if mx>self.maximum_data_t:

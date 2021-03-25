@@ -59,6 +59,17 @@ def residual(ps, sim):
 def fit(sim,
        *args,method='leastsq'):
 
+    found_data=False
+    for _c in sim.components+sim.assignments:
+        if not _c.data:
+            continue
+        found_data=True
+
+    if not found_data:
+        raise ValueError("No data given for the simulation...can't fit.")
+
+
+
     from lmfit import Parameters,minimize
 
     fitparams=Parameters()
