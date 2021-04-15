@@ -106,29 +106,29 @@ def from_values(var,*args):
 
     return interp(var,x,y)
 
-def array_wrap(f):
+def array_wrap(_f):
     # allow a function to be written for float values, but be handed array
     # values and return an array
 
     def what(*args,**kw):
         try:
-            val=f(*args,**kw)
+            val=_f(*args,**kw)
         except ValueError:  # array treated as float
-            for a in args:
-                if isinstance(a,ndarray):
-                    L=len(a)
+            for _a in args:
+                if isinstance(_a,ndarray):
+                    __L=len(_a)
                     break
             val=[]
-            for i in range(L):
+            for _i in range(__L):
                 newargs=[]
-                for a in args:
-                    if isinstance(a,ndarray):
-                        newargs.append(a[i])
+                for _a in args:
+                    if isinstance(_a,ndarray):
+                        newargs.append(_a[_i])
                     else:
-                        newargs.append(a)
+                        newargs.append(_a)
                 newargs=tuple(newargs)
 
-                val.append(f(*newargs,**kw))
+                val.append(_f(*newargs,**kw))
             val=array(val)
 
         return val
