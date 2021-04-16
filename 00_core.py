@@ -135,10 +135,17 @@ def array_wrap(_f):
         try:
             val=_f(*args,**kw)
         except ValueError:  # array treated as float
+            found=False
             for _a in args:
                 if isinstance(_a,ndarray):
                     __L=len(_a)
+                    found=True
                     break
+            if not found:
+                print("Leon, you broke my program. ")
+                print("args",args)
+                print("kwargs",kwargs)
+                raise ValueError()
             val=[]
             for _i in range(__L):
                 newargs=[]
