@@ -144,7 +144,7 @@ def array_wrap(_f):
             if not found:
                 print("Leon, you broke my program. ")
                 print("args",args)
-                print("kwargs",kwargs)
+                print("kwargs",kw)
                 raise ValueError()
             val=[]
             for _i in range(__L):
