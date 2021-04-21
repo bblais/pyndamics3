@@ -1425,8 +1425,11 @@ def mse_from_sim(params,extra):
 
 
 #export
+import numpy as np
 class Storage(object):
-    def __init__(self):
+    def __init__(self,save_every=1):
+        self.save_every=save_every
+        self.count=0
         self.data=[]
     
     def __add__(self,other):
@@ -1435,7 +1438,9 @@ class Storage(object):
         return s
         
     def __iadd__(self,other):
-        self.append(*other)
+        if self.count % self.save_every ==0:
+            self.append(*other)
+        self.count+=1
         return self
         
     def append(self,*args):
@@ -1448,10 +1453,7 @@ class Storage(object):
                 d.append(a)
        
     def arrays(self):
-        for i in range(len(self.data)):
-            self.data[i]=array(self.data[i])
-
-        ret=tuple(self.data)
+        ret=tuple([np.array(_) for _ in self.data])
         if len(ret)==1:
             return ret[0]
         else:
@@ -1462,7 +1464,7 @@ class Storage(object):
         return vstack(self.arrays())
 
 
-# In[17]:
+# In[16]:
 
 
 y=1
