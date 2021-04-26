@@ -3,7 +3,7 @@
 __all__ = ['size', 'family', 'copy_func', 'patch_to', 'patch', 'InterpFunction', 'RedirectStdStreams', 'devnull',
            'from_values', 'array_wrap', 'mapsolve', 'euler', 'rk2', 'rk4', 'rkwrapper', 'rk45', 'simfunc', 'phase_plot',
            'vector_field', 'Component', 'numpy_functions', 'Simulation', 'repeat', 'model', 'mse_from_sim', 'Storage',
-           'particle', 'swarm', 'pso_fit_sim', 'explore_parameters']
+           'particle', 'swarm', 'pso_fit_sim', 'Struct', 'Stochastic_Simulation', 'explore_parameters']
 
 # Cell
 from scipy.integrate import odeint,ode
@@ -1498,6 +1498,195 @@ def pso_fit_sim(varname,xd,yd,sim,parameters,
     return params_dict
 
 
+
+# Cell
+class Struct(dict):
+
+    def __getattr__(self,name):
+
+        try:
+            val=self[name]
+        except KeyError:
+            val=super(Struct,self).__getattribute__(name)
+
+        return val
+
+    def __setattr__(self,name,val):
+
+        self[name]=val
+
+
+
+class Stochastic_Simulation(object):
+
+    def __init__(self):
+        self.components=[]
+        self.equations=[]
+        self.initial_values={}
+        self.current_values={}
+        self.ν=None
+        self.state_change_strings=[]
+        self.rate_equations=[]
+        self._params={}
+        self.save_every=1
+        self._t=None
+        self.Storage=None
+        self.all_storage=[]
+
+    def params(self,**kwargs):
+        self._params.update(kwargs)
+
+    def add(self,component_change_equation,rate_equation=None,plot=False,**kwargs):
+
+
+        if "=" in component_change_equation:
+            self.equations.append(component_change_equation)
+            return
+
+        component_change_equation=component_change_equation.replace('+',' +')
+        component_change_equation=component_change_equation.replace('-',' -')
+
+        parts=component_change_equation.split()
+        for part in parts:
+            if not (part.startswith('-') or part.startswith('+')):
+                raise SyntaxError("State change strings must start with + or -: %s" % component_change_equation)
+            name=part[1:]
+            if name not in self.components:
+                self.components.append(name)
+
+        self.state_change_strings.append(component_change_equation)
+        self.rate_equations.append(rate_equation)
+        self.initial_values.update(kwargs)
+        self.current_values.update(kwargs)
+
+    def initialize(self):
+        num_components=len(self.components)
+        num_reactions=len(self.rate_equations)
+        self.ν=np.zeros((num_components,num_reactions),np.float64)
+
+        for j,(state_change,rate) in enumerate(zip(self.state_change_strings,self.rate_equations)):
+            parts=state_change.split()
+            for part in parts:
+                if not (part.startswith('-') or part.startswith('+')):
+                    raise SyntaxError("State change strings must start with + or -: %s" % component_change_equation)
+                name=part[1:]
+                if part[0]=='-':
+                    val=-1
+                else:
+                    val=+1
+
+                i=self.components.index(name)
+                self.ν[i,j]=val
+
+        for c in self.components:
+            if not c in self.initial_values:
+                raise ValueError("%s not in initial values." % c)
+
+
+    def run(self,t_max,Nsims=1):
+        from tqdm import tqdm
+
+        if self.ν is None:
+            self.initialize()
+
+        self.all_storage=[]
+
+        disable=Nsims==1
+        for _i in tqdm(range(Nsims),disable=disable):
+            self.Storage=Storage(save_every=self.save_every)
+            self._t=0
+            for c in self.components:
+                self.current_values[c]=self.initial_values[c]
+
+            self.gillespie_first_reaction(t_max)
+            self.all_storage.append(self.Storage)
+
+
+    def gillespie_first_reaction(self,tf):
+
+        import numpy as np
+        from pyndamics3 import Storage
+
+        S=self.Storage
+        X=np.array([self.current_values[c] for c in self.components])
+        t=self._t
+
+        if not S.data:
+            t=0
+            S+=tuple([t]+list(X))
+        else:
+            t=S.data[0][-1]
+            X=np.array([_[-1] for _ in S.data[1:]])
+
+        t0=t
+        with np.errstate(divide='ignore'):
+            while True:
+
+
+                D=dict(zip(self.components,X))
+                D.update(self._params)
+                for _ in self.equations:
+                    parts=_.split("=")
+                    D[parts[0]]=eval(parts[1],None,D)
+
+                a=np.array([eval(_,None,D) for _ in self.rate_equations])
+
+                r=np.random.rand(len(a))
+
+                τ=-np.log(r)/a
+
+                j=τ.argmin()
+
+                t=t+τ[j]
+                X=X+self.ν[:,j]
+
+                S+=tuple([t]+list(X))
+
+                if t-t0>tf:
+                    break
+
+
+        S+=tuple([t]+list(X))
+
+        for c,x in zip(self.components,X):
+            self.current_values[c]=x
+
+        self._t=t
+
+        return S
+
+    def __getattr__(self, item):
+        """Maps values to attributes.
+        Only called if there *isn't* an attribute with this name
+        """
+        try:
+            return self.__getitem__(item)
+        except KeyError:
+            raise AttributeError(item)
+
+
+
+    def __getitem__(self,key):
+
+        if isinstance(key,int):
+            D=Struct()
+            arr=self.all_storage[key].arrays()
+            D['t']=arr[0]
+
+            for i,c in enumerate(self.components):
+                D[c]=arr[i+1]
+
+            return D
+
+        else:
+
+            arr=self.Storage.arrays()
+
+            if key=='t':
+                return arr[0]
+
+            idx=self.components.index(key)
+            return arr[idx+1]
 
 # Cell
 def explore_parameters(sim,figsize=None,**kwargs):

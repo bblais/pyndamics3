@@ -1485,13 +1485,13 @@ x,y=S.arrays()  # returns an array representation of all those data points
 plot(x,y)
 
 
-# In[18]:
+# In[17]:
 
 
 x,y
 
 
-# In[19]:
+# In[18]:
 
 
 #export
@@ -1640,11 +1640,212 @@ def pso_fit_sim(varname,xd,yd,sim,parameters,
       
 
 
+# # Stochastic Sims
+
+# In[19]:
+
+
+#export
+class Struct(dict):
+
+    def __getattr__(self,name):
+
+        try:
+            val=self[name]
+        except KeyError:
+            val=super(Struct,self).__getattribute__(name)
+
+        return val
+
+    def __setattr__(self,name,val):
+
+        self[name]=val
+
+
+
+class Stochastic_Simulation(object):
+    
+    def __init__(self):
+        self.components=[]
+        self.equations=[]
+        self.initial_values={}
+        self.current_values={}
+        self.ν=None
+        self.state_change_strings=[]
+        self.rate_equations=[]
+        self._params={}
+        self.save_every=1
+        self._t=None
+        self.Storage=None
+        self.all_storage=[]
+    
+    def params(self,**kwargs):
+        self._params.update(kwargs)
+        
+    def add(self,component_change_equation,rate_equation=None,plot=False,**kwargs):
+        
+        
+        if "=" in component_change_equation:
+            self.equations.append(component_change_equation)
+            return 
+        
+        component_change_equation=component_change_equation.replace('+',' +')
+        component_change_equation=component_change_equation.replace('-',' -')
+        
+        parts=component_change_equation.split()
+        for part in parts:
+            if not (part.startswith('-') or part.startswith('+')):
+                raise SyntaxError("State change strings must start with + or -: %s" % component_change_equation)
+            name=part[1:]
+            if name not in self.components:
+                self.components.append(name)
+            
+        self.state_change_strings.append(component_change_equation)            
+        self.rate_equations.append(rate_equation)
+        self.initial_values.update(kwargs)
+        self.current_values.update(kwargs)
+
+    def initialize(self):
+        num_components=len(self.components)
+        num_reactions=len(self.rate_equations)
+        self.ν=np.zeros((num_components,num_reactions),np.float64)
+        
+        for j,(state_change,rate) in enumerate(zip(self.state_change_strings,self.rate_equations)):
+            parts=state_change.split()
+            for part in parts:
+                if not (part.startswith('-') or part.startswith('+')):
+                    raise SyntaxError("State change strings must start with + or -: %s" % component_change_equation)
+                name=part[1:]
+                if part[0]=='-':
+                    val=-1
+                else:
+                    val=+1
+                
+                i=self.components.index(name)
+                self.ν[i,j]=val
+                    
+        for c in self.components:
+            if not c in self.initial_values:
+                raise ValueError("%s not in initial values." % c)
+            
+        
+    def run(self,t_max,Nsims=1):
+        from tqdm import tqdm
+        
+        if self.ν is None:
+            self.initialize()
+
+        self.all_storage=[]
+        
+        disable=Nsims==1
+        for _i in tqdm(range(Nsims),disable=disable):
+            self.Storage=Storage(save_every=self.save_every)
+            self._t=0
+            for c in self.components:
+                self.current_values[c]=self.initial_values[c]
+
+            self.gillespie_first_reaction(t_max)
+            self.all_storage.append(self.Storage)
+        
+        
+    def gillespie_first_reaction(self,tf):
+
+        import numpy as np
+        from pyndamics3 import Storage
+
+        S=self.Storage
+        X=np.array([self.current_values[c] for c in self.components])
+        t=self._t
+        
+        if not S.data:
+            t=0
+            S+=tuple([t]+list(X))
+        else:
+            t=S.data[0][-1]
+            X=np.array([_[-1] for _ in S.data[1:]])
+
+        t0=t
+        with np.errstate(divide='ignore'):
+            while True:
+
+                
+                D=dict(zip(self.components,X))
+                D.update(self._params)
+                for _ in self.equations:
+                    parts=_.split("=")
+                    D[parts[0]]=eval(parts[1],None,D)
+                
+                a=np.array([eval(_,None,D) for _ in self.rate_equations])
+
+                r=np.random.rand(len(a))
+
+                τ=-np.log(r)/a
+
+                j=τ.argmin()
+
+                t=t+τ[j]
+                X=X+self.ν[:,j]    
+
+                S+=tuple([t]+list(X))
+
+                if t-t0>tf:
+                    break
+
+
+        S+=tuple([t]+list(X))
+
+        for c,x in zip(self.components,X):
+            self.current_values[c]=x
+            
+        self._t=t
+
+        return S        
+        
+    def __getattr__(self, item):
+        """Maps values to attributes.
+        Only called if there *isn't* an attribute with this name
+        """
+        try:
+            return self.__getitem__(item)
+        except KeyError:
+            raise AttributeError(item)
+
+        
+        
+    def __getitem__(self,key):
+        
+        if isinstance(key,int):
+            D=Struct()
+            arr=self.all_storage[key].arrays()
+            D['t']=arr[0]
+            
+            for i,c in enumerate(self.components):
+                D[c]=arr[i+1]
+            
+            return D
+            
+        else:
+        
+            arr=self.Storage.arrays()
+        
+            if key=='t':
+                return arr[0]
+
+            idx=self.components.index(key)
+            return arr[idx+1]
+
+
+# In[ ]:
+
+
+
+
+
 # # Some Examples
 
 # ## Logistic
 
-# In[16]:
+# In[20]:
 
 
 sim=Simulation()
@@ -1654,7 +1855,7 @@ sim.params(a=1.5,K=300)
 sim.run(0,50)
 
 
-# In[18]:
+# In[21]:
 
 
 sim=Simulation()
@@ -1667,7 +1868,7 @@ sim.run(0,50,discrete=True)
 
 # ## Map
 
-# In[19]:
+# In[22]:
 
 
 sim=Simulation('map')
@@ -1684,7 +1885,7 @@ for a in linspace(.1,4,600):
 
 # ## Repeat
 
-# In[20]:
+# In[23]:
 
 
 sim=Simulation()
@@ -1703,7 +1904,7 @@ for res in result:
 
 # ## Higher Order
 
-# In[21]:
+# In[24]:
 
 
 sim=Simulation()
@@ -1713,7 +1914,7 @@ sim.params(k=1.0,m=1.0,b=0.5)
 sim.run(0,20)
 
 
-# In[27]:
+# In[25]:
 
 
 phase_plot(sim,"x","x_p_")
@@ -1721,7 +1922,7 @@ phase_plot(sim,"x","x_p_")
 
 # ## Exploring parameters
 
-# In[18]:
+# In[26]:
 
 
 #export
@@ -1795,7 +1996,7 @@ def explore_parameters(sim,figsize=None,**kwargs):
 
 
 
-# In[19]:
+# In[27]:
 
 
 sim=Simulation()
@@ -1806,13 +2007,13 @@ sim.params(a=1.5,Kt=30)
 sim.run(0,50)
 
 
-# In[20]:
+# In[28]:
 
 
 explore_parameters(sim,Kt=linspace(10,100,10))
 
 
-# In[21]:
+# In[29]:
 
 
 sim=Simulation()
@@ -1825,19 +2026,19 @@ sim.params(β=0.2,γ=0.1)
 sim.run(150)
 
 
-# In[23]:
+# In[30]:
 
 
 explore_parameters(sim,figsize=(12,8),β=linspace(0,0.2,11))
 
 
-# In[25]:
+# In[31]:
 
 
 explore_parameters(sim,figsize=(12,8),β=[0,.1,.2,0,.1,.2],γ=[.1,.1,.1,.3,.3,.3])
 
 
-# In[27]:
+# In[32]:
 
 
 β,γ=meshgrid([0,.1,.2],[0,.1,.2])
@@ -1846,7 +2047,7 @@ explore_parameters(sim,figsize=(12,8),β=β,γ=γ)
 
 # ## Functions of time
 
-# In[35]:
+# In[33]:
 
 
 def a_vs_time(t):
@@ -1858,6 +2059,46 @@ sim.add("y'=-a*y",100,plot=2)
 sim.functions(a_vs_time)
 
 sim.run(10)
+
+
+# ## Stochastic Simulation Examples
+
+# In[37]:
+
+
+β=0.2
+γ=0.1
+So=990
+Io=10
+
+dynamic_sim=sim=Simulation()
+sim.add("N=S+I+R")
+sim.add("S'=-β*S*I/N",So)
+sim.add("I'=+β*S*I/N-γ*I",Io)
+sim.add("R'=+γ*I",0)
+sim.params(β=β,γ=γ)
+sim.run(200)
+
+
+stoch_sim=sim=Stochastic_Simulation()
+sim.add("-S+I",'β*S*I/N',S=So,I=Io)
+sim.add("-I +R",'γ*I',R=0)
+sim.add("N=S+I+R")
+sim.run(200)
+
+
+# In[38]:
+
+
+sim.run(200,Nsims=100)
+
+for i in range(100):
+    
+    plot(sim[i].t,sim[i].S,'bo',alpha=0.005)
+    plot(sim[i].t,sim[i].I,'ro',alpha=0.005)
+
+plot(dynamic_sim.t,dynamic_sim.S,'c-')
+plot(dynamic_sim.t,dynamic_sim.I,'m-')
 
 
 # In[ ]:
