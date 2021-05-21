@@ -1603,6 +1603,8 @@ def _gillespie_ssa(update, population_0, time_points, args):
     t = time_points[0]
     population = population_0.copy()
     pop_out[0,:] = population
+    extinction_time=-1.0
+    previous_t=t
     while i < len(time_points):
         while t < time_points[i_time]:
             # draw the event and time step
@@ -1613,7 +1615,12 @@ def _gillespie_ssa(update, population_0, time_points, args):
             population += update[event,:]
 
             # Increment time
+            previous_t=t
             t += dt
+
+
+        if dt==1e500 and extinction_time<0.0:
+            extinction_time=previous_t
 
         # Update the index (Have to be careful about types for Numba)
         i = np.searchsorted((time_points > t).astype(np.int64), 1)
@@ -1625,7 +1632,7 @@ def _gillespie_ssa(update, population_0, time_points, args):
         # Increment index
         i_time = i
 
-    return pop_out
+    return pop_out,extinction_time
 
 
 
@@ -1751,14 +1758,15 @@ class Stochastic_Simulation(object):
 
         # Initialize output array
         pops = np.empty((n_simulations, len(time_points), len(population_0)), dtype=int)
+        extinction_time=np.empty(n_simulations,dtype=np.float64)
 
         # Run the calculations
         for _i in tqdm(range(n_simulations),disable=disable):
-            pops[_i,:,:] = _gillespie_ssa(self.ν,
+            pops[_i,:,:],extinction_time[_i] = _gillespie_ssa(self.ν,
                                         population_0, time_points, args=args)
 
         self.t=time_points
-
+        self.extinction_times=extinction_time
         self.result=Struct()
         for _i,c in enumerate(self.components):
             setattr(self, c, pops[-1,:,_i])
