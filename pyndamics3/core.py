@@ -1703,9 +1703,19 @@ class Stochastic_Simulation(object):
         func_str="@numba.jit(nopython=True)\ndef _propensity_function(population, args):\n"
 
         func_str+="    "
-        func_str+=",".join(self.components) + " = population\n"
-        func_str+="    "
-        func_str+=",".join(self._params_keys)+ " = args\n"
+
+        if len(self.components)>1:
+            func_str+=",".join(self.components) + " = population\n"
+        else:
+            func_str+=self.components[0] + ", = population\n"
+
+        if self._params_keys:
+            func_str+="    "
+            if len(self._params_keys)>1:
+                func_str+=",".join(self._params_keys)+ " = args\n"
+            else:
+                func_str+=self._params_keys[0]+ ", = args\n"
+
         func_str+="    "+"\n"
 
         for eq in self.equations:
@@ -1724,7 +1734,7 @@ class Stochastic_Simulation(object):
 
         exec (func_str, globals())
 
-    def run(self,t_max,Nsims=1,num_iterations=101,):
+    def run(self,t_max,Nsims=1,num_iterations=1001,):
         from tqdm import tqdm
 
         if self.ν is None:
