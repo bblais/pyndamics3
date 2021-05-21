@@ -718,6 +718,9 @@ class Simulation(object):
             self.use_delays=True
             
         if name.count("'")<=1:
+            name=name.split("'")[0]
+            if name in [c.name for c in self.components]:
+                raise ValueError("%s already exists." % name)
             c=Component(diffstr,initial_value,min,max,plot,save)
             self.components.append(c)
             self.data_delay[c.name]={'t':[],'value':[]}
@@ -1344,6 +1347,12 @@ print(sim.equations())
 # In[13]:
 
 
+#sim.add("y'=a - b*y",100)
+
+
+# In[14]:
+
+
 sim=Simulation()
 sim.stock("y",100)
 sim.inflow('y','a')
@@ -1354,7 +1363,7 @@ print(sim.equations())
 
 # ## Some useful functions
 
-# In[14]:
+# In[15]:
 
 
 #export
@@ -1421,7 +1430,7 @@ def mse_from_sim(params,extra):
 
 # ### This is my solution to an age-old problem of storing data in loops
 
-# In[15]:
+# In[16]:
 
 
 #export
@@ -1464,7 +1473,7 @@ class Storage(object):
         return vstack(self.arrays())
 
 
-# In[16]:
+# In[17]:
 
 
 y=1
@@ -1485,13 +1494,13 @@ x,y=S.arrays()  # returns an array representation of all those data points
 plot(x,y)
 
 
-# In[17]:
+# In[18]:
 
 
 x,y
 
 
-# In[18]:
+# In[19]:
 
 
 #export
@@ -1642,24 +1651,133 @@ def pso_fit_sim(varname,xd,yd,sim,parameters,
 
 # # Stochastic Sims
 
-# In[19]:
+# In[47]:
 
 
 #export
+
 class Struct(dict):
-
+    
     def __getattr__(self,name):
-
+        
         try:
             val=self[name]
         except KeyError:
             val=super(Struct,self).__getattribute__(name)
-
+            
         return val
-
+    
     def __setattr__(self,name,val):
-
+        
         self[name]=val
+
+
+
+
+import numba
+
+@numba.jit(nopython=True)
+def _sample_discrete(probs, probs_sum):
+    q = np.random.rand() * probs_sum
+
+    i = 0
+    p_sum = 0.0
+    while p_sum < q:
+        p_sum += probs[i]
+        i += 1
+    return i - 1
+
+@numba.jit(nopython=True)
+def _gillespie_draw(population, args):
+    """
+    Draws a reaction and the time it took to do that reaction.
+    
+    Assumes that there is a globally scoped function
+    `prop_func` that is Numba'd with nopython=True.
+    """
+    # Compute propensities
+    props = _propensity_function(population, args)
+
+    # Sum of propensities
+    props_sum = np.sum(props)
+    
+    if props_sum==0:
+        time=1e500
+        rxn=0
+    else:
+    
+        # Compute time
+        time = np.random.exponential(1 / props_sum)
+
+        # Draw reaction given propensities
+        rxn = _sample_discrete(props, props_sum)
+
+    return rxn, time
+
+
+
+@numba.jit(nopython=True)
+def _gillespie_ssa(update, population_0, time_points, args):
+    """
+    Uses the Gillespie stochastic simulation algorithm to sample
+    from proability distribution of particle counts over time.
+    
+    Parameters
+    ----------
+    update : ndarray, shape (num_reactions, num_chemical_species)
+        Entry i, j gives the change in particle counts of species j
+        for chemical reaction i.
+    population_0 : array_like, shape (num_chemical_species)
+        Array of initial populations of all chemical species.
+    time_points : array_like, shape (num_time_points,)
+        Array of points in time for which to sample the probability
+        distribution.
+    args : tuple, default ()
+        The set of parameters to be passed to propensity_func.
+        
+    Returns
+    -------
+    sample : ndarray, shape (num_time_points, num_chemical_species)
+        Entry i, j is the count of chemical species j at time
+        time_points[i].
+        
+    Notes
+    -----
+    .. Assumes that there is a globally scoped function
+       `propensity_func` that is Numba'd with nopython=True.
+    """
+    # Initialize output
+    pop_out = np.empty((len(time_points), update.shape[1]), dtype=np.int64)
+
+    # Initialize and perform simulation
+    i_time = 1
+    i = 0
+    t = time_points[0]
+    population = population_0.copy()
+    pop_out[0,:] = population
+    while i < len(time_points):
+        while t < time_points[i_time]:
+            # draw the event and time step
+            event, dt = _gillespie_draw(population, args)
+                
+            # Update the population
+            population_previous = population.copy()
+            population += update[event,:]
+                
+            # Increment time
+            t += dt
+
+        # Update the index (Have to be careful about types for Numba)
+        i = np.searchsorted((time_points > t).astype(np.int64), 1)
+
+        # Update the population
+        for j in np.arange(i_time, min(i, len(time_points))):
+            pop_out[j,:] = population_previous
+        
+        # Increment index
+        i_time = i
+                           
+    return pop_out
 
 
 
@@ -1674,13 +1792,13 @@ class Stochastic_Simulation(object):
         self.state_change_strings=[]
         self.rate_equations=[]
         self._params={}
-        self.save_every=1
-        self._t=None
-        self.Storage=None
-        self.all_storage=[]
+        self._params_keys=()
+        self._params_vals=()
     
     def params(self,**kwargs):
         self._params.update(kwargs)
+        self._params_keys=tuple(self._params.keys())
+        self._params_vals=tuple([self._params[_] for _ in self._params_keys])
         
     def add(self,component_change_equation,rate_equation=None,plot=False,**kwargs):
         
@@ -1708,7 +1826,7 @@ class Stochastic_Simulation(object):
     def initialize(self):
         num_components=len(self.components)
         num_reactions=len(self.rate_equations)
-        self.ν=np.zeros((num_components,num_reactions),np.float64)
+        self.ν=np.zeros((num_reactions,num_components),int)
         
         for j,(state_change,rate) in enumerate(zip(self.state_change_strings,self.rate_equations)):
             parts=state_change.split()
@@ -1722,14 +1840,43 @@ class Stochastic_Simulation(object):
                     val=+1
                 
                 i=self.components.index(name)
-                self.ν[i,j]=val
+                self.ν[j,i]=val
+                    
+
+        for c in self.initial_values:
+            if not c in self.components:
+                raise ValueError("%s not in components values." % c)
                     
         for c in self.components:
             if not c in self.initial_values:
                 raise ValueError("%s not in initial values." % c)
             
+            
+        func_str="@numba.jit(nopython=True)\ndef _propensity_function(population, args):\n"
+
+        func_str+="    "
+        func_str+=",".join(self.components) + " = population\n"
+        func_str+="    "
+        func_str+=",".join(self._params_keys)+ " = args\n"
+        func_str+="    "+"\n"
+
+        for eq in self.equations:
+            func_str+="    "+eq+"\n"
+
+
+        func_str+="    "+"\n"
+
+
+        func_str+="    "+"return np.array([\n"
+        for a in self.rate_equations:
+            func_str+="        "+a+",\n"
+        func_str+="    "+"])\n"
+
+        self.func_str=func_str
+            
+        exec (func_str, globals())            
         
-    def run(self,t_max,Nsims=1):
+    def run(self,t_max,Nsims=1,num_iterations=101,):
         from tqdm import tqdm
         
         if self.ν is None:
@@ -1738,114 +1885,67 @@ class Stochastic_Simulation(object):
         self.all_storage=[]
         
         disable=Nsims==1
-        for _i in tqdm(range(Nsims),disable=disable):
-            self.Storage=Storage(save_every=self.save_every)
-            self._t=0
-            for c in self.components:
-                self.current_values[c]=self.initial_values[c]
-
-            self.gillespie_first_reaction(t_max)
-            self.all_storage.append(self.Storage)
         
+        population_0=np.array([self.initial_values[c] for c in self.components], dtype=int)
+        time_points=np.linspace(0,t_max,num_iterations)        
+        args = np.array(self._params_vals)
+        n_simulations = Nsims
+
+        # Initialize output array
+        pops = np.empty((n_simulations, len(time_points), len(population_0)), dtype=int)
+
+        # Run the calculations
+        for _i in tqdm(range(n_simulations),disable=disable):
+            pops[_i,:,:] = _gillespie_ssa(self.ν, 
+                                        population_0, time_points, args=args)            
+
+        self.t=time_points
         
-    def gillespie_first_reaction(self,tf):
-
-        import numpy as np
-        from pyndamics3 import Storage
-
-        S=self.Storage
-        X=np.array([self.current_values[c] for c in self.components])
-        t=self._t
+        self.result=Struct()
+        for _i,c in enumerate(self.components):
+            setattr(self, c, pops[-1,:,_i])
+            self.result[c]=pops[:,:,_i]
         
-        if not S.data:
-            t=0
-            S+=tuple([t]+list(X))
-        else:
-            t=S.data[0][-1]
-            X=np.array([_[-1] for _ in S.data[1:]])
-
-        t0=t
-        with np.errstate(divide='ignore'):
-            while True:
-
-                
-                D=dict(zip(self.components,X))
-                D.update(self._params)
-                for _ in self.equations:
-                    parts=_.split("=")
-                    D[parts[0]]=eval(parts[1],None,D)
-                
-                a=np.array([eval(_,None,D) for _ in self.rate_equations])
-
-                r=np.random.rand(len(a))
-
-                τ=-np.log(r)/a
-
-                j=τ.argmin()
-
-                t=t+τ[j]
-                X=X+self.ν[:,j]    
-
-                S+=tuple([t]+list(X))
-
-                if t-t0>tf:
-                    break
 
 
-        S+=tuple([t]+list(X))
-
-        for c,x in zip(self.components,X):
-            self.current_values[c]=x
-            
-        self._t=t
-
-        return S        
-        
-    def __getattr__(self, item):
-        """Maps values to attributes.
-        Only called if there *isn't* an attribute with this name
-        """
-        try:
-            return self.__getitem__(item)
-        except KeyError:
-            raise AttributeError(item)
-
-        
-        
-    def __getitem__(self,key):
-        
-        if isinstance(key,int):
-            D=Struct()
-            arr=self.all_storage[key].arrays()
-            D['t']=arr[0]
-            
-            for i,c in enumerate(self.components):
-                D[c]=arr[i+1]
-            
-            return D
-            
-        else:
-        
-            arr=self.Storage.arrays()
-        
-            if key=='t':
-                return arr[0]
-
-            idx=self.components.index(key)
-            return arr[idx+1]
+# In[49]:
 
 
-# In[ ]:
+β=0.2
+γ=0.1
+So=990
+Io=10
+
+dynamic_sim=sim=Simulation()
+sim.add("N=S+I+R")
+sim.add("S'=-β*S*I/N",So)
+sim.add("I'=+β*S*I/N-γ*I",Io)
+sim.add("R'=+γ*I",0)
+sim.params(β=β,γ=γ)
+sim.run(200)
 
 
+stoch_sim=sim=Stochastic_Simulation()
+sim.add("-S+I",'β*S*I/N',S=So,I=Io)
+sim.add("-I +R",'γ*I',R=0)
+sim.add("N=S+I+R")
+sim.params(β=β,γ=γ)
+sim.run(200,Nsims=100)
 
+for i in range(100):
+    
+    plot(sim.t,sim.result.S[i,:],'bo',alpha=0.05)
+    plot(sim.t,sim.result.I[i,:],'ro',alpha=0.05)
+
+plot(dynamic_sim.t,dynamic_sim.S,'c-')
+plot(dynamic_sim.t,dynamic_sim.I,'m-')
 
 
 # # Some Examples
 
 # ## Logistic
 
-# In[20]:
+# In[21]:
 
 
 sim=Simulation()
@@ -1855,7 +1955,7 @@ sim.params(a=1.5,K=300)
 sim.run(0,50)
 
 
-# In[21]:
+# In[22]:
 
 
 sim=Simulation()
@@ -1868,24 +1968,39 @@ sim.run(0,50,discrete=True)
 
 # ## Map
 
-# In[22]:
+# In[24]:
 
 
 sim=Simulation('map')
 sim.add("x=a*x*(1-x)",0.11)
 figure(figsize=(12,8))
-for a in linspace(.1,4,600):
+for a in linspace(.1,4,1200):
     sim.params(a=a)
     sim.run(0,1000)
 
     x=sim['x'][-100:]
 
-    plot(a*ones(x.shape),x,'k.',markersize=1)
+    plot(a*ones(x.shape),x,'k.',markersize=.5)
+
+
+# In[25]:
+
+
+sim=Simulation('map')
+sim.add("x=a*x*(1-x)",0.11)
+figure(figsize=(12,8))
+for a in linspace(3.2,4,1200):
+    sim.params(a=a)
+    sim.run(0,1000)
+
+    x=sim['x'][-100:]
+
+    plot(a*ones(x.shape),x,'k.',markersize=.5)
 
 
 # ## Repeat
 
-# In[23]:
+# In[26]:
 
 
 sim=Simulation()
@@ -1904,7 +2019,7 @@ for res in result:
 
 # ## Higher Order
 
-# In[24]:
+# In[27]:
 
 
 sim=Simulation()
@@ -1914,7 +2029,7 @@ sim.params(k=1.0,m=1.0,b=0.5)
 sim.run(0,20)
 
 
-# In[25]:
+# In[28]:
 
 
 phase_plot(sim,"x","x_p_")
@@ -1922,7 +2037,7 @@ phase_plot(sim,"x","x_p_")
 
 # ## Exploring parameters
 
-# In[26]:
+# In[29]:
 
 
 #export
@@ -1996,7 +2111,7 @@ def explore_parameters(sim,figsize=None,**kwargs):
 
 
 
-# In[27]:
+# In[30]:
 
 
 sim=Simulation()
@@ -2007,13 +2122,13 @@ sim.params(a=1.5,Kt=30)
 sim.run(0,50)
 
 
-# In[28]:
+# In[31]:
 
 
 explore_parameters(sim,Kt=linspace(10,100,10))
 
 
-# In[29]:
+# In[32]:
 
 
 sim=Simulation()
@@ -2026,19 +2141,19 @@ sim.params(β=0.2,γ=0.1)
 sim.run(150)
 
 
-# In[30]:
+# In[33]:
 
 
 explore_parameters(sim,figsize=(12,8),β=linspace(0,0.2,11))
 
 
-# In[31]:
+# In[34]:
 
 
 explore_parameters(sim,figsize=(12,8),β=[0,.1,.2,0,.1,.2],γ=[.1,.1,.1,.3,.3,.3])
 
 
-# In[32]:
+# In[35]:
 
 
 β,γ=meshgrid([0,.1,.2],[0,.1,.2])
@@ -2047,7 +2162,7 @@ explore_parameters(sim,figsize=(12,8),β=β,γ=γ)
 
 # ## Functions of time
 
-# In[33]:
+# In[36]:
 
 
 def a_vs_time(t):
@@ -2084,6 +2199,7 @@ stoch_sim=sim=Stochastic_Simulation()
 sim.add("-S+I",'β*S*I/N',S=So,I=Io)
 sim.add("-I +R",'γ*I',R=0)
 sim.add("N=S+I+R")
+sim.params(β=β,γ=γ)
 sim.run(200)
 
 

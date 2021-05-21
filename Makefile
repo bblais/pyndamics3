@@ -18,6 +18,9 @@ docs: $(SRC)
 	nbdev_build_docs
 	touch docs
 
+install: pyndamics3
+	pip install . --upgrade
+
 test:
 	nbdev_test_nbs
 

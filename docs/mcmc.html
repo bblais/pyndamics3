@@ -32,7 +32,7 @@ nb_path: "01_mcmc.ipynb"
 <div class="output_area">
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>pyndamics3  version  0.0.4
+<pre>pyndamics3  version  0.0.14
 </pre>
 </div>
 </div>
@@ -1439,7 +1439,7 @@ Done.
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">model</span><span class="o">=</span><span class="n">MCMCModel</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span>
-                <span class="n">a</span><span class="o">=</span><span class="n">Uniform</span><span class="p">(</span><span class="o">.</span><span class="mi">001</span><span class="p">,</span><span class="mi">5</span><span class="p">),</span>
+                <span class="n">a</span><span class="o">=</span><span class="n">Uniform</span><span class="p">(</span><span class="mf">.001</span><span class="p">,</span><span class="mi">5</span><span class="p">),</span>
                 <span class="n">K</span><span class="o">=</span><span class="n">Uniform</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span><span class="mi">500</span><span class="p">),</span>
                 <span class="n">initial_h</span><span class="o">=</span><span class="n">Uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">100</span><span class="p">),</span>
                 <span class="p">)</span>
@@ -1751,7 +1751,7 @@ Done.
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">500</span><span class="p">):</span>
     <span class="n">model</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
     <span class="n">sim</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">150</span><span class="p">)</span>
-    <span class="n">py</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">sim</span><span class="o">.</span><span class="n">t</span><span class="p">,</span><span class="n">sim</span><span class="o">.</span><span class="n">h</span><span class="p">,</span><span class="s1">&#39;g-&#39;</span><span class="p">,</span><span class="n">alpha</span><span class="o">=.</span><span class="mi">05</span><span class="p">)</span>
+    <span class="n">py</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">sim</span><span class="o">.</span><span class="n">t</span><span class="p">,</span><span class="n">sim</span><span class="o">.</span><span class="n">h</span><span class="p">,</span><span class="s1">&#39;g-&#39;</span><span class="p">,</span><span class="n">alpha</span><span class="o">=</span><span class="mf">.05</span><span class="p">)</span>
     <span class="n">saved_h</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sim</span><span class="o">.</span><span class="n">h</span><span class="p">)</span>
 <span class="n">sim</span><span class="o">.</span><span class="n">noplots</span><span class="o">=</span><span class="kc">False</span>  <span class="c1"># gotta love a double-negative</span>
 <span class="n">py</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">h</span><span class="p">,</span><span class="s1">&#39;bo&#39;</span><span class="p">)</span>  <span class="c1"># plot the data</span>

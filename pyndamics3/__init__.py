@@ -1,5 +1,5 @@
 from .core import *
 
-__version__ = "0.0.12"
+__version__ = "0.0.14"
 
 print(__name__," version ",__version__)
