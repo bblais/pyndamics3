@@ -1651,7 +1651,7 @@ def pso_fit_sim(varname,xd,yd,sim,parameters,
 
 # # Stochastic Sims
 
-# In[77]:
+# In[80]:
 
 
 #export
@@ -1673,6 +1673,7 @@ class Struct(dict):
 
 
 
+# copied from http://be150.caltech.edu/2018/handouts/l12_stochastic_simulation.html
 
 import numba
 
