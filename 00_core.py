@@ -1920,10 +1920,8 @@ class Stochastic_Simulation(object):
 
         self.t=time_points
         self.extinction_times=extinction_time
-        self.result=Struct()
         for _i,c in enumerate(self.components):
-            setattr(self, c, pops[-1,:,_i])
-            self.result[c]=pops[:,:,_i]
+            setattr(self, c, pops[:,:,_i])
         
 
 
