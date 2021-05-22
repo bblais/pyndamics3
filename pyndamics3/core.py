@@ -1773,6 +1773,7 @@ class Stochastic_Simulation(object):
 
 
 
+
 # Cell
 def explore_parameters(sim,figsize=None,**kwargs):
 

@@ -1924,6 +1924,8 @@ class Stochastic_Simulation(object):
             setattr(self, c, pops[:,:,_i])
         
 
+        
+
 
 # In[78]:
 
