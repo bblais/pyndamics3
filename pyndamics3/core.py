@@ -1768,9 +1768,19 @@ class Stochastic_Simulation(object):
 
         self.t=time_points
         self.extinction_times=extinction_time
+        D={}
         for _i,c in enumerate(self.components):
-            setattr(self, c, pops[:,:,_i])
+            v=pops[:,:,_i]
+            if v.shape[0]==1:
+                v=v.ravel()
 
+            setattr(self, c,v)
+            D[c]=v
+
+        for eq in self.equations:
+            exec(eq,D)
+            name=eq.split('=')[0].strip()
+            setattr(self, name,D[name])
 
 
 
