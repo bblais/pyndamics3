@@ -3,7 +3,7 @@
 
 # # Introduction to MCMC on Dynamical Systems Using Zombies
 
-# In[ ]:
+# In[1]:
 
 
 #hide
@@ -11,19 +11,19 @@
 get_ipython().system(' [ -e /content ] && pip install -Uqq pyndamics3 emcee # upgrade pyndamics3 on colab')
 
 
-# In[1]:
+# In[2]:
 
 
 get_ipython().run_line_magic('pylab', 'inline')
 
 
-# In[2]:
+# In[3]:
 
 
 from pyndamics3 import Simulation
 
 
-# In[10]:
+# In[4]:
 
 
 from pyndamics3.mcmc import *
@@ -31,7 +31,7 @@ from pyndamics3.mcmc import *
 
 # ## SIR Model
 
-# In[11]:
+# In[5]:
 
 
 sim=Simulation()
@@ -44,7 +44,7 @@ sim.run(0,10)
 
 # ## SEIR Model
 
-# In[12]:
+# In[6]:
 
 
 sim=Simulation()
@@ -60,7 +60,7 @@ sim.run(0,10)
 # 
 # Notice that no matter what the parameters are changed to, Z (zombies) always win.
 
-# In[13]:
+# In[7]:
 
 
 sim=Simulation()
@@ -75,14 +75,14 @@ sim.run(0,30)
 
 # Movie "data" from Night of the Living Dead
 
-# In[14]:
+# In[8]:
 
 
 t=array([0,1,1.5,3,4.5,5,5.75,5.9,10])
 zombies=array([1,1,3,8,10,20,28,30,40])
 
 
-# In[15]:
+# In[9]:
 
 
 sim=Simulation()
@@ -97,7 +97,7 @@ sim.run(0,10)
 
 # MCMC parameter estimation for $\alpha$ (rate of zombies being permanently removed), $\beta$ (rate of susceptibles becoming infected), $\zeta$ (the rate of infected into becoming zombies), and $\delta$ (suicide rate among susceptibles)
 
-# In[68]:
+# In[10]:
 
 
 model=MCMCModel(sim,

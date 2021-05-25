@@ -1651,7 +1651,7 @@ def pso_fit_sim(varname,xd,yd,sim,parameters,
 
 # # Stochastic Sims
 
-# In[80]:
+# In[20]:
 
 
 #export
@@ -1937,7 +1937,7 @@ class Stochastic_Simulation(object):
         
 
 
-# In[78]:
+# In[22]:
 
 
 β=0.2
@@ -1963,8 +1963,8 @@ sim.run(200,Nsims=100)
 
 for i in range(100):
     
-    plot(sim.t,sim.result.S[i,:],'bo',alpha=0.05)
-    plot(sim.t,sim.result.I[i,:],'ro',alpha=0.05)
+    plot(sim.t,sim.S[i],'bo',alpha=0.05)
+    plot(sim.t,sim.I[i],'ro',alpha=0.05)
 
 plot(dynamic_sim.t,dynamic_sim.S,'c-')
 plot(dynamic_sim.t,dynamic_sim.I,'m-')
@@ -1972,13 +1972,13 @@ plot(dynamic_sim.t,dynamic_sim.I,'m-')
 print(sim.func_str)
 
 
-# In[79]:
+# In[23]:
 
 
 sim.extinction_times
 
 
-# In[72]:
+# In[24]:
 
 
 stoch_sim=sim=Stochastic_Simulation()
@@ -1988,7 +1988,7 @@ sim.params(N=10)
 sim.run(50,num_iterations=101)
 
 
-# In[73]:
+# In[25]:
 
 
 plot(sim.t,sim.X,'-o')
@@ -2237,7 +2237,7 @@ sim.run(10)
 
 # ## Stochastic Simulation Examples
 
-# In[37]:
+# In[26]:
 
 
 β=0.2
@@ -2262,15 +2262,15 @@ sim.params(β=β,γ=γ)
 sim.run(200)
 
 
-# In[38]:
+# In[27]:
 
 
 sim.run(200,Nsims=100)
 
 for i in range(100):
     
-    plot(sim[i].t,sim[i].S,'bo',alpha=0.005)
-    plot(sim[i].t,sim[i].I,'ro',alpha=0.005)
+    plot(sim.t,sim.S[i],'bo',alpha=0.005)
+    plot(sim.t,sim.I[i],'ro',alpha=0.005)
 
 plot(dynamic_sim.t,dynamic_sim.S,'c-')
 plot(dynamic_sim.t,dynamic_sim.I,'m-')
