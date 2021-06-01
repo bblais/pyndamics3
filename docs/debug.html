@@ -212,6 +212,647 @@ nb_path: "099_debug.ipynb"
 </div>
     {% endraw %}
 
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">%</span><span class="k">pylab</span> inline
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Populating the interactive namespace from numpy and matplotlib
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">pyndamics3</span> <span class="kn">import</span> <span class="n">Struct</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>pyndamics3  version  0.0.20
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># copied from http://be150.caltech.edu/2018/handouts/l12_stochastic_simulation.html</span>
+
+<span class="kn">import</span> <span class="nn">numba</span>
+
+<span class="nd">@numba</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">nopython</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_sample_discrete</span><span class="p">(</span><span class="n">probs</span><span class="p">,</span> <span class="n">probs_sum</span><span class="p">):</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">()</span> <span class="o">*</span> <span class="n">probs_sum</span>
+
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">p_sum</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">while</span> <span class="n">p_sum</span> <span class="o">&lt;</span> <span class="n">q</span><span class="p">:</span>
+        <span class="n">p_sum</span> <span class="o">+=</span> <span class="n">probs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">1</span>
+
+
+<span class="k">class</span> <span class="nc">Stochastic_Simulation</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="o">=</span><span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">equations</span><span class="o">=</span><span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initial_values</span><span class="o">=</span><span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_values</span><span class="o">=</span><span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ν</span><span class="o">=</span><span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state_change_strings</span><span class="o">=</span><span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rate_equations</span><span class="o">=</span><span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">quasi</span><span class="o">=</span><span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_params</span><span class="o">=</span><span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_params_keys</span><span class="o">=</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_params_vals</span><span class="o">=</span><span class="p">()</span>
+    
+    <span class="k">def</span> <span class="nf">params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_params</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_params_keys</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_params</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_params_vals</span><span class="o">=</span><span class="nb">tuple</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_params</span><span class="p">[</span><span class="n">_</span><span class="p">]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_params_keys</span><span class="p">])</span>
+        
+    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">component_change_equation</span><span class="p">,</span><span class="n">rate_equation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">quasi</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        
+        
+        <span class="k">if</span> <span class="s2">&quot;=&quot;</span> <span class="ow">in</span> <span class="n">component_change_equation</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">equations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">component_change_equation</span><span class="p">)</span>
+            <span class="k">return</span> 
+        
+        <span class="n">component_change_equation</span><span class="o">=</span><span class="n">component_change_equation</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;+&#39;</span><span class="p">,</span><span class="s1">&#39; +&#39;</span><span class="p">)</span>
+        <span class="n">component_change_equation</span><span class="o">=</span><span class="n">component_change_equation</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span><span class="s1">&#39; -&#39;</span><span class="p">)</span>
+        
+        <span class="n">parts</span><span class="o">=</span><span class="n">component_change_equation</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">part</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">part</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;+&#39;</span><span class="p">)):</span>
+                <span class="k">raise</span> <span class="ne">SyntaxError</span><span class="p">(</span><span class="s2">&quot;State change strings must start with + or -: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">component_change_equation</span><span class="p">)</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">part</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            
+        <span class="bp">self</span><span class="o">.</span><span class="n">state_change_strings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">component_change_equation</span><span class="p">)</span>            
+        <span class="bp">self</span><span class="o">.</span><span class="n">rate_equations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rate_equation</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initial_values</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_values</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">quasi</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">quasi</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="kn">import</span> <span class="nn">numba</span>
+        <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+        <span class="n">num_components</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">)</span>
+        <span class="n">num_reactions</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rate_equations</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ν</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">num_reactions</span><span class="p">,</span><span class="n">num_components</span><span class="p">),</span><span class="nb">int</span><span class="p">)</span>
+        
+        <span class="k">for</span> <span class="n">j</span><span class="p">,(</span><span class="n">state_change</span><span class="p">,</span><span class="n">rate</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state_change_strings</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">rate_equations</span><span class="p">)):</span>
+            <span class="n">parts</span><span class="o">=</span><span class="n">state_change</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">part</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">part</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;+&#39;</span><span class="p">)):</span>
+                    <span class="k">raise</span> <span class="ne">SyntaxError</span><span class="p">(</span><span class="s2">&quot;State change strings must start with + or -: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">component_change_equation</span><span class="p">)</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">part</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+                <span class="k">if</span> <span class="n">part</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;-&#39;</span><span class="p">:</span>
+                    <span class="n">val</span><span class="o">=-</span><span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">val</span><span class="o">=+</span><span class="mi">1</span>
+                
+                <span class="n">i</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ν</span><span class="p">[</span><span class="n">j</span><span class="p">,</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="n">val</span>
+                    
+
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_values</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> not in components values.&quot;</span> <span class="o">%</span> <span class="n">c</span><span class="p">)</span>
+                    
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_values</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> not in initial values.&quot;</span> <span class="o">%</span> <span class="n">c</span><span class="p">)</span>
+            
+            
+        <span class="c1">#func_str=&quot;@numba.jit(nopython=True)\ndef _propensity_function(population, args):\n&quot;</span>
+        <span class="n">func_str</span><span class="o">=</span><span class="s2">&quot;@numba.jit(nopython=True)</span><span class="se">\n</span><span class="s2">def _propensity_function_abcde(population, args):</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="n">func_str</span><span class="o">+=</span><span class="s2">&quot;    &quot;</span>
+        
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">:</span>        
+            <span class="n">func_str</span><span class="o">+=</span><span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; = population</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">func_str</span><span class="o">+=</span><span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;, = population</span><span class="se">\n</span><span class="s2">&quot;</span>
+                        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_params_keys</span><span class="p">:</span>
+            <span class="n">func_str</span><span class="o">+=</span><span class="s2">&quot;    &quot;</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_params_keys</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">:</span>        
+                <span class="n">func_str</span><span class="o">+=</span><span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_params_keys</span><span class="p">)</span><span class="o">+</span> <span class="s2">&quot; = args</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">func_str</span><span class="o">+=</span><span class="bp">self</span><span class="o">.</span><span class="n">_params_keys</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span> <span class="s2">&quot;, = args</span><span class="se">\n</span><span class="s2">&quot;</span>
+            
+        <span class="n">func_str</span><span class="o">+=</span><span class="s2">&quot;    &quot;</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="k">for</span> <span class="n">eq</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">equations</span><span class="p">:</span>
+            <span class="n">func_str</span><span class="o">+=</span><span class="s2">&quot;    &quot;</span><span class="o">+</span><span class="n">eq</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+
+        <span class="n">func_str</span><span class="o">+=</span><span class="s2">&quot;    &quot;</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+
+        <span class="n">func_str</span><span class="o">+=</span><span class="s2">&quot;    &quot;</span><span class="o">+</span><span class="s2">&quot;val = np.array([</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">rate_equations</span><span class="p">:</span>
+            <span class="n">func_str</span><span class="o">+=</span><span class="s2">&quot;        &quot;</span><span class="o">+</span><span class="n">a</span><span class="o">+</span><span class="s2">&quot;,</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">func_str</span><span class="o">+=</span><span class="s2">&quot;    &quot;</span><span class="o">+</span><span class="s2">&quot;],float)</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="k">for</span> <span class="n">qi</span><span class="p">,</span><span class="n">q</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">quasi</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">q</span><span class="p">:</span>
+                <span class="k">continue</span>
+                
+            <span class="n">func_str</span><span class="o">+=</span><span class="s2">&quot;    &quot;</span><span class="o">+</span><span class="sa">f</span><span class="s2">&quot;if (</span><span class="si">{</span><span class="n">q</span><span class="si">}</span><span class="s2">):</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="n">func_str</span><span class="o">+=</span><span class="s2">&quot;    &quot;</span><span class="o">+</span><span class="s2">&quot;    &quot;</span><span class="o">+</span><span class="sa">f</span><span class="s2">&quot;val[</span><span class="si">{</span><span class="n">qi</span><span class="si">}</span><span class="s2">]=0</span><span class="se">\n</span><span class="s2">&quot;</span>
+        
+            <span class="n">func_str</span><span class="o">+=</span><span class="s2">&quot;    &quot;</span><span class="o">+</span><span class="sa">f</span><span class="s2">&quot;if ((A==0) or (B==0)):</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="n">func_str</span><span class="o">+=</span><span class="s2">&quot;    &quot;</span><span class="o">+</span><span class="s2">&quot;    &quot;</span><span class="o">+</span><span class="sa">f</span><span class="s2">&quot;raise ValueError()</span><span class="se">\n</span><span class="s2">&quot;</span>
+                
+        
+        <span class="n">func_str</span><span class="o">+=</span><span class="s2">&quot;    &quot;</span><span class="o">+</span><span class="s2">&quot;return val&quot;</span>
+        
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">func_str</span><span class="o">=</span><span class="n">func_str</span>
+            
+        <span class="n">exec</span> <span class="p">(</span><span class="n">func_str</span><span class="p">,</span><span class="nb">globals</span><span class="p">())</span>                      
+        <span class="bp">self</span><span class="o">.</span><span class="n">propensity_function</span><span class="o">=</span><span class="n">_propensity_function_abcde</span>
+        
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">t_max</span><span class="p">,</span><span class="n">Nsims</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">num_iterations</span><span class="o">=</span><span class="mi">1001</span><span class="p">,):</span>
+        <span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+        
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ν</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
+
+        <span class="n">_propensity_function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">propensity_function</span>
+        
+        
+        <span class="nd">@numba</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">nopython</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">_ssa</span><span class="p">(</span><span class="n">update</span><span class="p">,</span> <span class="n">population_0</span><span class="p">,</span> <span class="n">time_points</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+            <span class="c1"># Initialize output</span>
+            <span class="n">pop_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">time_points</span><span class="p">),</span> <span class="n">update</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+
+            <span class="c1"># Initialize and perform simulation</span>
+            <span class="n">i_time</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="n">time_points</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">population</span> <span class="o">=</span> <span class="n">population_0</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">pop_out</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">population</span>
+            <span class="n">extinction_time</span><span class="o">=-</span><span class="mf">1.0</span>
+            <span class="n">previous_t</span><span class="o">=</span><span class="n">t</span>
+            <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">time_points</span><span class="p">):</span>
+                <span class="k">while</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="n">time_points</span><span class="p">[</span><span class="n">i_time</span><span class="p">]:</span>
+                    <span class="c1"># draw the event and time step</span>
+                    <span class="n">event</span><span class="p">,</span> <span class="n">dt</span> <span class="o">=</span> <span class="n">_draw</span><span class="p">(</span><span class="n">population</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+
+                    <span class="c1"># Update the population</span>
+                    <span class="n">population_previous</span> <span class="o">=</span> <span class="n">population</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                    <span class="n">population</span> <span class="o">+=</span> <span class="n">update</span><span class="p">[</span><span class="n">event</span><span class="p">,:]</span>
+
+                    <span class="c1"># Increment time</span>
+                    <span class="n">previous_t</span><span class="o">=</span><span class="n">t</span>
+                    <span class="n">t</span> <span class="o">+=</span> <span class="n">dt</span>
+
+
+                <span class="k">if</span> <span class="n">dt</span><span class="o">==</span><span class="mf">1e500</span> <span class="ow">and</span> <span class="n">extinction_time</span><span class="o">&lt;</span><span class="mf">0.0</span><span class="p">:</span>
+                    <span class="n">extinction_time</span><span class="o">=</span><span class="n">previous_t</span>
+
+                <span class="c1"># Update the index (Have to be careful about types for Numba)</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">((</span><span class="n">time_points</span> <span class="o">&gt;</span> <span class="n">t</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+
+                <span class="c1"># Update the population</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">i_time</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">time_points</span><span class="p">))):</span>
+                    <span class="n">pop_out</span><span class="p">[</span><span class="n">j</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">population_previous</span>
+
+                <span class="c1"># Increment index</span>
+                <span class="n">i_time</span> <span class="o">=</span> <span class="n">i</span>
+
+            <span class="k">return</span> <span class="n">pop_out</span><span class="p">,</span><span class="n">extinction_time</span>
+        
+        <span class="nd">@numba</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">nopython</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">_draw</span><span class="p">(</span><span class="n">population</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Draws a reaction and the time it took to do that reaction.</span>
+
+<span class="sd">            Assumes that there is a globally scoped function</span>
+<span class="sd">            `prop_func` that is Numba&#39;d with nopython=True.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="c1"># Compute propensities</span>
+            <span class="n">props</span> <span class="o">=</span> <span class="n">_propensity_function</span><span class="p">(</span><span class="n">population</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+
+            <span class="c1"># Sum of propensities</span>
+            <span class="n">props_sum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">props</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">props_sum</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+                <span class="n">time</span><span class="o">=</span><span class="mf">1e500</span>
+                <span class="n">rxn</span><span class="o">=</span><span class="mi">0</span>
+            <span class="k">else</span><span class="p">:</span>
+
+                <span class="c1"># Compute time</span>
+                <span class="n">time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">exponential</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">props_sum</span><span class="p">)</span>
+
+                <span class="c1"># Draw reaction given propensities</span>
+                <span class="n">rxn</span> <span class="o">=</span> <span class="n">_sample_discrete</span><span class="p">(</span><span class="n">props</span><span class="p">,</span> <span class="n">props_sum</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">rxn</span><span class="p">,</span> <span class="n">time</span>
+
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">all_storage</span><span class="o">=</span><span class="p">[]</span>
+        
+        <span class="n">disable</span><span class="o">=</span><span class="n">Nsims</span><span class="o">==</span><span class="mi">1</span>
+        
+        <span class="n">population_0</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_values</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">time_points</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">t_max</span><span class="p">,</span><span class="n">num_iterations</span><span class="p">)</span>        
+        <span class="n">args</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_params_vals</span><span class="p">)</span>
+        <span class="n">n_simulations</span> <span class="o">=</span> <span class="n">Nsims</span>
+
+        <span class="c1"># Initialize output array</span>
+        <span class="n">pops</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">n_simulations</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">time_points</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">population_0</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">extinction_time</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">n_simulations</span><span class="p">,</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+        <span class="c1"># Run the calculations</span>
+        <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">n_simulations</span><span class="p">),</span><span class="n">disable</span><span class="o">=</span><span class="n">disable</span><span class="p">):</span>
+            <span class="n">pops</span><span class="p">[</span><span class="n">_i</span><span class="p">,:,:],</span><span class="n">extinction_time</span><span class="p">[</span><span class="n">_i</span><span class="p">]</span> <span class="o">=</span> <span class="n">_ssa</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ν</span><span class="p">,</span> 
+                                        <span class="n">population_0</span><span class="p">,</span> <span class="n">time_points</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">)</span>            
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="o">=</span><span class="n">time_points</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extinction_times</span><span class="o">=</span><span class="n">extinction_time</span>
+        <span class="n">D</span><span class="o">=</span><span class="p">{}</span>
+        <span class="k">for</span> <span class="n">_i</span><span class="p">,</span><span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">):</span>
+            <span class="n">v</span><span class="o">=</span><span class="n">pops</span><span class="p">[:,:,</span><span class="n">_i</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+                <span class="n">v</span><span class="o">=</span><span class="n">v</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+                
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span><span class="n">v</span><span class="p">)</span>
+            <span class="n">D</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">=</span><span class="n">v</span>
+        
+        <span class="k">for</span> <span class="n">eq</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">equations</span><span class="p">:</span>
+            <span class="n">exec</span><span class="p">(</span><span class="n">eq</span><span class="p">,</span><span class="n">D</span><span class="p">)</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">eq</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span><span class="n">D</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+
+  
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">β</span><span class="o">=</span><span class="mf">0.2</span>
+<span class="n">γ</span><span class="o">=</span><span class="mf">0.1</span>
+<span class="n">So</span><span class="o">=</span><span class="mi">990</span>
+<span class="n">Io</span><span class="o">=</span><span class="mi">10</span>
+
+<span class="n">stoch_sim</span><span class="o">=</span><span class="n">sim</span><span class="o">=</span><span class="n">Stochastic_Simulation</span><span class="p">()</span>
+<span class="n">sim</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;+A&quot;</span><span class="p">,</span><span class="s1">&#39;A&#39;</span><span class="p">,</span><span class="n">A</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">sim</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;-A&quot;</span><span class="p">,</span><span class="s1">&#39;A**2/10&#39;</span><span class="p">)</span>
+<span class="n">sim</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="n">Nsims</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">):</span>    
+    <span class="n">plot</span><span class="p">(</span><span class="n">sim</span><span class="o">.</span><span class="n">t</span><span class="p">,</span><span class="n">sim</span><span class="o">.</span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="s1">&#39;b-o&#39;</span><span class="p">,</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>  0%|          | 0/100 [00:00&lt;?, ?it/s]
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+<div class="output_subarea output_text output_error">
+<pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">TypingError</span>                               Traceback (most recent call last)
+<span class="ansi-green-fg">&lt;ipython-input-4-204f58181059&gt;</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span>
+<span class="ansi-green-intense-fg ansi-bold">      7</span> sim<span class="ansi-blue-fg">.</span>add<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">&#34;+A&#34;</span><span class="ansi-blue-fg">,</span><span class="ansi-blue-fg">&#39;A&#39;</span><span class="ansi-blue-fg">,</span>A<span class="ansi-blue-fg">=</span><span class="ansi-cyan-fg">1</span><span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">      8</span> sim<span class="ansi-blue-fg">.</span>add<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">&#34;-A&#34;</span><span class="ansi-blue-fg">,</span><span class="ansi-blue-fg">&#39;A**2/10&#39;</span><span class="ansi-blue-fg">)</span>
+<span class="ansi-green-fg">----&gt; 9</span><span class="ansi-red-fg"> </span>sim<span class="ansi-blue-fg">.</span>run<span class="ansi-blue-fg">(</span><span class="ansi-cyan-fg">10</span><span class="ansi-blue-fg">,</span>Nsims<span class="ansi-blue-fg">=</span><span class="ansi-cyan-fg">100</span><span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">     10</span> 
+<span class="ansi-green-intense-fg ansi-bold">     11</span> <span class="ansi-green-fg">for</span> i <span class="ansi-green-fg">in</span> range<span class="ansi-blue-fg">(</span><span class="ansi-cyan-fg">100</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">:</span>
+
+<span class="ansi-green-fg">&lt;ipython-input-3-45afb2b280b8&gt;</span> in <span class="ansi-cyan-fg">run</span><span class="ansi-blue-fg">(self, t_max, Nsims, num_iterations)</span>
+<span class="ansi-green-intense-fg ansi-bold">    235</span>         <span class="ansi-red-fg"># Run the calculations</span>
+<span class="ansi-green-intense-fg ansi-bold">    236</span>         <span class="ansi-green-fg">for</span> _i <span class="ansi-green-fg">in</span> tqdm<span class="ansi-blue-fg">(</span>range<span class="ansi-blue-fg">(</span>n_simulations<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">,</span>disable<span class="ansi-blue-fg">=</span>disable<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">:</span>
+<span class="ansi-green-fg">--&gt; 237</span><span class="ansi-red-fg">             pops[_i,:,:],extinction_time[_i] = _ssa(self.ν, 
+</span><span class="ansi-green-intense-fg ansi-bold">    238</span>                                         population_0, time_points, args=args)            
+<span class="ansi-green-intense-fg ansi-bold">    239</span> 
+
+<span class="ansi-green-fg">~/opt/anaconda3/envs/py3/lib/python3.8/site-packages/numba/core/dispatcher.py</span> in <span class="ansi-cyan-fg">_compile_for_args</span><span class="ansi-blue-fg">(self, *args, **kws)</span>
+<span class="ansi-green-intense-fg ansi-bold">    418</span>                 e<span class="ansi-blue-fg">.</span>patch_message<span class="ansi-blue-fg">(</span>msg<span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    419</span> 
+<span class="ansi-green-fg">--&gt; 420</span><span class="ansi-red-fg">             </span>error_rewrite<span class="ansi-blue-fg">(</span>e<span class="ansi-blue-fg">,</span> <span class="ansi-blue-fg">&#39;typing&#39;</span><span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    421</span>         <span class="ansi-green-fg">except</span> errors<span class="ansi-blue-fg">.</span>UnsupportedError <span class="ansi-green-fg">as</span> e<span class="ansi-blue-fg">:</span>
+<span class="ansi-green-intense-fg ansi-bold">    422</span>             <span class="ansi-red-fg"># Something unsupported is present in the user code, add help info</span>
+
+<span class="ansi-green-fg">~/opt/anaconda3/envs/py3/lib/python3.8/site-packages/numba/core/dispatcher.py</span> in <span class="ansi-cyan-fg">error_rewrite</span><span class="ansi-blue-fg">(e, issue_type)</span>
+<span class="ansi-green-intense-fg ansi-bold">    359</span>                 <span class="ansi-green-fg">raise</span> e
+<span class="ansi-green-intense-fg ansi-bold">    360</span>             <span class="ansi-green-fg">else</span><span class="ansi-blue-fg">:</span>
+<span class="ansi-green-fg">--&gt; 361</span><span class="ansi-red-fg">                 </span><span class="ansi-green-fg">raise</span> e<span class="ansi-blue-fg">.</span>with_traceback<span class="ansi-blue-fg">(</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    362</span> 
+<span class="ansi-green-intense-fg ansi-bold">    363</span>         argtypes <span class="ansi-blue-fg">=</span> <span class="ansi-blue-fg">[</span><span class="ansi-blue-fg">]</span>
+
+<span class="ansi-red-fg">TypingError</span>: Failed in nopython mode pipeline (step: nopython frontend)
+<span class="ansi-bold">Failed in nopython mode pipeline (step: nopython frontend)
+</span><span class="ansi-bold">Failed in nopython mode pipeline (step: nopython frontend)
+</span><span class="ansi-bold">No implementation of function Function(&lt;built-in function array&gt;) found for signature:
+ 
+ &gt;&gt;&gt; array(list(float64)&lt;iv=None&gt;, Function(&lt;class &#39;float&#39;&gt;))
+ 
+There are 2 candidate implementations:
+</span><span class="ansi-bold">  - Of which 2 did not match due to:
+  Overload of function &#39;array&#39;: File: numba/core/typing/npydecl.py: Line 489.
+    With argument(s): &#39;(list(float64)&lt;iv=None&gt;, Function(&lt;class &#39;float&#39;&gt;))&#39;:</span>
+<span class="ansi-bold">   No match.</span>
+
+<span class="ansi-bold">During: resolving callee type: Function(&lt;built-in function array&gt;)</span>
+<span class="ansi-bold">During: typing of call at &lt;string&gt; (6)
+</span>
+<span class="ansi-bold">
+File &#34;&lt;string&gt;&#34;, line 6:</span>
+<span class="ansi-bold">&lt;source missing, REPL/exec in use?&gt;</span>
+
+<span class="ansi-bold">During: resolving callee type: type(CPUDispatcher(&lt;function _propensity_function_abcde at 0x1a07f0ca0&gt;))</span>
+<span class="ansi-bold">During: typing of call at &lt;ipython-input-3-45afb2b280b8&gt; (203)
+</span>
+<span class="ansi-bold">During: resolving callee type: type(CPUDispatcher(&lt;function _propensity_function_abcde at 0x1a07f0ca0&gt;))</span>
+<span class="ansi-bold">During: typing of call at &lt;ipython-input-3-45afb2b280b8&gt; (203)
+</span>
+<span class="ansi-bold">
+File &#34;&lt;ipython-input-3-45afb2b280b8&gt;&#34;, line 203:</span>
+<span class="ansi-bold">        def _draw(population, args):
+            &lt;source elided&gt;
+            # Compute propensities
+</span><span class="ansi-bold">            props = _propensity_function(population, args)
+</span>            <span class="ansi-bold">^</span>
+
+<span class="ansi-bold">During: resolving callee type: type(CPUDispatcher(&lt;function Stochastic_Simulation.run.&lt;locals&gt;._draw at 0x1a07fc040&gt;))</span>
+<span class="ansi-bold">During: typing of call at &lt;ipython-input-3-45afb2b280b8&gt; (168)
+</span>
+<span class="ansi-bold">During: resolving callee type: type(CPUDispatcher(&lt;function Stochastic_Simulation.run.&lt;locals&gt;._draw at 0x1a07fc040&gt;))</span>
+<span class="ansi-bold">During: typing of call at &lt;ipython-input-3-45afb2b280b8&gt; (168)
+</span>
+<span class="ansi-bold">During: resolving callee type: type(CPUDispatcher(&lt;function Stochastic_Simulation.run.&lt;locals&gt;._draw at 0x1a07fc040&gt;))</span>
+<span class="ansi-bold">During: typing of call at &lt;ipython-input-3-45afb2b280b8&gt; (168)
+</span>
+<span class="ansi-bold">
+File &#34;&lt;ipython-input-3-45afb2b280b8&gt;&#34;, line 168:</span>
+<span class="ansi-bold">        def _ssa(update, population_0, time_points, args):
+            &lt;source elided&gt;
+                    # draw the event and time step
+</span><span class="ansi-bold">                    event, dt = _draw(population, args)
+</span>                    <span class="ansi-bold">^</span>
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">β</span><span class="o">=</span><span class="mf">0.2</span>
+<span class="n">γ</span><span class="o">=</span><span class="mf">0.1</span>
+<span class="n">So</span><span class="o">=</span><span class="mi">990</span>
+<span class="n">Io</span><span class="o">=</span><span class="mi">10</span>
+
+<span class="n">stoch_sim</span><span class="o">=</span><span class="n">sim</span><span class="o">=</span><span class="n">Stochastic_Simulation</span><span class="p">()</span>
+<span class="n">sim</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;+A&quot;</span><span class="p">,</span><span class="s1">&#39;A&#39;</span><span class="p">,</span><span class="n">A</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">sim</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;-A&quot;</span><span class="p">,</span><span class="s1">&#39;A**2/10&#39;</span><span class="p">,</span><span class="n">quasi</span><span class="o">=</span><span class="s1">&#39;A==1&#39;</span><span class="p">)</span>
+<span class="n">sim</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="n">Nsims</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">):</span>    
+    <span class="n">plot</span><span class="p">(</span><span class="n">sim</span><span class="o">.</span><span class="n">t</span><span class="p">,</span><span class="n">sim</span><span class="o">.</span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="s1">&#39;b-o&#39;</span><span class="p">,</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>  0%|          | 0/100 [00:00&lt;?, ?it/s]
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+<div class="output_subarea output_text output_error">
+<pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">TypingError</span>                               Traceback (most recent call last)
+<span class="ansi-green-fg">&lt;ipython-input-11-374a60ae683f&gt;</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span>
+<span class="ansi-green-intense-fg ansi-bold">      7</span> sim<span class="ansi-blue-fg">.</span>add<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">&#34;+A&#34;</span><span class="ansi-blue-fg">,</span><span class="ansi-blue-fg">&#39;A&#39;</span><span class="ansi-blue-fg">,</span>A<span class="ansi-blue-fg">=</span><span class="ansi-cyan-fg">1</span><span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">      8</span> sim<span class="ansi-blue-fg">.</span>add<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">&#34;-A&#34;</span><span class="ansi-blue-fg">,</span><span class="ansi-blue-fg">&#39;A**2/10&#39;</span><span class="ansi-blue-fg">,</span>quasi<span class="ansi-blue-fg">=</span><span class="ansi-blue-fg">&#39;A==1&#39;</span><span class="ansi-blue-fg">)</span>
+<span class="ansi-green-fg">----&gt; 9</span><span class="ansi-red-fg"> </span>sim<span class="ansi-blue-fg">.</span>run<span class="ansi-blue-fg">(</span><span class="ansi-cyan-fg">10</span><span class="ansi-blue-fg">,</span>Nsims<span class="ansi-blue-fg">=</span><span class="ansi-cyan-fg">100</span><span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">     10</span> 
+<span class="ansi-green-intense-fg ansi-bold">     11</span> <span class="ansi-green-fg">for</span> i <span class="ansi-green-fg">in</span> range<span class="ansi-blue-fg">(</span><span class="ansi-cyan-fg">100</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">:</span>
+
+<span class="ansi-green-fg">&lt;ipython-input-3-4b77cf35d25d&gt;</span> in <span class="ansi-cyan-fg">run</span><span class="ansi-blue-fg">(self, t_max, Nsims, num_iterations)</span>
+<span class="ansi-green-intense-fg ansi-bold">    335</span>         <span class="ansi-red-fg"># Run the calculations</span>
+<span class="ansi-green-intense-fg ansi-bold">    336</span>         <span class="ansi-green-fg">for</span> _i <span class="ansi-green-fg">in</span> tqdm<span class="ansi-blue-fg">(</span>range<span class="ansi-blue-fg">(</span>n_simulations<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">,</span>disable<span class="ansi-blue-fg">=</span>disable<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">:</span>
+<span class="ansi-green-fg">--&gt; 337</span><span class="ansi-red-fg">             pops[_i,:,:],extinction_time[_i] = _ssa(self.ν, 
+</span><span class="ansi-green-intense-fg ansi-bold">    338</span>                                         population_0, time_points, args=args)            
+<span class="ansi-green-intense-fg ansi-bold">    339</span> 
+
+<span class="ansi-green-fg">~/opt/anaconda3/envs/py3/lib/python3.8/site-packages/numba/core/dispatcher.py</span> in <span class="ansi-cyan-fg">_compile_for_args</span><span class="ansi-blue-fg">(self, *args, **kws)</span>
+<span class="ansi-green-intense-fg ansi-bold">    418</span>                 e<span class="ansi-blue-fg">.</span>patch_message<span class="ansi-blue-fg">(</span>msg<span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    419</span> 
+<span class="ansi-green-fg">--&gt; 420</span><span class="ansi-red-fg">             </span>error_rewrite<span class="ansi-blue-fg">(</span>e<span class="ansi-blue-fg">,</span> <span class="ansi-blue-fg">&#39;typing&#39;</span><span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    421</span>         <span class="ansi-green-fg">except</span> errors<span class="ansi-blue-fg">.</span>UnsupportedError <span class="ansi-green-fg">as</span> e<span class="ansi-blue-fg">:</span>
+<span class="ansi-green-intense-fg ansi-bold">    422</span>             <span class="ansi-red-fg"># Something unsupported is present in the user code, add help info</span>
+
+<span class="ansi-green-fg">~/opt/anaconda3/envs/py3/lib/python3.8/site-packages/numba/core/dispatcher.py</span> in <span class="ansi-cyan-fg">error_rewrite</span><span class="ansi-blue-fg">(e, issue_type)</span>
+<span class="ansi-green-intense-fg ansi-bold">    359</span>                 <span class="ansi-green-fg">raise</span> e
+<span class="ansi-green-intense-fg ansi-bold">    360</span>             <span class="ansi-green-fg">else</span><span class="ansi-blue-fg">:</span>
+<span class="ansi-green-fg">--&gt; 361</span><span class="ansi-red-fg">                 </span><span class="ansi-green-fg">raise</span> e<span class="ansi-blue-fg">.</span>with_traceback<span class="ansi-blue-fg">(</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    362</span> 
+<span class="ansi-green-intense-fg ansi-bold">    363</span>         argtypes <span class="ansi-blue-fg">=</span> <span class="ansi-blue-fg">[</span><span class="ansi-blue-fg">]</span>
+
+<span class="ansi-red-fg">TypingError</span>: Failed in nopython mode pipeline (step: nopython frontend)
+<span class="ansi-bold">Failed in nopython mode pipeline (step: nopython frontend)
+</span><span class="ansi-bold">Invalid use of type(CPUDispatcher(&lt;function _propensity_function_abcde at 0x1b00d8e50&gt;)) with parameters (array(int64, 1d, C), array(float64, 1d, C))
+</span>
+<span class="ansi-bold">During: resolving callee type: type(CPUDispatcher(&lt;function _propensity_function_abcde at 0x1b00d8e50&gt;))</span>
+<span class="ansi-bold">During: typing of call at &lt;ipython-input-3-4b77cf35d25d&gt; (303)
+</span>
+<span class="ansi-bold">
+File &#34;&lt;ipython-input-3-4b77cf35d25d&gt;&#34;, line 303:</span>
+<span class="ansi-bold">        def _draw(population, args):
+            &lt;source elided&gt;
+            # Compute propensities
+</span><span class="ansi-bold">            props = _propensity_function(population, args)
+</span>            <span class="ansi-bold">^</span>
+
+<span class="ansi-bold">During: resolving callee type: type(CPUDispatcher(&lt;function Stochastic_Simulation.run.&lt;locals&gt;._draw at 0x1afd011f0&gt;))</span>
+<span class="ansi-bold">During: typing of call at &lt;ipython-input-3-4b77cf35d25d&gt; (268)
+</span>
+<span class="ansi-bold">During: resolving callee type: type(CPUDispatcher(&lt;function Stochastic_Simulation.run.&lt;locals&gt;._draw at 0x1afd011f0&gt;))</span>
+<span class="ansi-bold">During: typing of call at &lt;ipython-input-3-4b77cf35d25d&gt; (268)
+</span>
+<span class="ansi-bold">During: resolving callee type: type(CPUDispatcher(&lt;function Stochastic_Simulation.run.&lt;locals&gt;._draw at 0x1afd011f0&gt;))</span>
+<span class="ansi-bold">During: typing of call at &lt;ipython-input-3-4b77cf35d25d&gt; (268)
+</span>
+<span class="ansi-bold">
+File &#34;&lt;ipython-input-3-4b77cf35d25d&gt;&#34;, line 268:</span>
+<span class="ansi-bold">        def _ssa(update, population_0, time_points, args):
+            &lt;source elided&gt;
+                    # draw the event and time step
+</span><span class="ansi-bold">                    event, dt = _draw(population, args)
+</span>                    <span class="ansi-bold">^</span>
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">sim</span><span class="o">.</span><span class="n">func_str</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>@numba.jit(nopython=True)
+def _propensity_function_abcde(population, args):
+    A, = population
+    
+    
+    val = np.array([
+        A,
+        A**2/10,
+    ],float)
+    return val
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nd">@numba</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">nopython</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_propensity_function_abcde</span><span class="p">(</span><span class="n">population</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+    <span class="n">A</span><span class="p">,</span> <span class="o">=</span> <span class="n">population</span>
+    
+    
+    <span class="n">val</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+        <span class="n">A</span><span class="p">,</span>
+        <span class="n">A</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="mi">10</span><span class="p">,</span>
+    <span class="p">],</span><span class="nb">float</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">val</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
 </div>
  
 

@@ -1799,6 +1799,7 @@ class Stochastic_Simulation(object):
         self.ν=None
         self.state_change_strings=[]
         self.rate_equations=[]
+        self.quasi=[]
         self._params={}
         self._params_keys=()
         self._params_vals=()
@@ -1808,7 +1809,7 @@ class Stochastic_Simulation(object):
         self._params_keys=tuple(self._params.keys())
         self._params_vals=tuple([self._params[_] for _ in self._params_keys])
         
-    def add(self,component_change_equation,rate_equation=None,plot=False,**kwargs):
+    def add(self,component_change_equation,rate_equation=None,plot=False,quasi=None,**kwargs):
         
         
         if "=" in component_change_equation:
@@ -1830,6 +1831,7 @@ class Stochastic_Simulation(object):
         self.rate_equations.append(rate_equation)
         self.initial_values.update(kwargs)
         self.current_values.update(kwargs)
+        self.quasi.append(quasi)
 
     def initialize(self):
         num_components=len(self.components)
@@ -1860,7 +1862,8 @@ class Stochastic_Simulation(object):
                 raise ValueError("%s not in initial values." % c)
             
             
-        func_str="@numba.jit(nopython=True)\ndef _propensity_function(population, args):\n"
+        #func_str="@numba.jit(nopython=True)\ndef _propensity_function(population, args):\n"
+        func_str="@numba.jit\ndef _propensity_function(population, args):\n"
 
         func_str+="    "
         
@@ -1868,7 +1871,7 @@ class Stochastic_Simulation(object):
             func_str+=",".join(self.components) + " = population\n"
         else:
             func_str+=self.components[0] + ", = population\n"
-            
+                        
         if self._params_keys:
             func_str+="    "
             if len(self._params_keys)>1:        
@@ -1885,14 +1888,30 @@ class Stochastic_Simulation(object):
         func_str+="    "+"\n"
 
 
-        func_str+="    "+"return np.array([\n"
+        func_str+="    "+"val = np.array([\n"
         for a in self.rate_equations:
             func_str+="        "+a+",\n"
         func_str+="    "+"])\n"
 
+        for qi,q in enumerate(self.quasi):
+            if not q:
+                continue
+                
+            func_str+="    "+f"if ({q}):\n"
+            func_str+="    "+"    "+f"val[{qi}]=0\n"
+            func_str+="    "+"    "+f"print(val)\n"
+        
+            func_str+="    "+f"if ((A==0) or (B==0)):\n"
+            func_str+="    "+"    "+f"raise ValueError()\n"
+                
+        
+        func_str+="    "+"return val"
+        
+        
         self.func_str=func_str
             
-        exec (func_str, globals())            
+        exec (func_str, globals())                      
+   
         
     def run(self,t_max,Nsims=1,num_iterations=1001,):
         from tqdm import tqdm

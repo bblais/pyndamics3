@@ -112,7 +112,8 @@ model=MCMCModel(sim,
 # In[69]:
 
 
-model.run_mcmc(500,repeat=3)
+number_of_iterations=5. # use 500 or so for the figures below, but for CI timeout reasons I include only 5
+model.run_mcmc(number_of_iterations,repeat=3)
 model.plot_chains()
 
 
@@ -177,7 +178,7 @@ model=MCMCModel(sim,
 # In[87]:
 
 
-model.run_mcmc(1000,repeat=3)
+model.run_mcmc(2*number_of_iterations,repeat=3)
 model.plot_chains()
 
 
