@@ -27,7 +27,7 @@ t=array([7,14,21,28,35,42,49,56,63,70,77,84],float)
 h=array([17.93,36.36,67.76,98.10,131,169.5,205.5,228.3,247.1,250.5,253.8,254.5])
 
 
-# In[6]:
+# In[5]:
 
 
 sim=Simulation()
@@ -37,7 +37,7 @@ sim.params(a=1)
 sim.run(0,90)
 
 
-# In[7]:
+# In[6]:
 
 
 results=fit(sim,
@@ -47,19 +47,19 @@ results=fit(sim,
 results
 
 
-# In[1]:
+# In[7]:
 
 
 get_ipython().run_line_magic('pylab', 'inline')
 
 
-# In[2]:
+# In[8]:
 
 
 from pyndamics3 import Struct
 
 
-# In[3]:
+# In[9]:
 
 
 
@@ -321,47 +321,47 @@ class Stochastic_Simulation(object):
   
 
 
-# In[4]:
+# In[12]:
 
 
-β=0.2
-γ=0.1
-So=990
-Io=10
+# β=0.2
+# γ=0.1
+# So=990
+# Io=10
 
-stoch_sim=sim=Stochastic_Simulation()
-sim.add("+A",'A',A=1)
-sim.add("-A",'A**2/10')
-sim.run(10,Nsims=100)
+# stoch_sim=sim=Stochastic_Simulation()
+# sim.add("+A",'A',A=1)
+# sim.add("-A",'A**2/10')
+# sim.run(10,Nsims=100)
 
-for i in range(100):    
-    plot(sim.t,sim.A[i],'b-o',alpha=0.05)
-
-
-# In[11]:
+# for i in range(100):    
+#     plot(sim.t,sim.A[i],'b-o',alpha=0.05)
 
 
-β=0.2
-γ=0.1
-So=990
-Io=10
-
-stoch_sim=sim=Stochastic_Simulation()
-sim.add("+A",'A',A=1)
-sim.add("-A",'A**2/10',quasi='A==1')
-sim.run(10,Nsims=100)
-
-for i in range(100):    
-    plot(sim.t,sim.A[i],'b-o',alpha=0.05)
+# In[13]:
 
 
-# In[5]:
+# β=0.2
+# γ=0.1
+# So=990
+# Io=10
+
+# stoch_sim=sim=Stochastic_Simulation()
+# sim.add("+A",'A',A=1)
+# sim.add("-A",'A**2/10',quasi='A==1')
+# sim.run(10,Nsims=100)
+
+# for i in range(100):    
+#     plot(sim.t,sim.A[i],'b-o',alpha=0.05)
+
+
+# In[14]:
 
 
 print(sim.func_str)
 
 
-# In[7]:
+# In[15]:
 
 
 @numba.jit(nopython=True)
