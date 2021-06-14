@@ -173,6 +173,16 @@ def time2str(tm):
     return s
     
     
+def dicttable(D):
+    buf=[]
+    add=buf.append
+    add('<table>')
+ 
+    for key in D:
+        add('<tr><td><b>%s</b></td><td>%s</td></tr>' % (key,D[key]))
+        
+    add('</table>')
+    return '\n'.join(buf) 
 
 
 # ## Distributions -- Defined for Speed
@@ -421,7 +431,7 @@ def lnprior_function(model):
     return _lnprior
 
 
-# In[7]:
+# In[17]:
 
 
 #export
@@ -746,7 +756,94 @@ class MCMCModel(object):
         # >10 Very Strong
 
 
+        return self.summary()
+    
+    def summary(self):
+        from IPython.display import HTML
+        buf=[]
+        add=buf.append
 
+        def tds(L):
+            return ' '.join([f'<td>{s}</td>' for s in L])
+        def b(s):
+            s=str(s)
+            return f"<b>{s}</b"
+
+        add('<h1>Priors</h1>')
+        add('<table>')
+
+        row=[]
+        td=row.append
+
+        td(b("name"))
+        td(b("prior"))
+        td(b(" "))
+
+        add('<tr>%s</tr>' % (tds(row)))
+        for p in self.params:
+            typestr=str(type(self.params[p])).split("'")[1].split(".")[-1]
+
+            row=[]
+            td=row.append
+
+            td(b(p))
+            td(typestr)
+
+            if typestr=='Uniform':
+                td(dicttable(
+                    {'min':self.params[p].min,
+                     'max':self.params[p].max}))
+            else:
+                td(dicttable({}))
+
+            add('<tr>%s</tr>' % (tds(row)))
+
+        add('</table>')
+
+        add('<h1>Fit Statistics</h1>')
+
+        N=sum([len(c.data['value']) for c in model.sim.components if c.data])
+        fit_stats={'data points':N,
+                   'variables':len(model.params),
+                   'number of walkers':model.nwalkers,
+                   'number of samples':model.samples.shape[0],
+                  'Bayesian info crit. (BIC)':model.BIC}
+        add(dicttable(fit_stats))
+
+
+
+        add('<h1>Posteriors</h1>')
+        add('<table>')
+
+        row=[]
+        td=row.append
+
+        td(b("name"))
+        td(b("value"))
+        td(b("2.5%"))
+        td(b("97.5%"))
+
+        add('<tr>%s</tr>' % (tds(row)))
+
+        pp=self.percentiles([0.025,50,97.5])
+        for p in self.params:
+            typestr=str(type(self.params[p])).split("'")[1].replace('pyndamics3.mcmc.','')
+
+            row=[]
+            td=row.append
+
+            td(b(p))
+            td(f'{pp[p][1]:.5g}')
+            td(f'{pp[p][0]:.5g}')
+            td(f'{pp[p][2]:.5g}')
+
+            add('<tr>%s</tr>' % (tds(row)))
+
+        add('</table>')
+
+
+        return HTML('\n'.join(buf))
+        #return '\n'.join(buf)
 
     def WAIC(self):
         # WAIC
@@ -962,7 +1059,7 @@ class MCMCModel(object):
  
 
 
-# In[8]:
+# In[18]:
 
 
 #export
@@ -1064,13 +1161,13 @@ class MCMCModelReg(MCMCModel):
 # Data from [http://www.seattlecentral.edu/qelp/sets/009/009.html](http://www.seattlecentral.edu/qelp/sets/009/009.html)
 # 
 
-# In[10]:
+# In[19]:
 
 
 from pyndamics3 import Simulation
 
 
-# In[21]:
+# In[20]:
 
 
 t=np.array([7,14,21,28,35,42,49,56,63,70,77,84],float)
@@ -1083,7 +1180,7 @@ py.ylabel('Height [cm]')
 
 # ## Run an initial (and bad) simulation
 
-# In[23]:
+# In[21]:
 
 
 sim=Simulation()
@@ -1095,26 +1192,38 @@ sim.run(0,90)
 
 # ## Fitting $a$
 
-# In[27]:
+# In[22]:
 
 
 model=MCMCModel(sim,a=Uniform(-10,10))
 
 
-# In[28]:
+# In[23]:
 
 
-model.run_mcmc(500)
+result=model.run_mcmc(500)
 model.plot_chains()
 
 
 # Although this looked converged, you might have situations where you want to repeat the mcmc-resample loop (i.e. resample parameters from the 95% CI of the current samples)
 
-# In[29]:
+# In[26]:
+
+
+result
+
+
+# In[27]:
 
 
 model.run_mcmc(100,repeat=3)
 model.plot_chains()
+
+
+# In[28]:
+
+
+model.summary()
 
 
 # In[30]:

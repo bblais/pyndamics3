@@ -18,6 +18,9 @@ docs: $(SRC)
 	nbdev_build_docs
 	touch docs
 
+github: pyndamics3
+	open -a Github\ Desktop
+
 install: pyndamics3
 	pip install . --upgrade
 
