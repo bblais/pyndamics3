@@ -770,12 +770,12 @@ class MCMCModel(object):
 
         add('<h1>Fit Statistics</h1>')
 
-        N=sum([len(c.data['value']) for c in model.sim.components if c.data])
+        N=sum([len(c.data['value']) for c in self.sim.components if c.data])
         fit_stats={'data points':N,
-                   'variables':len(model.params),
-                   'number of walkers':model.nwalkers,
-                   'number of samples':model.samples.shape[0],
-                  'Bayesian info crit. (BIC)':model.BIC}
+                   'variables':len(self.params),
+                   'number of walkers':self.nwalkers,
+                   'number of samples':self.samples.shape[0],
+                  'Bayesian info crit. (BIC)':self.BIC}
         add(dicttable(fit_stats))
 
 
