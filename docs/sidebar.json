@@ -5,6 +5,8 @@
     "MCMC (using emcee package)": "mcmc.html",
     "Introduction to MCMC on Dynamical Systems Using Zombies": "tutorial.zombies.html",
     "Parameter Fitting (using lmfit)": "fit.html",
+    "Exploring Stochastic Models": "stochastic.html",
+    "Debugging Stochastic Models": "01_debug_stochastic_mcmc.html",
     "Title": "debug.html"
   }
 }

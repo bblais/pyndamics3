@@ -605,7 +605,7 @@ class MCMCModel(object):
 
             pos=np.zeros((self.nwalkers,ndim))
             for i,key in enumerate(self.keys):
-                pos[:,i]=self.params[key].rand(100)
+                pos[:,i]=self.params[key].rand(self.nwalkers)
 
 
             self.sampler = emcee.EnsembleSampler(self.nwalkers, ndim,

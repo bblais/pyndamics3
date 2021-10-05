@@ -539,7 +539,7 @@ class MCMCModel(object):
             t=np.array(_c.data['t']).ravel()
             y=np.array(_c.data['value']).ravel()
             y_fit=self.sim.interpolate(t,name)
-
+            
             if any(np.isnan(y_fit)):
                 return -np.inf
 
@@ -637,7 +637,7 @@ class MCMCModel(object):
 
             pos=np.zeros((self.nwalkers,ndim))
             for i,key in enumerate(self.keys):
-                pos[:,i]=self.params[key].rand(100)
+                pos[:,i]=self.params[key].rand(self.nwalkers)
 
             
             self.sampler = emcee.EnsembleSampler(self.nwalkers, ndim, 
@@ -1192,11 +1192,7 @@ sim.run(0,90)
 
 # ## Fitting $a$
 
-# In[22]:
-
-
-model=MCMCModel(sim,a=Uniform(-10,10))
-
+# model=MCMCModel(sim,a=Uniform(-10,10))
 
 # In[23]:
 

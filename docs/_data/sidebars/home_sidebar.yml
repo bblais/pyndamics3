@@ -22,6 +22,12 @@ entries:
       title: Parameter Fitting (using lmfit)
       url: fit.html
     - output: web,pdf
+      title: Exploring Stochastic Models
+      url: stochastic.html
+    - output: web,pdf
+      title: Debugging Stochastic Models
+      url: 01_debug_stochastic_mcmc.html
+    - output: web,pdf
       title: Title
       url: debug.html
     output: web

@@ -3,7 +3,8 @@
 __all__ = ['size', 'family', 'copy_func', 'patch_to', 'patch', 'InterpFunction', 'RedirectStdStreams', 'devnull',
            'from_values', 'array_wrap', 'mapsolve', 'euler', 'rk2', 'rk4', 'rkwrapper', 'rk45', 'simfunc', 'phase_plot',
            'vector_field', 'Component', 'numpy_functions', 'Simulation', 'repeat', 'model', 'mse_from_sim', 'Storage',
-           'particle', 'swarm', 'pso_fit_sim', 'Struct', 'Stochastic_Simulation', 'explore_parameters']
+           'particle', 'swarm', 'pso_fit_sim', 'Stochastic_Component', 'Struct', 'Stochastic_Simulation',
+           'explore_parameters']
 
 # Cell
 from scipy.integrate import odeint,ode
@@ -1503,6 +1504,44 @@ def pso_fit_sim(varname,xd,yd,sim,parameters,
 
 
 # Cell
+class Stochastic_Component(object):
+
+    def __init__(self,name,initial_value=0,assignment_str=None,
+                        min=None,max=None,
+                        plot=False,save=None):
+
+        self.name=name
+        self.initial_value=initial_value
+
+        try:
+            self.length=len(initial_value)
+            if self.length==1:
+                self.initial_value=initial_value[0]
+        except TypeError:
+            self.length=1
+            self.initial_value=initial_value
+
+        self.values=None
+        self.min=min
+        self.max=max
+        self.plot=plot
+        self.save=save
+        self.assignment_str=assignment_str
+
+        self.data={}
+
+    def __getitem__(self,s):
+        """docstring for __getitem__"""
+        return self.values[s]
+
+    def __repr__(self):
+        if self.assignment_str:
+            s="%s: %s\n%s" % (self.name,self.assignment_str,str(self.values))
+        else:
+            s="%s\n%s" % (self.name,str(self.values))
+        return s
+
+# Cell
 
 class Struct(dict):
 
@@ -1641,7 +1680,7 @@ class Stochastic_Simulation(object):
 
     def __init__(self):
         self.components=[]
-        self.equations=[]
+        self.assignments=[]
         self.initial_values={}
         self.current_values={}
         self.ν=None
@@ -1651,40 +1690,99 @@ class Stochastic_Simulation(object):
         self._params={}
         self._params_keys=()
         self._params_vals=()
+        self.maximum_data_t=-1e500
+        self.maximum_t=-1e500
+        self.original_params={}
+
 
     def params(self,**kwargs):
         self._params.update(kwargs)
         self._params_keys=tuple(self._params.keys())
         self._params_vals=tuple([self._params[_] for _ in self._params_keys])
+        self.original_params=self._params.copy()
+
+    def add_data(self,t,plot=False,**kwargs):
+        for key in kwargs:
+            found=[c for c in self.components+self.assignments if c.name==key]
+            if not found:
+                raise ValueError("The variable '%s' is not a variable in the simulation." % key)
+
+            c=self.get_component(key)
+
+            c.data={'t':t,'plot':plot,'value':kwargs[key]}
+            mx=max(t)
+            if mx>self.maximum_data_t:
+                self.maximum_data_t=mx
+
+    def get_component(self,y):
+
+        if isinstance(y,int):
+            return self.components[y]
+        else:
+            found=[c for c in self.components+self.assignments if c.name==y]
+            return found[0]
+
+    def interpolate(self,t,cname=None):
+        if cname is None:
+            cnames=[x.name for x in self.components]
+            result={}
+            for cname in cnames:
+                result[cname]=self.interpolate(t,cname)
+            return result
+        else:
+
+            svals=self[cname]
+            st=self['t']
+
+            # gives a value error if svals is nan
+            try:
+                simvals=interp(t,st,svals)
+            except ValueError:
+                try:
+                    simvals=-1e500*ones(len(t))
+                except TypeError:  # a float given
+                    simvals=-1e500
+
+            return simvals
 
     def add(self,component_change_equation,rate_equation=None,plot=False,quasi=None,**kwargs):
 
 
+
         if "=" in component_change_equation:
-            self.equations.append(component_change_equation)
+            name=component_change_equation.split('=')[0].strip()
+            self.assignments.append(Stochastic_Component(name=name,assignment_str=component_change_equation))
             return
 
         component_change_equation=component_change_equation.replace('+',' +')
         component_change_equation=component_change_equation.replace('-',' -')
 
         parts=component_change_equation.split()
+        names=[c.name for c in self.components]
+        new_names=[]
         for part in parts:
             if not (part.startswith('-') or part.startswith('+')):
                 raise SyntaxError("State change strings must start with + or -: %s" % component_change_equation)
             name=part[1:]
-            if name not in self.components:
-                self.components.append(name)
+            if name not in names+new_names:
+                new_names.append(name)
 
         self.state_change_strings.append(component_change_equation)
         self.rate_equations.append(rate_equation)
         self.initial_values.update(kwargs)
         self.current_values.update(kwargs)
+
+        self.components+=[Stochastic_Component(name) for name in new_names]
+
+
         self.quasi.append(quasi)
 
     def initialize(self):
         num_components=len(self.components)
         num_reactions=len(self.rate_equations)
         self.ν=np.zeros((num_reactions,num_components),int)
+
+        names=[c.name for c in self.components]
 
         for j,(state_change,rate) in enumerate(zip(self.state_change_strings,self.rate_equations)):
             parts=state_change.split()
@@ -1697,16 +1795,17 @@ class Stochastic_Simulation(object):
                 else:
                     val=+1
 
-                i=self.components.index(name)
+                i=names.index(name)
                 self.ν[j,i]=val
 
 
-        for c in self.initial_values:
-            if not c in self.components:
+        for name in self.initial_values:
+            if not name in names:
+                c=self.get_component(name)
                 raise ValueError("%s not in components values." % c)
 
-        for c in self.components:
-            if not c in self.initial_values:
+        for name in names:
+            if not name in self.initial_values:
                 raise ValueError("%s not in initial values." % c)
 
 
@@ -1715,10 +1814,10 @@ class Stochastic_Simulation(object):
 
         func_str+="    "
 
-        if len(self.components)>1:
-            func_str+=",".join(self.components) + " = population\n"
+        if len(names)>1:
+            func_str+=",".join(names) + " = population\n"
         else:
-            func_str+=self.components[0] + ", = population\n"
+            func_str+=names[0] + ", = population\n"
 
         if self._params_keys:
             func_str+="    "
@@ -1729,7 +1828,8 @@ class Stochastic_Simulation(object):
 
         func_str+="    "+"\n"
 
-        for eq in self.equations:
+        for c in self.assignments:
+            eq=c.assignment_str
             func_str+="    "+eq+"\n"
 
 
@@ -1760,19 +1860,34 @@ class Stochastic_Simulation(object):
 
         exec (func_str, globals())
 
+    def run_fast(self,*args,**kwargs):
+        self.run(*args,**kwargs)
 
-    def run(self,t_max,Nsims=1,num_iterations=1001,):
+
+    def run(self,t_min=None,t_max=None,Nsims=1,num_iterations=1001,**kwargs):
+
+        if t_min is None:
+            assert self.maximum_data_t>-1e500
+
+            t_min=0
+            t_max=self.maximum_data_t+0.1
+
+        elif t_max is None:
+            t_max=t_min
+            t_min=0
+
         from tqdm import tqdm
 
         if self.ν is None:
             self.initialize()
 
+        names=[c.name for c in self.components]
         self.all_storage=[]
 
         disable=Nsims==1
 
-        population_0=np.array([self.initial_values[c] for c in self.components], dtype=int)
-        time_points=np.linspace(0,t_max,num_iterations)
+        population_0=np.array([self.initial_values[c] for c in names], dtype=int)
+        time_points=np.linspace(t_min,t_max,num_iterations)
         args = np.array(self._params_vals)
         n_simulations = Nsims
 
@@ -1788,18 +1903,52 @@ class Stochastic_Simulation(object):
         self.t=time_points
         self.extinction_times=extinction_time
         D={}
-        for _i,c in enumerate(self.components):
+        for _i,c in enumerate(names):
             v=pops[:,:,_i]
             if v.shape[0]==1:
                 v=v.ravel()
 
             setattr(self, c,v)
+            self.get_component(c).values=v
+
             D[c]=v
 
-        for eq in self.equations:
+        for c in self.assignments:
+            eq=c.assignment_str
             exec(eq,D)
-            name=eq.split('=')[0].strip()
+            name=c.name
             setattr(self, name,D[name])
+
+
+
+    def __getattr__(self, item):
+        """Maps values to attributes.
+        Only called if there *isn't* an attribute with this name
+        """
+        try:
+            return self.__getitem__(item)
+        except KeyError:
+            raise AttributeError(item)
+
+    def __getitem__(self,y):
+        import unicodedata
+
+        try:
+            return self.components[y].values
+        except (TypeError,IndexError):
+            if y=='t':
+                return self.t
+
+            found=[c for c in self.components+self.assignments if
+                            c.name==y or unicodedata.normalize('NFKC', c.name)==y]
+            if found:
+                return found[0].values
+
+            if y in self.myparams:
+                return self._params[y]
+            else:
+                raise IndexError("Unknown Index %s" % str(y))
+
 
 
 
