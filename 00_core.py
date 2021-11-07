@@ -1964,6 +1964,22 @@ class Stochastic_Simulation(object):
                 raise ValueError("%s not in initial values." % c)
             
             
+        # test to see if all the symbols are defined
+        D={}
+        for c in self.components:
+            D[c.name]=1
+
+        for param in self.original_params:
+            D[param]=self.original_params[param]
+
+        for c in self.assignments:
+            exec(f"{c.assignment_str}",D)
+
+        for eq in self.rate_equations:
+            eval(f"{eq}",D)
+                
+            
+            
         #func_str="@numba.jit(nopython=True)\ndef _propensity_function(population, args):\n"
         func_str="@numba.jit\ndef _propensity_function(population, args):\n"
 

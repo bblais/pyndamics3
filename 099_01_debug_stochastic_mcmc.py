@@ -11,32 +11,32 @@
 get_ipython().system(' [ -e /content ] && pip install -Uqq pyndamics3 emcee # upgrade pyndamics3 on colab')
 
 
-# In[2]:
+# In[1]:
 
 
 get_ipython().run_line_magic('pylab', 'inline')
 
 
-# In[3]:
+# In[2]:
 
 
 from pyndamics3 import Simulation,Stochastic_Simulation
 
 
-# In[4]:
+# In[3]:
 
 
 from pyndamics3.mcmc import *
 
 
-# In[5]:
+# In[4]:
 
 
 flut = array([0,1,2,3,4,5,6,7,8,9,10,11,12,13])
 flui = array([3,8,26,76,225,298,258,233,189,128,68,29,14,4])
 
 
-# In[26]:
+# In[5]:
 
 
 β=1.9732213241997467
@@ -57,13 +57,36 @@ stoch_sim.add_data(t=flut,I=flui)
 stoch_sim.run(20,Nsims=100)
 
 
-# In[27]:
+# this raises an error
+
+# In[7]:
+
+
+β=1.9732213241997467
+γ=0.47521873806558335
+
+β=.5
+γ=1
+
+So=763
+Io=1
+
+stoch_sim=Stochastic_Simulation()
+stoch_sim.add("-S+I",'β*S*I/N',S=So,I=Io)
+stoch_sim.add("-I +R",'γ*I',R=0)
+stoch_sim.add("N=S+I+R")
+stoch_sim.params(β=β)
+stoch_sim.add_data(t=flut,I=flui)
+stoch_sim.run(20,Nsims=100)
+
+
+# In[7]:
 
 
 stoch_sim['I']
 
 
-# In[28]:
+# In[8]:
 
 
 I=stoch_sim.components[1]
@@ -81,7 +104,7 @@ I=stoch_sim.components[1]
 
 
 
-# In[29]:
+# In[9]:
 
 
 for i in range(100):    
@@ -90,7 +113,7 @@ for i in range(100):
 plot(flut,flui,'ko',ms=10,lw=3,)    
 
 
-# In[30]:
+# In[10]:
 
 
 print(stoch_sim.func_str)
@@ -108,7 +131,7 @@ print(stoch_sim.func_str)
 
 
 
-# In[31]:
+# In[11]:
 
 
 dynamic_sim=sim=Simulation()
@@ -124,20 +147,20 @@ plot(sim.t,sim.I)
 plot(flut,flui,'ko',ms=10,lw=3,)
 
 
-# In[32]:
+# In[12]:
 
 
 stoch_sim.I[i]
 
 
-# In[33]:
+# In[13]:
 
 
 stoch_model=MCMCModel(stoch_sim,β=Uniform(0,5),
                γ=Uniform(0,5))
 
 
-# In[34]:
+# In[14]:
 
 
 number_of_iterations=500
@@ -146,31 +169,137 @@ stoch_model.run_mcmc(number_of_iterations,repeat=3)
 stoch_model.plot_chains()
 
 
-# In[17]:
+# In[15]:
 
 
 stoch_model.plot_distributions()
 
 
-# In[23]:
+# In[16]:
 
 
 stoch_sim._params['β']
 
 
-# In[24]:
+# In[17]:
 
 
 stoch_sim.run(20,Nsims=100)
 
 
-# In[25]:
+# In[18]:
 
 
 for i in range(100):    
     plot(stoch_sim.t,stoch_sim.I[i],'ro',alpha=0.05)
     
 plot(flut,flui,'ko',ms=10,lw=3,)    
+
+
+# ## debug with flu data
+
+# In[2]:
+
+
+get_ipython().run_line_magic('pylab', 'inline')
+
+
+# In[3]:
+
+
+from pyndamics3 import Simulation,Stochastic_Simulation
+
+
+# In[4]:
+
+
+flut = array([0,1,2,3,4,5,6,7,8,9,10,11,12,13])
+flui = array([3,8,26,76,225,298,258,233,189,128,68,29,14,4])
+
+
+# In[5]:
+
+
+flui=array([0,72,112,145,194])
+flut=array([1,2,3,4,5])
+
+
+# In[ ]:
+
+
+β=1.9732213241997467
+γ=0.47521873806558335
+
+β=.5
+γ=1
+
+So=763
+Io=1
+
+stoch_sim=Stochastic_Simulation()
+stoch_sim.add("-S+I",'β*S*E/N',S=So,I=Io)
+stoch_sim.add("-E+I",'ζ*S*I',E=0)
+stoch_sim.add("-I +R",'γ*I',R=0)
+stoch_sim.add("N=S+I+R")
+stoch_sim.params(β=β,γ=γ,ζ=.1)
+stoch_sim.add_data(t=flut,I=flui)
+stoch_sim.run(20,Nsims=100)
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# ## Debug with vampire data
+
+# In[1]:
+
+
+get_ipython().run_line_magic('pylab', 'inline')
+
+
+# In[2]:
+
+
+from pyndamics3 import Simulation,Stochastic_Simulation
+
+
+# In[3]:
+
+
+tbt=array([0,72,112,145,194])
+tbv=array([1,2,3,4,5])
+
+
+# In[4]:
+
+
+So=100
+Vo=1
+Eo=0
+t_max=1.1*tbt.max()
+β=0.5
+γ=0.5
+ζ=0.5
+δ=0.5
+
+stoch_sim=sim=Stochastic_Simulation()
+sim.add("-S+E",'β*S*V/N',S=So,V=Vo)
+sim.add("-E+V",'γ*S*V',E=Eo)
+sim.add("-E+X",'ζ*S*V',X=1)
+sim.add("-V+R",'δ*S*V',R=0)
+sim.add("N=S+E+V+X")
+sim.params(β=0.03,γ=0.00047,ζ=ζ,δ=δ)
+sim.add_data(t=tbt,V=tbv)
+sim.run(t_max,Nsims=100)
 
 
 # In[ ]:
