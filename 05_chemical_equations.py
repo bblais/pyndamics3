@@ -19,7 +19,7 @@ get_ipython().run_line_magic('pylab', 'inline')
 
 
 
-# In[3]:
+# In[11]:
 
 
 #export
@@ -44,6 +44,10 @@ def ChemSimulation(eqnstr,**kwargs):
     parameters=sorted(parameters)
     diffeqs=[]
     for c in components:
+        
+        if c=='ϕ':
+            continue
+        
         eqn="%s' = " % c
 
         for line in lines:
@@ -65,6 +69,9 @@ def ChemSimulation(eqnstr,**kwargs):
                     sign+='%d*' % len(lhs)
 
             if sign=='0':
+                continue
+                
+            if c in rhs and c in lhs:  # A -> A +B doesn't change A
                 continue
 
             plhs='*'.join(lhs)
@@ -90,7 +97,7 @@ def ChemSimulation(eqnstr,**kwargs):
     return sim
 
 
-# In[4]:
+# In[12]:
 
 
 sim=ChemSimulation("""
@@ -105,17 +112,59 @@ print()
 print(sim.equations())
 
 
-# In[5]:
+# In[13]:
+
+
+assert sim.equations()=="""
+A'=-k1*A +k_1*B -k2*A*B +k_2*C
+B'=+k1*A -k_1*B -k2*A*B +k_2*C
+C'=+2*k2*A*B -2*k_2*C
+k1=1
+k2=3
+k_1=2
+k_2=4
+""".lstrip()
+
+
+# In[14]:
 
 
 for c in sim.components:
     c.plot=1
 
 
-# In[6]:
+# In[15]:
 
 
 sim.run(10)
+
+
+# In[16]:
+
+
+sim=ChemSimulation(
+"""
+D --k1--> D+M
+M --k2--> M+P
+M --k3--> ϕ
+P --k4--> ϕ
+""",D=1,M=0,ϕ=0,P=0,k1=.01,k3=0.00577,k4=0.0001925,k2=20*0.00577)
+
+
+# In[17]:
+
+
+print(sim.equations())
+
+
+# In[18]:
+
+
+sim=ChemSimulation(
+"""
+ϕ --k1--> A
+""",A=1,k1=2)
+print(sim.equations())
 
 
 # In[ ]:

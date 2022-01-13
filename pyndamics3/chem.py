@@ -24,6 +24,10 @@ def ChemSimulation(eqnstr,**kwargs):
     parameters=sorted(parameters)
     diffeqs=[]
     for c in components:
+
+        if c=='ϕ':
+            continue
+
         eqn="%s' = " % c
 
         for line in lines:
@@ -45,6 +49,9 @@ def ChemSimulation(eqnstr,**kwargs):
                     sign+='%d*' % len(lhs)
 
             if sign=='0':
+                continue
+
+            if c in rhs and c in lhs:  # A -> A +B doesn't change A
                 continue
 
             plhs='*'.join(lhs)
