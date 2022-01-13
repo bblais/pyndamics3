@@ -65,11 +65,13 @@ index = {"size": "00_core.ipynb",
          "MCMCModelReg": "01_mcmc.ipynb",
          "Parameter": "03_fit.ipynb",
          "residual": "03_fit.ipynb",
-         "fit": "03_fit.ipynb"}
+         "fit": "03_fit.ipynb",
+         "ChemSimulation": "05_chemical_equations.ipynb"}
 
 modules = ["core.py",
            "mcmc.py",
-           "fit.py"]
+           "fit.py",
+           "chem.py"]
 
 doc_url = "https://bblais.github.io/pyndamics3/"
 
