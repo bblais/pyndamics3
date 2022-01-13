@@ -3,7 +3,7 @@
 __all__ = ['ChemSimulation']
 
 # Cell
-def ChemSimulation(eqnstr,**kwargs):
+def ChemSimulation(eqnstr,verbose=True,**kwargs):
     from pyndamics3 import Simulation
     lines=eqnstr.strip().split('\n')
 
@@ -17,11 +17,18 @@ def ChemSimulation(eqnstr,**kwargs):
         components=components.union(set(lhs+rhs))
         parameters=parameters.union([middle])
 
-        print(lhs,middle,rhs)
+        if verbose:
+            print(lhs,middle,rhs)
 
 
     components=sorted(components)
     parameters=sorted(parameters)
+
+    if verbose:
+        print("Components",components)
+        print("Parameters",parameters)
+
+
     diffeqs=[]
     for c in components:
 
@@ -58,8 +65,13 @@ def ChemSimulation(eqnstr,**kwargs):
 
             eqn+=f" {sign}{middle}*{plhs}"
 
+        if eqn=="%s' = " % c:
+            eqn="%s' = 0" % c
 
         diffeqs.append(eqn)
+
+    if verbose:
+        print("diffeqs",diffeqs)
 
     sim=Simulation()
 
@@ -68,6 +80,8 @@ def ChemSimulation(eqnstr,**kwargs):
             c0=0
         else:
             c0=kwargs[c]
+
+
         sim.add(d,c0)
 
     for p in parameters:

@@ -447,6 +447,7 @@ class Component(object):
 
         name,rest=diffstr.split('=')
         name=name.strip()
+
         self.orig_diffstr=diffstr
         
         if "'" in name:
@@ -666,6 +667,9 @@ class Simulation(object):
         s=s+"    return _diff\n"
 
         self.func_str=s
+        
+        
+        
         exec(s)
 
         _sim.func=locals()['_simfunc']

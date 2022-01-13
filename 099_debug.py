@@ -376,6 +376,93 @@ def _propensity_function_abcde(population, args):
     return val
 
 
+# ## Is there a problem with X'=0?
+
+# In[3]:
+
+
+from pyndamics3 import Simulation
+
+
+# In[4]:
+
+
+sim=Simulation()
+sim.add("X'=0",5,plot=True)
+sim.params(α=5)
+sim.run(10)
+
+
+# In[5]:
+
+
+sim.original_params
+
+
+# In[6]:
+
+
+from pyndamics3.chem import ChemSimulation
+
+
+# In[7]:
+
+
+sim=ChemSimulation(
+"""
+D --k1--> D+M
+M --k2--> M+P
+M --k3--> ϕ
+P --k4--> ϕ
+""",D=1,M=0,ϕ=0,P=0,k1=.01,k3=0.00577,k4=0.0001925,k2=20*0.00577)
+
+
+# In[8]:
+
+
+sim.myparams
+
+
+# In[9]:
+
+
+sim.run(10)
+
+
+# In[10]:
+
+
+sim.equations()
+
+
+# In[11]:
+
+
+print(sim.func_str)
+
+
+# In[9]:
+
+
+print(sim.equations())
+
+
+# In[13]:
+
+
+sim.params()
+
+
+# In[10]:
+
+
+sim=Simulation()
+sim.add("D'=0",1,plot=True)
+sim.add("M'=+k1*D -k3*M",0,plot=True)
+sim.params(
+sim.run(10)
+
+
 # In[ ]:
 
 

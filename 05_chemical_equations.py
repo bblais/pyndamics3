@@ -19,11 +19,11 @@ get_ipython().run_line_magic('pylab', 'inline')
 
 
 
-# In[11]:
+# In[31]:
 
 
 #export
-def ChemSimulation(eqnstr,**kwargs):
+def ChemSimulation(eqnstr,verbose=True,**kwargs):
     from pyndamics3 import Simulation
     lines=eqnstr.strip().split('\n')
     
@@ -37,11 +37,18 @@ def ChemSimulation(eqnstr,**kwargs):
         components=components.union(set(lhs+rhs))
         parameters=parameters.union([middle])
         
-        print(lhs,middle,rhs)
+        if verbose:
+            print(lhs,middle,rhs)
         
         
     components=sorted(components)
     parameters=sorted(parameters)
+    
+    if verbose:
+        print("Components",components)
+        print("Parameters",parameters)
+    
+    
     diffeqs=[]
     for c in components:
         
@@ -78,8 +85,13 @@ def ChemSimulation(eqnstr,**kwargs):
 
             eqn+=f" {sign}{middle}*{plhs}"
 
-
-        diffeqs.append(eqn)   
+        if eqn=="%s' = " % c:
+            eqn="%s' = 0" % c
+            
+        diffeqs.append(eqn)  
+        
+    if verbose:
+        print("diffeqs",diffeqs)
         
     sim=Simulation()
         
@@ -88,6 +100,8 @@ def ChemSimulation(eqnstr,**kwargs):
             c0=0
         else:
             c0=kwargs[c]
+            
+            
         sim.add(d,c0)
         
     for p in parameters:
@@ -97,7 +111,19 @@ def ChemSimulation(eqnstr,**kwargs):
     return sim
 
 
-# In[12]:
+# In[32]:
+
+
+sim=ChemSimulation(
+"""
+D --k1--> D+M
+M --k2--> M+P
+M --k3--> ϕ
+P --k4--> ϕ
+""",D=1,M=0,ϕ=0,P=0,k1=.01,k3=0.00577,k4=0.0001925,k2=20*0.00577)
+
+
+# In[29]:
 
 
 sim=ChemSimulation("""
@@ -110,6 +136,12 @@ C   -->k_2->  A+B
 print()
 
 print(sim.equations())
+
+
+# In[27]:
+
+
+sim.params()
 
 
 # In[13]:
@@ -139,7 +171,7 @@ for c in sim.components:
 sim.run(10)
 
 
-# In[16]:
+# In[19]:
 
 
 sim=ChemSimulation(
@@ -151,19 +183,9 @@ P --k4--> ϕ
 """,D=1,M=0,ϕ=0,P=0,k1=.01,k3=0.00577,k4=0.0001925,k2=20*0.00577)
 
 
-# In[17]:
+# In[20]:
 
 
-print(sim.equations())
-
-
-# In[18]:
-
-
-sim=ChemSimulation(
-"""
-ϕ --k1--> A
-""",A=1,k1=2)
 print(sim.equations())
 
 
