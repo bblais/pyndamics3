@@ -1229,6 +1229,12 @@ class Simulation(object):
             return self.components[y]
         else:
             found=[c for c in self.components+self.assignments if c.name==y]
+            if not found:
+                raise ValueError("Could not find component %s" % y)
+
+            if len(found)>1:
+                raise ValueError("Found more than one component %s?" % y)
+
             return found[0]
 
     def __getattr__(self, item):
@@ -1568,6 +1574,114 @@ class Struct(dict):
 
 import numba
 
+def _sample_discrete_nonumba(probs, probs_sum):
+    q = np.random.rand() * probs_sum
+
+    i = 0
+    p_sum = 0.0
+    while p_sum < q:
+        p_sum += probs[i]
+        i += 1
+    return i - 1
+
+def _gillespie_draw_nonumba(population, args):
+    """
+    Draws a reaction and the time it took to do that reaction.
+
+    Assumes that there is a globally scoped function
+    `prop_func` that is Numba'd with nopython=True.
+    """
+    # Compute propensities
+    props = _propensity_function_nonumba(population, args)
+
+    # Sum of propensities
+    props_sum = np.sum(props)
+
+    if props_sum==0:
+        time=1e500
+        rxn=0
+    else:
+
+        # Compute time
+        time = np.random.exponential(1 / props_sum)
+
+        # Draw reaction given propensities
+        rxn = _sample_discrete_nonumba(props, props_sum)
+
+    return rxn, time
+
+def _gillespie_ssa_nonumba(update, population_0, time_points, args):
+    """
+    Uses the Gillespie stochastic simulation algorithm to sample
+    from proability distribution of particle counts over time.
+
+    Parameters
+    ----------
+    update : ndarray, shape (num_reactions, num_chemical_species)
+        Entry i, j gives the change in particle counts of species j
+        for chemical reaction i.
+    population_0 : array_like, shape (num_chemical_species)
+        Array of initial populations of all chemical species.
+    time_points : array_like, shape (num_time_points,)
+        Array of points in time for which to sample the probability
+        distribution.
+    args : tuple, default ()
+        The set of parameters to be passed to propensity_func.
+
+    Returns
+    -------
+    sample : ndarray, shape (num_time_points, num_chemical_species)
+        Entry i, j is the count of chemical species j at time
+        time_points[i].
+
+    Notes
+    -----
+    .. Assumes that there is a globally scoped function
+       `propensity_func` that is Numba'd with nopython=True.
+    """
+    # Initialize output
+    pop_out = np.empty((len(time_points), update.shape[1]), dtype=np.int64)
+
+    # Initialize and perform simulation
+    i_time = 1
+    i = 0
+    t = time_points[0]
+    population = population_0.copy()
+    pop_out[0,:] = population
+    extinction_time=-1.0
+    previous_t=t
+    while i < len(time_points):
+        while t < time_points[i_time]:
+            # draw the event and time step
+            event, dt = _gillespie_draw_nonumba(population, args)
+
+            # Update the population
+            population_previous = population.copy()
+            population += update[event,:]
+
+            # Increment time
+            previous_t=t
+            t += dt
+
+
+        if dt==1e500 and extinction_time<0.0:
+            extinction_time=previous_t
+
+        # Update the index (Have to be careful about types for Numba)
+        i = np.searchsorted((time_points > t).astype(np.int64), 1)
+
+        # Update the population
+        for j in np.arange(i_time, min(i, len(time_points))):
+            pop_out[j,:] = population_previous
+
+        # Increment index
+        i_time = i
+
+    return pop_out,extinction_time
+
+
+
+
 @numba.jit(nopython=True)
 def _sample_discrete(probs, probs_sum):
     q = np.random.rand() * probs_sum
@@ -1724,6 +1838,12 @@ class Stochastic_Simulation(object):
             return self.components[y]
         else:
             found=[c for c in self.components+self.assignments if c.name==y]
+            if not found:
+                raise ValueError("Could not find component %s" % y)
+
+            if len(found)>1:
+                raise ValueError("Found more than one component %s?" % y)
+
             return found[0]
 
     def interpolate(self,t,cname=None):
@@ -1782,6 +1902,12 @@ class Stochastic_Simulation(object):
         self.quasi.append(quasi)
 
     def initialize(self):
+        # from importlib import reload
+        # if '_propensity_function' in globals():
+        #     del globals()['_propensity_function']
+        #     print("Deleting old _propensity_function")
+        #     reload(_gillespie_ssa)
+
         num_components=len(self.components)
         num_reactions=len(self.rate_equations)
         self.ν=np.zeros((num_reactions,num_components),int)
@@ -1880,11 +2006,63 @@ class Stochastic_Simulation(object):
 
         exec (func_str, globals())
 
+        #==============================
+        func_str="def _propensity_function_nonumba(population, args):\n"
+
+        func_str+="    "
+
+        if len(names)>1:
+            func_str+=",".join(names) + " = population\n"
+        else:
+            func_str+=names[0] + ", = population\n"
+
+        if self._params_keys:
+            func_str+="    "
+            if len(self._params_keys)>1:
+                func_str+=",".join(self._params_keys)+ " = args\n"
+            else:
+                func_str+=self._params_keys[0]+ ", = args\n"
+
+        func_str+="    "+"\n"
+
+        for c in self.assignments:
+            eq=c.assignment_str
+            func_str+="    "+eq+"\n"
+
+
+        func_str+="    "+"\n"
+
+
+        func_str+="    "+"val = np.array([\n"
+        for a in self.rate_equations:
+            func_str+="        "+a+",\n"
+        func_str+="    "+"])\n"
+
+        for qi,q in enumerate(self.quasi):
+            if not q:
+                continue
+
+            func_str+="    "+f"if ({q}):\n"
+            func_str+="    "+"    "+f"val[{qi}]=0\n"
+            func_str+="    "+"    "+f"print(val)\n"
+
+            func_str+="    "+f"if ((A==0) or (B==0)):\n"
+            func_str+="    "+"    "+f"raise ValueError()\n"
+
+
+        func_str+="    "+"return val"
+
+
+        self.func_str_nonumba=func_str
+
+        exec (func_str, globals())
+
+
     def run_fast(self,*args,**kwargs):
         self.run(*args,**kwargs)
 
 
-    def run(self,t_min=None,t_max=None,Nsims=1,num_iterations=1001,**kwargs):
+    def run(self,t_min=None,t_max=None,Nsims=1,num_iterations=1001,numba=True,**kwargs):
 
         if t_min is None:
             assert self.maximum_data_t>-1e500
@@ -1917,8 +2095,21 @@ class Stochastic_Simulation(object):
 
         # Run the calculations
         for _i in tqdm(range(n_simulations),disable=disable):
-            pops[_i,:,:],extinction_time[_i] = _gillespie_ssa(self.ν,
-                                        population_0, time_points, args=args)
+            if numba:
+                try:
+                    pops[_i,:,:],extinction_time[_i] = _gillespie_ssa(self.ν,
+                                                population_0, time_points, args=args)
+                except ValueError:
+                    print(self.ν,population_0, time_points, args)
+                    raise
+            else:
+                try:
+                    pops[_i,:,:],extinction_time[_i] = _gillespie_ssa_nonumba(self.ν,
+                                                population_0, time_points, args=args)
+                except ValueError:
+                    print(self.ν,population_0, time_points, args)
+                    raise
+
 
         self.t=time_points
         self.extinction_times=extinction_time
@@ -1964,7 +2155,7 @@ class Stochastic_Simulation(object):
             if found:
                 return found[0].values
 
-            if y in self.myparams:
+            if y in self._params:
                 return self._params[y]
             else:
                 raise IndexError("Unknown Index %s" % str(y))

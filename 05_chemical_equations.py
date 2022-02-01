@@ -7,7 +7,7 @@
 # default_exp chem
 
 
-# In[2]:
+# In[1]:
 
 
 get_ipython().run_line_magic('pylab', 'inline')
@@ -19,7 +19,7 @@ get_ipython().run_line_magic('pylab', 'inline')
 
 
 
-# In[31]:
+# In[2]:
 
 
 #export
@@ -111,7 +111,7 @@ def ChemSimulation(eqnstr,verbose=True,**kwargs):
     return sim
 
 
-# In[32]:
+# In[3]:
 
 
 sim=ChemSimulation(
@@ -123,7 +123,7 @@ P --k4--> ϕ
 """,D=1,M=0,ϕ=0,P=0,k1=.01,k3=0.00577,k4=0.0001925,k2=20*0.00577)
 
 
-# In[29]:
+# In[4]:
 
 
 sim=ChemSimulation("""
@@ -185,6 +185,23 @@ P --k4--> ϕ
 
 # In[20]:
 
+
+print(sim.equations())
+
+
+# ## These are wrong -- need to deal with squares
+
+# In[5]:
+
+
+sim=ChemSimulation("""
+A   -->k1->   X
+B+X   -->k2->  Y+D
+2*X+Y -->k3->   3*X
+X   -->k4->  E
+""",A=1,B=2,D=3,X=0,Y=1,k1=1,k2=1,k3=1,k4=1)
+
+print()
 
 print(sim.equations())
 

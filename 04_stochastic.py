@@ -60,20 +60,20 @@ plot(dynamic_sim.t,dynamic_sim.I,'m-')
 print(sim.func_str)
 
 
-# In[4]:
+# In[5]:
 
 
 flut = array([0,1,2,3,4,5,6,7,8,9,10,11,12,13])
 flui = array([3,8,26,76,225,298,258,233,189,128,68,29,14,4])
 
 
-# In[5]:
+# In[6]:
 
 
 from pyndamics3.mcmc import *
 
 
-# In[10]:
+# In[7]:
 
 
 β=1.9
@@ -91,14 +91,14 @@ sim.add_data(t=flut,I=flui)
 sim.run(20)
 
 
-# In[11]:
+# In[8]:
 
 
 model=MCMCModel(sim,β=Uniform(0,5),
                γ=Uniform(0,5))
 
 
-# In[12]:
+# In[9]:
 
 
 number_of_iterations=100
@@ -106,20 +106,20 @@ model.run_mcmc(number_of_iterations,repeat=3)
 model.plot_chains()
 
 
-# In[13]:
+# In[10]:
 
 
 plot(sim.t,sim.I)
 plot(flut,flui,'ko',ms=10,lw=3,)
 
 
-# In[19]:
+# In[11]:
 
 
 sim.β,sim.γ
 
 
-# In[17]:
+# In[12]:
 
 
 stoch_sim=Stochastic_Simulation()
@@ -131,7 +131,7 @@ stoch_sim.add_data(t=flut,I=flui)
 stoch_sim.run(20,Nsims=100)
 
 
-# In[15]:
+# In[13]:
 
 
 for i in range(100):    
@@ -140,11 +140,32 @@ for i in range(100):
 plot(flut,flui,'ko',ms=10,lw=3,)    
 
 
-# In[16]:
+# In[14]:
 
 
 stoch_model=MCMCModel(stoch_sim,β=Uniform(0,5),
                γ=Uniform(0,5))
+
+
+# In[15]:
+
+
+number_of_iterations=500
+stoch_model.run_mcmc(number_of_iterations,repeat=3)
+
+stoch_model.plot_chains()
+
+
+# In[16]:
+
+
+stoch_model.plot_distributions()
+
+
+# In[17]:
+
+
+stoch_sim.β
 
 
 # In[ ]:
