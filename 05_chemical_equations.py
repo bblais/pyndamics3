@@ -13,11 +13,7 @@
 get_ipython().run_line_magic('pylab', 'inline')
 
 
-# In[ ]:
-
-
-
-
+# # Exploring Chemical Equations
 
 # In[2]:
 

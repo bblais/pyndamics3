@@ -10,7 +10,7 @@ entries:
       title: Overview
       url: /
     - output: web,pdf
-      title: Simulation
+      title: Core Simulation
       url: core.html
     - output: web,pdf
       title: MCMC (using emcee package)
@@ -25,11 +25,14 @@ entries:
       title: Exploring Stochastic Models
       url: stochastic.html
     - output: web,pdf
-      title: Title
-      url: debug.html
+      title: Exploring Chemical Equations
+      url: chemical_equations.html
     - output: web,pdf
       title: Debugging Stochastic Models
       url: 01_debug_stochastic_mcmc.html
+    - output: web,pdf
+      title: Debugging
+      url: debug.html
     output: web
     title: pyndamics3
   output: web

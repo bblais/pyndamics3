@@ -7,6 +7,8 @@
 get_ipython().run_line_magic('pylab', 'inline')
 
 
+# # Debugging
+
 # In[2]:
 
 

@@ -7,7 +7,7 @@
 # default_exp core
 
 
-# # Simulation
+# # Core Simulation
 # 
 # > The main simulation functions used for adding, running, and visualizing ODEs
 
@@ -961,7 +961,7 @@ class Simulation(object):
        
     def run_fast(self,t_min=None,t_max=None,num_iterations=1000,**kwargs):
         if t_min is None:
-            assert self.maximum_data_t>-1e500
+            assert self.maximum_data_t>-1e500,"Did you forget to add data to your model?"
             
             t_min=0
             t_max=self.maximum_data_t+0.1
@@ -992,7 +992,7 @@ class Simulation(object):
         self.figures=[]
     
         if t_min is None:
-            assert self.maximum_data_t>-1e500
+            assert self.maximum_data_t>-1e500,"Did you forget to add data to your model?"
             
             t_min=0
             t_max=self.maximum_data_t+0.1
@@ -2220,7 +2220,7 @@ class Stochastic_Simulation(object):
     def run(self,t_min=None,t_max=None,Nsims=1,num_iterations=1001,numba=True,**kwargs):
         
         if t_min is None:
-            assert self.maximum_data_t>-1e500
+            assert self.maximum_data_t>-1e500,"Did you forget to add data to your model?"
             
             t_min=0
             t_max=self.maximum_data_t+0.1
