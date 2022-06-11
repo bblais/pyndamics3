@@ -31,6 +31,9 @@ entries:
       title: Debugging Stochastic Models
       url: 01_debug_stochastic_mcmc.html
     - output: web,pdf
+      title: More Debugging Stochastic Models
+      url: 02_debug_stochastic.html
+    - output: web,pdf
       title: Debugging
       url: debug.html
     output: web

@@ -8,6 +8,7 @@
     "Exploring Stochastic Models": "stochastic.html",
     "Exploring Chemical Equations": "chemical_equations.html",
     "Debugging Stochastic Models": "01_debug_stochastic_mcmc.html",
+    "More Debugging Stochastic Models": "02_debug_stochastic.html",
     "Debugging": "debug.html"
   }
 }
