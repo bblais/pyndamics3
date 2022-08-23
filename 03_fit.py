@@ -4,7 +4,7 @@
 # In[1]:
 
 
-# default_exp fit
+#| default_exp fit
 
 
 # From https://people.duke.edu/~ccc14/sta-663/CalibratingODEs.html
@@ -12,7 +12,7 @@
 # In[2]:
 
 
-#export
+#| export
 import lmfit
 
 
@@ -33,7 +33,7 @@ from pyndamics3 import Simulation
 # In[5]:
 
 
-#export
+#| export
 import numpy as np
 from lmfit import minimize, Parameters, report_fit
 
@@ -42,6 +42,10 @@ from lmfit import minimize, Parameters, report_fit
 
 
 from scipy.integrate import odeint
+
+
+# In[ ]:
+
 
 def f(xs, t, ps):
     """Receptor synthesis-internalization model."""
@@ -65,6 +69,10 @@ def residual(ps, ts, data):
     x0 = ps['x0'].value
     model = g(ts, x0, ps)
     return (model - data).ravel()
+
+
+# In[7]:
+
 
 a = 2.0
 b = 0.5
@@ -94,7 +102,7 @@ plot(t, final, '--', linewidth=2, c='blue');
 report_fit(result)
 
 
-# In[7]:
+# In[8]:
 
 
 sim=Simulation()
@@ -107,7 +115,7 @@ sim.run(10)
 # In[8]:
 
 
-#export
+#| export
 def Parameter(name,**kwargs):
     from lmfit import Parameters
     params = Parameters()
@@ -119,7 +127,7 @@ def Parameter(name,**kwargs):
 # In[9]:
 
 
-#export
+#| export
 def residual(ps, sim):
     
     params={}
