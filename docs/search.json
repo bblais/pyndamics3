@@ -1,0 +1,303 @@
+[
+  {
+    "objectID": "core.html",
+    "href": "core.html",
+    "title": "Core Simulation",
+    "section": "",
+    "text": "pyndamics3 version 0.0.31\n\nsource\n\n\n\n patch (f)\n\nDecorator: add f to the first parameter’s class (based on f’s type annotations)\n\nsource\n\n\n\n\n patch_to (cls, as_prop=False)\n\nDecorator: add f to cls\n\nsource\n\n\n\n\n copy_func (f)\n\nCopy a non-builtin function (NB copy.copy does not work for this)\n\nsource\n\n\n\n\n RedirectStdStreams (stdout=None, stderr=None)\n\nInitialize self. See help(type(self)) for accurate signature.\n\nsource\n\n\n\n\n InterpFunction (x, y, name)\n\nInitialize self. See help(type(self)) for accurate signature.\n\nsource\n\n\n\n\n array_wrap (_f)\n\n\nsource\n\n\n\n\n from_values (var, *args)"
+  },
+  {
+    "objectID": "core.html#supporting-functions-for-solving-ode-and-maps",
+    "href": "core.html#supporting-functions-for-solving-ode-and-maps",
+    "title": "Core Simulation",
+    "section": "Supporting functions for solving ODE and MAPS",
+    "text": "Supporting functions for solving ODE and MAPS\n\nsource\n\nsimfunc\n\n simfunc (_vec, t, _sim)\n\n\nsource\n\n\nrk45\n\n rk45 (function, y0, t_mat, _self, *args, **kwargs)\n\n\nsource\n\n\nrkwrapper\n\n rkwrapper (function, _self)\n\n\nsource\n\n\nrk4\n\n rk4 (function, y0, t_mat, *args, **kwargs)\n\n\nsource\n\n\nrk2\n\n rk2 (function, y0, t_mat, *args, **kwargs)\n\n\nsource\n\n\neuler\n\n euler (function, y0, t_mat, *args, **kwargs)\n\n\nsource\n\n\nmapsolve\n\n mapsolve (function, y0, t_mat, *args)\n\n\nsource\n\n\nvector_field\n\n vector_field (sim, rescale=False, **kwargs)\n\n\nsource\n\n\nphase_plot\n\n phase_plot (sim, x, y, z=None, **kwargs)\n\nMake a Phase Plot of two or three variables.\n\n\n\n\n\n\n\n\n\n\nType\nDefault\nDetails\n\n\n\n\nsim\nSimulation\n\nThis is a simulation object.\n\n\nx\nstr\n\nName of the variable to plot on the x-axis\n\n\ny\nstr\n\nName of the variable to plot on the y-axis\n\n\nz\nNoneType\nNone\nName of the variable to plot on the (optional) z-axis\n\n\nkwargs\n\n\n\n\n\nReturns\n\n\n\n\n\n\n\nsource\n\n\nComponent\n\n Component (diffstr, initial_value=0, min=None, max=None, plot=False,\n            save=None)\n\nInitialize self. See help(type(self)) for accurate signature."
+  },
+  {
+    "objectID": "core.html#examples-of-components",
+    "href": "core.html#examples-of-components",
+    "title": "Core Simulation",
+    "section": "Examples of Components",
+    "text": "Examples of Components"
+  },
+  {
+    "objectID": "core.html#an-alternate-way-of-specifying-the-equations---stocks-inflows-and-outflows",
+    "href": "core.html#an-alternate-way-of-specifying-the-equations---stocks-inflows-and-outflows",
+    "title": "Core Simulation",
+    "section": "An alternate way of specifying the equations - stocks, inflows and outflows",
+    "text": "An alternate way of specifying the equations - stocks, inflows and outflows\n\n@patch\ndef inflow(self:Simulation,cname,s):\n\n    c=[x for x in self.components if x.name==cname]\n\n    if not c:\n        raise ValueError('No component named \"%s\"' % cname)\n\n    c[0].inflow(s)\n\n@patch\ndef outflow(self:Simulation,cname,s):\n\n    c=[x for x in self.components if x.name==cname]\n\n    if not c:\n        raise ValueError('No component named \"%s\"' % cname)\n\n    c[0].outflow(s)\n\n@patch\ndef stock(self:Simulation,name,initial_value=0,\n                min=None,max=None,\n                plot=False,save=None):\n\n    c=Component(name+\"'=\",initial_value,min,max,plot,save)\n    self.components.append(c)\n    return c\n\n\nsim=Simulation()\nsim.add(\"y'=a - b*y\",100)\nsim.params(a=10,b=2)\nprint(sim.equations())\n\ny'=a - b*y\na=10\nb=2\n\n\n\n\n#sim.add(\"y'=a - b*y\",100)\n\n\nsim=Simulation()\nsim.stock(\"y\",100)\nsim.inflow('y','a')\nsim.outflow('y','b*y')\nsim.params(a=10,b=2)\nprint(sim.equations())\n\ny'=+a-(b*y)\na=10\nb=2"
+  },
+  {
+    "objectID": "core.html#some-useful-functions",
+    "href": "core.html#some-useful-functions",
+    "title": "Core Simulation",
+    "section": "Some useful functions",
+    "text": "Some useful functions\n\nsource\n\nmse_from_sim\n\n mse_from_sim (params, extra)\n\n\nsource\n\n\nmodel\n\n model (params, xd, sim, varname, parameters)\n\n\nsource\n\n\nrepeat\n\n repeat (S_orig, t_min, t_max, **kwargs)\n\n\n\nThis is my solution to an age-old problem of storing data in loops\n\nsource\n\n\nStorage\n\n Storage (save_every=1)\n\nInitialize self. See help(type(self)) for accurate signature.\n\ny=1\nx=0\ndx=0.01\na=0.1\n\nS=Storage()  # this object will store data\nS+=x,y   # adds this to the store, one data point at a time\nwhile x<=10:\n    dy=a*y*(50-y)*dx\n    y+=dy\n    x+=dx\n    \n    S+=x,y  # adds this to the store, one data point at a time\n    \nx,y=S.arrays()  # returns an array representation of all those data points\nplot(x,y)\n\n\n\n\n\nx,y\n\n(array([0.000e+00, 1.000e-02, 2.000e-02, ..., 9.990e+00, 1.000e+01,\n        1.001e+01]),\n array([ 1.       ,  1.049    ,  1.1003496, ..., 50.       , 50.       ,\n        50.       ]))\n\n\n\nsource\n\n\npso_fit_sim\n\n pso_fit_sim (varname, xd, yd, sim, parameters, n_particles=30,\n              n_iterations=-1, progress_interval=100, plot=False)\n\n\nsource\n\n\nswarm\n\n swarm (parameters, fitness, number_of_particles=30, extra=None)\n\nInitialize self. See help(type(self)) for accurate signature.\n\nsource\n\n\nparticle\n\n particle (parameters, fitness_function, extra=None)\n\nInitialize self. See help(type(self)) for accurate signature."
+  },
+  {
+    "objectID": "core.html#logistic",
+    "href": "core.html#logistic",
+    "title": "Core Simulation",
+    "section": "Logistic",
+    "text": "Logistic\n\nsim=Simulation()\nsim.add(\"p'=a*p*(1-p/K)\",100,plot=True)\nsim.params(a=1.5,K=300)\n\nsim.run(0,50)\n\n\n\n\n<Figure size 864x576 with 0 Axes>\n\n\n\nsim=Simulation()\nsim.add(\"x=a*x*(1-x)\",0.11,plot=1)\nsim.add(\"y=a*y*(1-y)\",0.12,plot=1)\nsim.params(a=3.5)\n\nsim.run(0,50,discrete=True)\n\n\n\n\n<Figure size 864x576 with 0 Axes>"
+  },
+  {
+    "objectID": "core.html#map",
+    "href": "core.html#map",
+    "title": "Core Simulation",
+    "section": "Map",
+    "text": "Map\n\nsim=Simulation('map')\nsim.add(\"x=a*x*(1-x)\",0.11)\nfigure(figsize=(12,8))\nfor a in linspace(.1,4,1200):\n    sim.params(a=a)\n    sim.run(0,1000)\n\n    x=sim['x'][-100:]\n\n    plot(a*ones(x.shape),x,'k.',markersize=.5)\n\n\n\n\n\nsim=Simulation('map')\nsim.add(\"x=a*x*(1-x)\",0.11)\nfigure(figsize=(12,8))\nfor a in linspace(3.2,4,1200):\n    sim.params(a=a)\n    sim.run(0,1000)\n\n    x=sim['x'][-100:]\n\n    plot(a*ones(x.shape),x,'k.',markersize=.5)"
+  },
+  {
+    "objectID": "core.html#repeat-1",
+    "href": "core.html#repeat-1",
+    "title": "Core Simulation",
+    "section": "Repeat",
+    "text": "Repeat\n\nsim=Simulation()\nsim.add(\"growth_rate=a*(1-p/K)\")\nsim.add(\"p'=growth_rate*p\",100)\nsim.params(a=1.5,K=300)\n\n\nresult=sim.repeat(0,10,a=[1,2,3,4])\nt=sim['t']\n\nfor res in result:\n    p=res['p']\n    plot(t,p)"
+  },
+  {
+    "objectID": "core.html#higher-order",
+    "href": "core.html#higher-order",
+    "title": "Core Simulation",
+    "section": "Higher Order",
+    "text": "Higher Order\n\nsim=Simulation()\nsim.add(\"x''=-k*x/m -b*x'\",[10,0],plot=True)\nsim.params(k=1.0,m=1.0,b=0.5)\n\nsim.run(0,20)\n\n\n\n\n\n\n\n<Figure size 864x576 with 0 Axes>\n\n\n\nphase_plot(sim,\"x\",\"x_p_\")"
+  },
+  {
+    "objectID": "core.html#exploring-parameters",
+    "href": "core.html#exploring-parameters",
+    "title": "Core Simulation",
+    "section": "Exploring parameters",
+    "text": "Exploring parameters\n\nsource\n\nexplore_parameters\n\n explore_parameters (sim, figsize=None, **kwargs)\n\n\nsim=Simulation()\nsim.add(\"p'=a*p*(1-p/K)\",100,plot=True)\nsim.add(\"K'=(50-K)/Kt\",300,plot=False)\nsim.params(a=1.5,Kt=30)\n\nsim.run(0,50)\n\n\n\n\n<Figure size 864x576 with 0 Axes>\n\n\n\nexplore_parameters(sim,Kt=linspace(10,100,10))\n\n\n\n\n\nsim=Simulation()\nsim.figsize=(8,4)\nsim.add(\"S'=-β*S*I/N\",100,plot=1)\nsim.add(\"I'=+β*S*I/N - γ*I\",1,plot=2)\nsim.add(\"R'=+γ*I\",0,plot=0)\nsim.add(\"N=S+I+R\",plot=0)\nsim.params(β=0.2,γ=0.1)\nsim.run(150)\n\n\n\n\n\n\n\n<Figure size 864x576 with 0 Axes>\n\n\n\nexplore_parameters(sim,figsize=(12,8),β=linspace(0,0.2,11))\n\n\n\n\n\n\n\n\nexplore_parameters(sim,figsize=(12,8),β=[0,.1,.2,0,.1,.2],γ=[.1,.1,.1,.3,.3,.3])\n\n\n\n\n\n\n\n\nβ,γ=meshgrid([0,.1,.2],[0,.1,.2])\nexplore_parameters(sim,figsize=(12,8),β=β,γ=γ)"
+  },
+  {
+    "objectID": "core.html#functions-of-time",
+    "href": "core.html#functions-of-time",
+    "title": "Core Simulation",
+    "section": "Functions of time",
+    "text": "Functions of time\n\ndef a_vs_time(t):\n    return 20*t\n    \nsim=Simulation()\nsim.add(\"a=a_vs_time(t)\",plot=1)\nsim.add(\"y'=-a*y\",100,plot=2)\nsim.functions(a_vs_time)\n\nsim.run(10)\n\n\n\n\n\n\n\n<Figure size 864x576 with 0 Axes>"
+  },
+  {
+    "objectID": "core.html#stochastic-simulation-examples",
+    "href": "core.html#stochastic-simulation-examples",
+    "title": "Core Simulation",
+    "section": "Stochastic Simulation Examples",
+    "text": "Stochastic Simulation Examples\n\nβ=0.2\nγ=0.1\nSo=990\nIo=10\n\ndynamic_sim=sim=Simulation()\nsim.add(\"N=S+I+R\")\nsim.add(\"S'=-β*S*I/N\",So)\nsim.add(\"I'=+β*S*I/N-γ*I\",Io)\nsim.add(\"R'=+γ*I\",0)\nsim.params(β=β,γ=γ)\nsim.run(200)\n\n\nstoch_sim=sim=Stochastic_Simulation()\nsim.add(\"-S+I\",'β*S*I/N',S=So,I=Io)\nsim.add(\"-I +R\",'γ*I',R=0)\nsim.add(\"N=S+I+R\")\nsim.params(β=β,γ=γ)\nsim.run(200)\n\n\nsim.run(200,Nsims=100)\n\nfor i in range(100):\n    \n    plot(sim.t,sim.S[i],'bo',alpha=0.005)\n    plot(sim.t,sim.I[i],'ro',alpha=0.005)\n\nplot(dynamic_sim.t,dynamic_sim.S,'c-')\nplot(dynamic_sim.t,dynamic_sim.I,'m-')\n\n100%|██████████| 100/100 [00:00<00:00, 1006.25it/s]"
+  },
+  {
+    "objectID": "stochastic.html",
+    "href": "stochastic.html",
+    "title": "Exploring Stochastic Models",
+    "section": "",
+    "text": "Populating the interactive namespace from numpy and matplotlib"
+  },
+  {
+    "objectID": "stochastic.html#stochastic-sir-model",
+    "href": "stochastic.html#stochastic-sir-model",
+    "title": "Exploring Stochastic Models",
+    "section": "Stochastic SIR Model",
+    "text": "Stochastic SIR Model\n\nβ=0.2\nγ=0.1\nSo=990\nIo=10\n\ndynamic_sim=sim=Simulation()\nsim.add(\"N=S+I+R\")\nsim.add(\"S'=-β*S*I/N\",So)\nsim.add(\"I'=+β*S*I/N-γ*I\",Io)\nsim.add(\"R'=+γ*I\",0)\nsim.params(β=β,γ=γ)\nsim.run(200)\n\n\nstoch_sim=sim=Stochastic_Simulation()\nsim.add(\"-S+I\",'β*S*I/N',S=So,I=Io)\nsim.add(\"-I +R\",'γ*I',R=0)\nsim.add(\"N=S+I+R\")\nsim.params(β=β,γ=γ)\nsim.run(200,Nsims=100)\n\nfor i in range(100):\n    \n    plot(sim.t,sim.S[i],'bo',alpha=0.05)\n    plot(sim.t,sim.I[i],'ro',alpha=0.05)\n\nplot(dynamic_sim.t,dynamic_sim.S,'c-')\nplot(dynamic_sim.t,dynamic_sim.I,'m-')\n\nprint(sim.func_str)\n\n100%|█████████████████████████████████████████████████████████████| 100/100 [00:01<00:00, 73.77it/s]\n\n\n@numba.jit\ndef _propensity_function(population, args):\n    S,I,R = population\n    β,γ = args\n    \n    N=S+I+R\n    \n    val = np.array([\n        β*S*I/N,\n        γ*I,\n    ])\n    return val\n\n\n\n\n\n\nflut = array([0,1,2,3,4,5,6,7,8,9,10,11,12,13])\nflui = array([3,8,26,76,225,298,258,233,189,128,68,29,14,4])\n\n\nfrom pyndamics3.mcmc import *\n\n\nβ=1.9\nγ=0.5\nSo=763\nIo=1\n\ndynamic_sim=sim=Simulation()\nsim.add(\"N=S+I+R\")\nsim.add(\"S'=-β*S*I/N\",So)\nsim.add(\"I'=+β*S*I/N-γ*I\",Io)\nsim.add(\"R'=+γ*I\",0)\nsim.params(β=β,γ=γ)\nsim.add_data(t=flut,I=flui)\nsim.run(20)\n\n\nmodel=MCMCModel(sim,β=Uniform(0,5),\n               γ=Uniform(0,5))\n\n\nnumber_of_iterations=100\nmodel.run_mcmc(number_of_iterations,repeat=3)\nmodel.plot_chains()\n\nSampling Prior...\nDone.\n0.33 s\nRunning MCMC 1/3...\nDone.\n9.49 s\nRunning MCMC 2/3...\nDone.\n12.31 s\nRunning MCMC 3/3...\nDone.\n12.71 s\n\n\n<Figure size 864x576 with 0 Axes>\n\n\n\n\n\n\nplot(sim.t,sim.I)\nplot(flut,flui,'ko',ms=10,lw=3,)\n\n\n\n\n\nsim.β,sim.γ\n\n(1.971927512195288, 0.47689722537627494)\n\n\n\nstoch_sim=Stochastic_Simulation()\nstoch_sim.add(\"-S+I\",'β*S*I/N',S=So,I=Io)\nstoch_sim.add(\"-I +R\",'γ*I',R=0)\nstoch_sim.add(\"N=S+I+R\")\nstoch_sim.params(β=1.9732213241997467,γ=1.9732213241997467)\nstoch_sim.add_data(t=flut,I=flui)\nstoch_sim.run(20,Nsims=100)\n\n100%|██████████████████████████████████████████████████████████| 100/100 [00:00<00:00, 17680.33it/s]\n\n\n\nfor i in range(100):    \n    plot(stoch_sim.t,stoch_sim.I[i],'ro',alpha=0.05)\n    \nplot(flut,flui,'ko',ms=10,lw=3,)\n\n\n\n\n\nstoch_model=MCMCModel(stoch_sim,β=Uniform(0,5),\n               γ=Uniform(0,5))\n\n\nnumber_of_iterations=500\nstoch_model.run_mcmc(number_of_iterations,repeat=3)\n\nstoch_model.plot_chains()\n\nSampling Prior...\nDone.\n0.34 s\nRunning MCMC 1/3...\nDone.\n32.45 s\nRunning MCMC 2/3...\nDone.\n46.80 s\nRunning MCMC 3/3...\nDone.\n47.90 s\n\n\n<Figure size 864x576 with 0 Axes>\n\n\n\n\n\n\nstoch_model.plot_distributions()\n\n\n\n\n\n\n\n\n\n\n\nstoch_sim.β\n\n1.8885259101174712"
+  },
+  {
+    "objectID": "099_debug.html",
+    "href": "099_debug.html",
+    "title": "pyndamics3",
+    "section": "",
+    "text": "%pylab is deprecated, use %matplotlib inline and import the required libraries.\nPopulating the interactive namespace from numpy and matplotlib"
+  },
+  {
+    "objectID": "099_debug.html#is-there-a-problem-with-x0",
+    "href": "099_debug.html#is-there-a-problem-with-x0",
+    "title": "pyndamics3",
+    "section": "Is there a problem with X’=0?",
+    "text": "Is there a problem with X’=0?\n\nfrom pyndamics3 import Simulation\n\n\nsim=Simulation()\nsim.add(\"X'=0\",5,plot=True)\nsim.params(α=5)\nsim.run(10)\n\n\n\n\n<Figure size 432x288 with 0 Axes>\n\n\n\nsim.original_params\n\n{'α': 5}\n\n\n\nfrom pyndamics3.chem import ChemSimulation\n\n\nsim=ChemSimulation(\n\"\"\"\nD --k1--> D+M\nM --k2--> M+P\nM --k3--> ϕ\nP --k4--> ϕ\n\"\"\",D=1,M=0,ϕ=0,P=0,k1=.01,k3=0.00577,k4=0.0001925,k2=20*0.00577)\n\n['D'] k1 ['D', 'M']\n['M'] k2 ['M', 'P']\n['M'] k3 ['ϕ']\n['P'] k4 ['ϕ']\nComponents ['D', 'M', 'P', 'ϕ']\nParameters ['k1', 'k2', 'k3', 'k4']\ndiffeqs [\"D' = 0\", \"M' =  +k1*D -k3*M\", \"P' =  +k2*M -k4*P\"]\n\n\n\nsim.myparams\n\n{'from_values': <function pyndamics3.core.array_wrap.<locals>.what(*args, **kw)>,\n 'sin': <function pyndamics3.core.array_wrap.<locals>.what(*args, **kw)>,\n 'cos': <function pyndamics3.core.array_wrap.<locals>.what(*args, **kw)>,\n 'exp': <function pyndamics3.core.array_wrap.<locals>.what(*args, **kw)>,\n 'tan': <function pyndamics3.core.array_wrap.<locals>.what(*args, **kw)>,\n 'abs': <function pyndamics3.core.array_wrap.<locals>.what(*args, **kw)>,\n 'floor': <function pyndamics3.core.array_wrap.<locals>.what(*args, **kw)>,\n 'ceil': <function pyndamics3.core.array_wrap.<locals>.what(*args, **kw)>,\n 'radians': <function pyndamics3.core.array_wrap.<locals>.what(*args, **kw)>,\n 'degrees': <function pyndamics3.core.array_wrap.<locals>.what(*args, **kw)>,\n 'sinh': <function pyndamics3.core.array_wrap.<locals>.what(*args, **kw)>,\n 'cosh': <function pyndamics3.core.array_wrap.<locals>.what(*args, **kw)>,\n 'tanh': <function pyndamics3.core.array_wrap.<locals>.what(*args, **kw)>,\n 'arccos': <function pyndamics3.core.array_wrap.<locals>.what(*args, **kw)>,\n 'arcsin': <function pyndamics3.core.array_wrap.<locals>.what(*args, **kw)>,\n 'arctan': <function pyndamics3.core.array_wrap.<locals>.what(*args, **kw)>,\n 'arctan2': <function pyndamics3.core.array_wrap.<locals>.what(*args, **kw)>,\n 'min': <function pyndamics3.core.array_wrap.<locals>.what(*args, **kw)>,\n 'max': <function pyndamics3.core.array_wrap.<locals>.what(*args, **kw)>,\n 'sqrt': <function pyndamics3.core.array_wrap.<locals>.what(*args, **kw)>,\n 'log': <function pyndamics3.core.array_wrap.<locals>.what(*args, **kw)>,\n 'log10': <function pyndamics3.core.array_wrap.<locals>.what(*args, **kw)>,\n 'mean': <function pyndamics3.core.array_wrap.<locals>.what(*args, **kw)>,\n 'median': <function pyndamics3.core.array_wrap.<locals>.what(*args, **kw)>,\n 'pi': 3.141592653589793,\n 'inf': inf,\n 'k1': 0.01,\n 'k2': 0.1154,\n 'k3': 0.00577,\n 'k4': 0.0001925}\n\n\n\nsim.run(10)\n\n\nsim.equations()\n\n\"D'=0\\nM'=+k1*D -k3*M\\nP'=+k2*M -k4*P\\nk1=0.01\\nk2=0.1154\\nk3=0.00577\\nk4=0.0001925\\n\"\n\n\n\nprint(sim.func_str)\n\ndef _simfunc(_vec,t,_sim):\n    initial_D=_sim.initial_value['D']\n    initial_M=_sim.initial_value['M']\n    initial_P=_sim.initial_value['P']\n\n    k1=_sim.original_params['k1']\n    k2=_sim.original_params['k2']\n    k3=_sim.original_params['k3']\n    k4=_sim.original_params['k4']\n\n    D=_vec[0]\n    M=_vec[1]\n    P=_vec[2]\n\n\n    _diff=[]\n    _val=0\n    _diff.append(_val)\n    _val=+k1*D -k3*M\n    _diff.append(_val)\n    _val=+k2*M -k4*P\n    _diff.append(_val)\n\n    return _diff\n\n\n\n\nprint(sim.equations())\n\nD'=0\nM'=+k1*D -k3*M\nP'=+k2*M -k4*P\nk1=0.01\nk2=0.1154\nk3=0.00577\nk4=0.0001925\n\n\n\n\nsim.params()"
+  },
+  {
+    "objectID": "mcmc.html",
+    "href": "mcmc.html",
+    "title": "MCMC (using emcee package)",
+    "section": "",
+    "text": "pyndamics3 version 0.0.31\n\nsource\n\n\n\n dicttable (D)\n\n\nsource\n\n\n\n\n time2str (tm)\n\n\nsource\n\n\n\n\n timeit (reset=False)\n\n\nsource\n\n\n\n\n corner (samples, labels)\n\n\nsource\n\n\n\n\n histogram (y, bins=50, plot=True)"
+  },
+  {
+    "objectID": "mcmc.html#distributions-defined-for-speed",
+    "href": "mcmc.html#distributions-defined-for-speed",
+    "title": "MCMC (using emcee package)",
+    "section": "Distributions – Defined for Speed",
+    "text": "Distributions – Defined for Speed\n\nsource\n\nloglognormalpdf\n\n loglognormalpdf (x, mn, sig)\n\n\nsource\n\n\nlogbetapdf\n\n logbetapdf (theta, h, N)\n\n\nsource\n\n\nlognormalpdf\n\n lognormalpdf (x, mn, sig, all_positive=False)\n\n\nsource\n\n\nloghalfnormalpdf\n\n loghalfnormalpdf (x, sig)\n\n\nsource\n\n\nloghalfcauchypdf\n\n loghalfcauchypdf (x, x0, scale)\n\n\nsource\n\n\nlogcauchypdf\n\n logcauchypdf (x, x0, scale)\n\n\nsource\n\n\nlogexponpdf\n\n logexponpdf (x, _lambda)\n\n\nsource\n\n\nlogjeffreyspdf\n\n logjeffreyspdf (x)\n\n\nsource\n\n\nloguniformpdf\n\n loguniformpdf (x, mn, mx)\n\n\nsource\n\n\nlognchoosek\n\n lognchoosek (N, k)"
+  },
+  {
+    "objectID": "mcmc.html#distribution-classes",
+    "href": "mcmc.html#distribution-classes",
+    "title": "MCMC (using emcee package)",
+    "section": "Distribution Classes",
+    "text": "Distribution Classes\n\nsource\n\nBeta\n\n Beta (h=100, N=100)\n\nInitialize self. See help(type(self)) for accurate signature.\n\nsource\n\n\nCauchy\n\n Cauchy (x0=0, scale=1)\n\nInitialize self. See help(type(self)) for accurate signature.\n\nsource\n\n\nLogNormal\n\n LogNormal (mean=0, std=1)\n\nInitialize self. See help(type(self)) for accurate signature.\n\nsource\n\n\nHalfNormal\n\n HalfNormal (sigma=1)\n\nInitialize self. See help(type(self)) for accurate signature.\n\nsource\n\n\nHalfCauchy\n\n HalfCauchy (x0=0, scale=1)\n\nInitialize self. See help(type(self)) for accurate signature.\n\nsource\n\n\nJeffreys\n\n Jeffreys ()\n\nInitialize self. See help(type(self)) for accurate signature.\n\nsource\n\n\nUniform\n\n Uniform (min=0, max=1)\n\nInitialize self. See help(type(self)) for accurate signature.\n\nsource\n\n\nExponential\n\n Exponential (_lambda=1)\n\nInitialize self. See help(type(self)) for accurate signature.\n\nsource\n\n\nNormal\n\n Normal (mean=0, std=1, all_positive=False)\n\nInitialize self. See help(type(self)) for accurate signature."
+  },
+  {
+    "objectID": "mcmc.html#emcee-functions",
+    "href": "mcmc.html#emcee-functions",
+    "title": "MCMC (using emcee package)",
+    "section": "Emcee functions",
+    "text": "Emcee functions\n\nsource\n\nlnprior_function\n\n lnprior_function (model)\n\n\nsource\n\n\nMCMCModel\n\n MCMCModel (sim, **kwargs)\n\nInitialize self. See help(type(self)) for accurate signature.\n\nsource\n\n\nMCMCModelReg\n\n MCMCModelReg (sim, verbose=True, **kwargs)\n\nInitialize self. See help(type(self)) for accurate signature."
+  },
+  {
+    "objectID": "mcmc.html#run-an-initial-and-bad-simulation",
+    "href": "mcmc.html#run-an-initial-and-bad-simulation",
+    "title": "MCMC (using emcee package)",
+    "section": "Run an initial (and bad) simulation",
+    "text": "Run an initial (and bad) simulation\n\nsim=Simulation()\nsim.add(\"h'=a\",1,plot=True)\nsim.add_data(t=t,h=h,plot=True)\nsim.params(a=1)\nsim.run(0,90)\n\n\n\n\n<Figure size 864x576 with 0 Axes>"
+  },
+  {
+    "objectID": "mcmc.html#fitting-a",
+    "href": "mcmc.html#fitting-a",
+    "title": "MCMC (using emcee package)",
+    "section": "Fitting \\(a\\)",
+    "text": "Fitting \\(a\\)\nmodel=MCMCModel(sim,a=Uniform(-10,10))\n\nresult=model.run_mcmc(500)\nmodel.plot_chains()\n\nSampling Prior...\nDone.\n0.39 s\nRunning MCMC 1/1...\nDone.\n40.76 s\n\n\n<Figure size 864x576 with 0 Axes>\n\n\n\n\n\nAlthough this looked converged, you might have situations where you want to repeat the mcmc-resample loop (i.e. resample parameters from the 95% CI of the current samples)\n\nresult\n\n\nPriors\n\nname prior  \na Uniform \nmin-10\nmax10\n\n_sigma_h Jeffreys \n\n\nFit Statistics\n\ndata points12\nvariables2\nnumber of walkers100\nnumber of samples37500\nBayesian info crit. (BIC)112.50038192512125\n\nPosteriors\n\nname value 2.5% 97.5%\na 3.5405 2.9562 3.825\n_sigma_h 22.942 12.544 37.921\n\n\n\n\nmodel.run_mcmc(100,repeat=3)\nmodel.plot_chains()\n\nRunning MCMC 1/3...\nDone.\n8.47 s\nRunning MCMC 2/3...\nDone.\n8.21 s\nRunning MCMC 3/3...\nDone.\n8.20 s\n\n\n<Figure size 864x576 with 0 Axes>\n\n\n\n\n\n\nmodel.summary()\n\n\nPriors\n\nname prior  \na Uniform \nmin-10\nmax10\n\n_sigma_h Jeffreys \n\n\nFit Statistics\n\ndata points12\nvariables2\nnumber of walkers100\nnumber of samples7500\nBayesian info crit. (BIC)112.50477437641784\n\nPosteriors\n\nname value 2.5% 97.5%\na 3.5456 3.0126 3.7934\n_sigma_h 22.97 12.659 39.585\n\n\n\n\nmodel.best_estimates()\n\n{'a': array([3.41276037, 3.5509136 , 3.6829332 ]),\n '_sigma_h': array([18.50769675, 22.69773539, 28.29713438])}\n\n\n\nsim.run(0,90)\n\n\n\n\n<Figure size 864x576 with 0 Axes>\n\n\n\nmodel.plot_distributions()"
+  },
+  {
+    "objectID": "mcmc.html#fitting-with-a-and-the-initial-h",
+    "href": "mcmc.html#fitting-with-a-and-the-initial-h",
+    "title": "MCMC (using emcee package)",
+    "section": "Fitting with \\(a\\) and the initial \\(h\\)",
+    "text": "Fitting with \\(a\\) and the initial \\(h\\)\n\nmodel=MCMCModel(sim,\n                a=Uniform(-10,10),\n                initial_h=Uniform(0,180),\n                )\n\n\nmodel.run_mcmc(500,repeat=2)\nmodel.plot_chains()\n\nSampling Prior...\nDone.\n0.43 s\nRunning MCMC 1/2...\nDone.\n29.34 s\nRunning MCMC 2/2...\nDone.\n29.19 s\n\n\n<Figure size 864x576 with 0 Axes>\n\n\n\n\n\n\nsim.run(0,90)\n\n\n\n\n<Figure size 864x576 with 0 Axes>\n\n\n\nmodel.plot_distributions()\n\n\n\n\n\n\n\n\n\n\n\nmodel.plot_many(0,90,'h')"
+  },
+  {
+    "objectID": "CONTRIBUTING.html",
+    "href": "CONTRIBUTING.html",
+    "title": "pyndamics3",
+    "section": "",
+    "text": "Before anything else, please install the git hooks that run automatic scripts during each commit and merge to strip the notebooks of superfluous metadata (and avoid merge conflicts). After cloning the repository, run the following command inside it:\nnbdev_install_git_hooks\n\n\n\n\nEnsure the bug was not already reported by searching on GitHub under Issues.\nIf you’re unable to find an open issue addressing the problem, open a new one. Be sure to include a title and clear description, as much relevant information as possible, and a code sample or an executable test case demonstrating the expected behavior that is not occurring.\nBe sure to add the complete error messages.\n\n\n\n\nOpen a new GitHub pull request with the patch.\nEnsure that your PR includes a test that fails without your patch, and pass with it.\nEnsure the PR description clearly describes the problem and solution. Include the relevant issue number if applicable.\n\n\n\n\n\n\nKeep each PR focused. While it’s more convenient, do not combine several unrelated fixes together. Create as many branches as needing to keep each PR focused.\nDo not mix style changes/fixes with “functional” changes. It’s very difficult to review such PRs and it most likely get rejected.\nDo not add/remove vertical whitespace. Preserve the original style of the file you edit as much as you can.\nDo not turn an already submitted PR into your development playground. If after you submitted PR, you discovered that more work is needed - close the PR, do the required work and then submit a new PR. Otherwise each of your commits requires attention from maintainers of the project.\nIf, however, you submitted a PR and received a request for changes, you should proceed with commits inside that PR, so that the maintainer can see the incremental fixes and won’t need to review the whole PR again. In the exception case where you realize it’ll take many many commits to complete the requests, then it’s probably best to close the PR, do the work and then submit it again. Use common sense where you’d choose one way over another.\n\n\n\n\n\nDocs are automatically created from the notebooks in the nbs folder."
+  },
+  {
+    "objectID": "chemical_equations.html",
+    "href": "chemical_equations.html",
+    "title": "Exploring Chemical Equations",
+    "section": "",
+    "text": "Populating the interactive namespace from numpy and matplotlib\npyndamics3 version 0.0.31\nsource"
+  },
+  {
+    "objectID": "chemical_equations.html#these-are-wrong-need-to-deal-with-squares",
+    "href": "chemical_equations.html#these-are-wrong-need-to-deal-with-squares",
+    "title": "Exploring Chemical Equations",
+    "section": "These are wrong – need to deal with squares",
+    "text": "These are wrong – need to deal with squares\n\nsim=ChemSimulation(\"\"\"\nA   -->k1->   X\nB+X   -->k2->  Y+D\n2*X+Y -->k3->   3*X\nX   -->k4->  E\n\"\"\",A=1,B=2,D=3,X=0,Y=1,k1=1,k2=1,k3=1,k4=1)\n\nprint()\n\nprint(sim.equations())\n\n['A'] k1 ['X']\n['B', 'X'] k2 ['Y', 'D']\n['2*X', 'Y'] k3 ['3*X']\n['X'] k4 ['E']\nComponents ['2*X', '3*X', 'A', 'B', 'D', 'E', 'X', 'Y']\nParameters ['k1', 'k2', 'k3', 'k4']\ndiffeqs [\"2*X' =  -k3*2*X*Y\", \"3*X' =  +2*k3*2*X*Y\", \"A' =  -k1*A\", \"B' =  -2*k2*B*X\", \"D' =  +2*k2*B*X\", \"E' =  +k4*X\", \"X' =  +k1*A -2*k2*B*X -k4*X\", \"Y' =  +2*k2*B*X -k3*2*X*Y\"]\n\n2*X'=-k3*2*X*Y\n3*X'=+2*k3*2*X*Y\nA'=-k1*A\nB'=-2*k2*B*X\nD'=+2*k2*B*X\nE'=+k4*X\nX'=+k1*A -2*k2*B*X -k4*X\nY'=+2*k2*B*X -k3*2*X*Y\nk1=1\nk2=1\nk3=1\nk4=1"
+  },
+  {
+    "objectID": "debug_stochastic_mcmc.html",
+    "href": "debug_stochastic_mcmc.html",
+    "title": "Debugging Stochastic Models",
+    "section": "",
+    "text": "Populating the interactive namespace from numpy and matplotlib\nthis raises an error"
+  },
+  {
+    "objectID": "debug_stochastic_mcmc.html#debug-with-flu-data",
+    "href": "debug_stochastic_mcmc.html#debug-with-flu-data",
+    "title": "Debugging Stochastic Models",
+    "section": "debug with flu data",
+    "text": "debug with flu data\n\nfrom pyndamics3 import Simulation,Stochastic_Simulation\n\n\nflut = array([0,1,2,3,4,5,6,7,8,9,10,11,12,13])\nflui = array([3,8,26,76,225,298,258,233,189,128,68,29,14,4])\n\n\nflui=array([0,72,112,145,194])\nflut=array([1,2,3,4,5])\n\n\nβ=1.9732213241997467\nγ=0.47521873806558335\n\nβ=.5\nγ=1\n\nSo=763\nIo=1\n\nstoch_sim=Stochastic_Simulation()\nstoch_sim.add(\"-S+I\",'β*S*E/N',S=So,I=Io)\nstoch_sim.add(\"-E+I\",'ζ*S*I',E=0)\nstoch_sim.add(\"-I +R\",'γ*I',R=0)\nstoch_sim.add(\"N=S+I+R\")\nstoch_sim.params(β=β,γ=γ,ζ=.1)\nstoch_sim.add_data(t=flut,I=flui)\nstoch_sim.run(20,Nsims=100)\n\n  0%|                                                                       | 0/100 [00:00<?, ?it/s]"
+  },
+  {
+    "objectID": "debug_stochastic_mcmc.html#debug-with-vampire-data",
+    "href": "debug_stochastic_mcmc.html#debug-with-vampire-data",
+    "title": "Debugging Stochastic Models",
+    "section": "Debug with vampire data",
+    "text": "Debug with vampire data\n\n\n\nPopulating the interactive namespace from numpy and matplotlib\n\n\n\nfrom pyndamics3 import Simulation,Stochastic_Simulation\n\n\ntbt=array([0,72,112,145,194])\ntbv=array([1,2,3,4,5])\n\n\nSo=100\nVo=1\nEo=0\nt_max=1.1*tbt.max()\nβ=0.5\nγ=0.5\nζ=0.5\nδ=0.5\n\nstoch_sim=sim=Stochastic_Simulation()\nsim.add(\"-S+E\",'β*S*V/N',S=So,V=Vo)\nsim.add(\"-E+V\",'γ*S*V',E=Eo)\nsim.add(\"-E+X\",'ζ*S*V',X=1)\nsim.add(\"-V+R\",'δ*S*V',R=0)\nsim.add(\"N=S+E+V+X\")\nsim.params(β=0.03,γ=0.00047,ζ=ζ,δ=δ)\nsim.add_data(t=tbt,V=tbv)\nsim.run(t_max,Nsims=100)\n\n  0%|                                                                       | 0/100 [00:00<?, ?it/s]\n\n\nValueError:"
+  },
+  {
+    "objectID": "fit.html",
+    "href": "fit.html",
+    "title": "Parameter Fitting (using lmfit)",
+    "section": "",
+    "text": "From https://people.duke.edu/~ccc14/sta-663/CalibratingODEs.html\nsource"
+  },
+  {
+    "objectID": "fit.html#example-with-growth",
+    "href": "fit.html#example-with-growth",
+    "title": "Parameter Fitting (using lmfit)",
+    "section": "Example with Growth",
+    "text": "Example with Growth\n\nt=array([7,14,21,28,35,42,49,56,63,70,77,84],float)\nh=array([17.93,36.36,67.76,98.10,131,169.5,205.5,228.3,247.1,250.5,253.8,254.5])\n\n\nLinear Model\n\nsim=Simulation()\nsim.add(\"h'=a\",1,plot=True)\nsim.add_data(t=t,h=h,plot=True)\nsim.params(a=1)\nsim.run(0,90)\n\n\n\n\n<Figure size 864x576 with 0 Axes>\n\n\n\nresults=fit(sim,\n   Parameter('a',value=1,min=0),\n   Parameter('initial_h',value=10,min=0))\n\nresults\n\n\nFit Statisticsfitting methodleastsq# function evals12# data points12# variables2chi-square 5339.27222reduced chi-square 533.927222Akaike info crit. 77.1752558Bayesian info crit. 78.1450691Variables name  value  standard error  relative error  initial value  min  max  vary  a   3.45220277   0.27604199  (8.00%)  1   0.00000000          inf  True  initial_h   6.28727440   14.2212935  (226.19%)  10   0.00000000          inf  True Correlations (unreported correlations are < 0.100)ainitial_h-0.8832\n\n\n\nsim.run(0,90)\n\n\n\n\n<Figure size 864x576 with 0 Axes>\n\n\n\n\nLogistic\n\nsim=Simulation()\nsim.add(\"h'=a*h*(1-h/K)\",1,plot=True)\nsim.add_data(t=t,h=h,plot=True)\nsim.params(a=2,K=100)\nsim.run(0,90)\n\n\n\n\n<Figure size 864x576 with 0 Axes>\n\n\n\nresults=fit(sim,\n   Parameter('a',value=1,min=0.01,max=2),\n   Parameter('K',value=1,min=0,max=400),\n   Parameter('initial_h',value=10,min=0,max=50))\n\nreport_fit(results)\n\nsim.run(0,90)\n\n[[Fit Statistics]]\n    # fitting method   = leastsq\n    # function evals   = 12\n    # data points      = 12\n    # variables        = 3\n    chi-square         = 58540.1602\n    reduced chi-square = 6504.46224\n    Akaike info crit   = 107.910740\n    Bayesian info crit = 109.365460\n[[Variables]]\n    a:          0.39591903 +/- 0.03501417 (8.84%) (init = 1)\n    K:          150.029253 +/- 62.6057614 (41.73%) (init = 1)\n    initial_h:  0.00122368 +/- 0.00128950 (105.38%) (init = 10)\n[[Correlations]] (unreported correlations are < 0.100)\n    C(a, initial_h) = -0.648\n    C(a, K)         = -0.256\n    C(K, initial_h) =  0.123\n\n\n\n\n\n<Figure size 864x576 with 0 Axes>\n\n\nthe fit is lousy – bad initial guesses, method possibly a problem. Retrying with powell method.\n\nresults=fit(sim,\n   Parameter('a',value=1,min=0.01,max=2),\n   Parameter('K',value=1,min=0,max=400),\n   Parameter('initial_h',value=10,min=0,max=50),method='powell')\n\nreport_fit(results)\n\nsim.run(0,90)\n\n[[Fit Statistics]]\n    # fitting method   = Powell\n    # function evals   = 700\n    # data points      = 12\n    # variables        = 3\n    chi-square         = 127.063951\n    reduced chi-square = 14.1182168\n    Akaike info crit   = 34.3174063\n    Bayesian info crit = 35.7721263\n[[Variables]]\n    a:          0.08770737 +/- 0.00291482 (3.32%) (init = 1)\n    K:          261.039662 +/- 2.59358044 (0.99%) (init = 1)\n    initial_h:  12.3091251 +/- 1.10573219 (8.98%) (init = 10)\n[[Correlations]] (unreported correlations are < 0.100)\n    C(a, initial_h) = -0.943\n    C(a, K)         = -0.650\n    C(K, initial_h) =  0.495\n\n\n\n\n\n<Figure size 864x576 with 0 Axes>\n\n\nmuch better!"
+  },
+  {
+    "objectID": "tutorial.zombies.html",
+    "href": "tutorial.zombies.html",
+    "title": "Introduction to MCMC on Dynamical Systems Using Zombies",
+    "section": "",
+    "text": "%pylab is deprecated, use %matplotlib inline and import the required libraries.\nPopulating the interactive namespace from numpy and matplotlib"
+  },
+  {
+    "objectID": "tutorial.zombies.html#sir-model",
+    "href": "tutorial.zombies.html#sir-model",
+    "title": "Introduction to MCMC on Dynamical Systems Using Zombies",
+    "section": "SIR Model",
+    "text": "SIR Model\n\nsim=Simulation()\nsim.add(\"S'=-β*S*I\",1,plot=1)\nsim.add(\"I'=β*S*I-ζ*I\",.001,plot=1)\nsim.add(\"R'=ζ*I\",0,plot=1) \nsim.params(β=5,ζ=1)\nsim.run(0,10)\n\n\n\n\n<Figure size 864x576 with 0 Axes>"
+  },
+  {
+    "objectID": "tutorial.zombies.html#seir-model",
+    "href": "tutorial.zombies.html#seir-model",
+    "title": "Introduction to MCMC on Dynamical Systems Using Zombies",
+    "section": "SEIR Model",
+    "text": "SEIR Model\n\nsim=Simulation()\nsim.add(\"S'=-β*S*I\",1,plot=1)\nsim.add(\"E'=β*S*I-ζ*E\",0,plot=1)\nsim.add(\"I'=ζ*E-α*I\",.001,plot=1) \nsim.add(\"R'=α*I\",0,plot=1)  \nsim.params(α=.3,β=10,ζ=.5)\nsim.run(0,10)\n\n\n\n\n<Figure size 864x576 with 0 Axes>"
+  },
+  {
+    "objectID": "tutorial.zombies.html#szr-model-from-munz-et-al.-2009",
+    "href": "tutorial.zombies.html#szr-model-from-munz-et-al.-2009",
+    "title": "Introduction to MCMC on Dynamical Systems Using Zombies",
+    "section": "SZR Model from Munz et al. (2009)",
+    "text": "SZR Model from Munz et al. (2009)\nNotice that no matter what the parameters are changed to, Z (zombies) always win.\n\nsim=Simulation()\nsim.add(\"S'=Π-β*S*Z-δ*S\",500,plot=1)                   #S (Susceptible)\nsim.add(\"Z'=β*S*Z+ζ*R-α*S*Z\",.002,plot=1)            #Z (Zombie)\nsim.add(\"R'=δ*S+α*S*Z-ζ*R\",1,plot=False)            #R (Removed)\nsim.params(α=.005,β=.0095,ζ=.05, δ=.01,Π=0)     #parameters changed to match the Munz et al. (2009) figures\nsim.run(0,30)\n\n\n\n\n<Figure size 864x576 with 0 Axes>"
+  },
+  {
+    "objectID": "tutorial.zombies.html#sezr-model-based-on-dynamics-observed-in-night-of-the-living-dead",
+    "href": "tutorial.zombies.html#sezr-model-based-on-dynamics-observed-in-night-of-the-living-dead",
+    "title": "Introduction to MCMC on Dynamical Systems Using Zombies",
+    "section": "SEZR Model based on dynamics observed in ‘Night of the Living Dead’",
+    "text": "SEZR Model based on dynamics observed in ‘Night of the Living Dead’\nMovie “data” from Night of the Living Dead\n\nt=array([0,1,1.5,3,4.5,5,5.75,5.9,10])\nzombies=array([1,1,3,8,10,20,28,30,40])\n\n\nsim=Simulation()\nsim.add(\"S'=-β*S*Z-δ*S\",178.5,plot=1)\nsim.add(\"E'=β*S*Z-ζ*E\",0,plot=False)\nsim.add(\"Z'=ζ*E-α*S*Z\",1,plot=1) \nsim.add(\"R'=α*S*Z+δ*S\",0,plot=False) \nsim.params(α=.0342,β=.0445,ζ=4.63, δ=0.0)\nsim.add_data(t=t,Z=zombies,plot=1)\nsim.run(0,10)\n\n\n\n\n<Figure size 864x576 with 0 Axes>\n\n\nMCMC parameter estimation for \\(\\alpha\\) (rate of zombies being permanently removed), \\(\\beta\\) (rate of susceptibles becoming infected), \\(\\zeta\\) (the rate of infected into becoming zombies), and \\(\\delta\\) (suicide rate among susceptibles)\n\nmodel=MCMCModel(sim,\n                α=Uniform(0,.5),\n                β=Uniform(0,.5),\n                ζ=Uniform(0,10),\n                δ=Uniform(0,.01),\n               )\n\n\nnumber_of_iterations=500 # use 500 or so for the figures below, but for CI timeout reasons I include only 5\nmodel.run_mcmc(number_of_iterations,repeat=3)\nmodel.plot_chains()\n\nSampling Prior...\nDone.\n0.41 s\nRunning MCMC 1/3...\nDone.\n1 m, 38.03 s\nRunning MCMC 2/3...\nDone.\n1 m, 43.90 s\nRunning MCMC 3/3...\nDone.\n1 m, 40.36 s\n\n\n<Figure size 864x576 with 0 Axes>\n\n\n\n\n\n\nsim.run(0,10)\n\n\n\n\n<Figure size 864x576 with 0 Axes>\n\n\n\nRo=model.eval('β/α')\n\n\nmodel.plot_distributions(Ro)\n\n\n\n\n\nmodel.plot_many(0,13,'Z')\n\n\n\n\n\nmodel.triangle_plot()\n\n\n\n\n\nmodel.plot_distributions()"
+  },
+  {
+    "objectID": "tutorial.zombies.html#sezr-model-based-on-dynamics-observed-in-shaun-of-the-dead",
+    "href": "tutorial.zombies.html#sezr-model-based-on-dynamics-observed-in-shaun-of-the-dead",
+    "title": "Introduction to MCMC on Dynamical Systems Using Zombies",
+    "section": "SEZR Model based on dynamics observed in ‘Shaun of the Dead’",
+    "text": "SEZR Model based on dynamics observed in ‘Shaun of the Dead’\nData from Shaun of the Dead\n\nt=array([0,3,5,6,8,10,22,22.2,22.5,24,25.5,26,26.5,27.5,27.75,28.5,29,29.5,31.5])\nzombies=array([0,1,2,2,3,3,4,6,2,3,5,12,15,25,37,25,65,80,100])\n\n\nsim=Simulation()\nsim.add(\"S'=-β*S*Z\",508.2,plot=1)\nsim.add(\"E'=β*S*Z-ζ*E\",0,plot=0)\nsim.add(\"Z'=ζ*E-α*S*Z\",.000347759,plot=1)\nsim.add(\"R'=α*S*Z\",0,plot=False)\nsim.params(α=2.96e-8,β=0.000808995,ζ=60)\nsim.add_data(t=t,Z=zombies,plot=1)\nsim.run(0,50)\n\n\n\n\n<Figure size 864x576 with 0 Axes>\n\n\n\nmodel=MCMCModel(sim,\n                α=Uniform(0,.01),\n                β=Uniform(0,.01),\n                ζ=Uniform(0,100),\n               )\n\n\nmodel.run_mcmc(2*number_of_iterations,repeat=3)\nmodel.plot_chains()\n\nSampling Prior...\nDone.\n0.60 s\nRunning MCMC 1/3...\nDone.\n3 m, 42.85 s\nRunning MCMC 2/3...\nDone.\n4 m, 28.81 s\nRunning MCMC 3/3...\nDone.\n4 m, 40.73 s\n\n\n<Figure size 864x576 with 0 Axes>\n\n\n\n\n\n\nmodel.plot_distributions()\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nmodel.plot_many(0,35,'Z')\n\n\n\n\n\nmodel.triangle_plot()"
+  },
+  {
+    "objectID": "tutorial.zombies.html#with-different-priors",
+    "href": "tutorial.zombies.html#with-different-priors",
+    "title": "Introduction to MCMC on Dynamical Systems Using Zombies",
+    "section": "With different priors",
+    "text": "With different priors\n\nt=array([0,3,5,6,8,10,22,22.2,22.5,24,25.5,26,26.5,27.5,27.75,28.5,29,29.5,31.5])\nzombies=array([0,1,2,2,3,3,4,6,2,3,5,12,15,25,37,25,65,80,100])\n\nsim=Simulation()\nsim.add(\"S'=-β*S*Z\",508.2,plot=1)\nsim.add(\"E'=β*S*Z-ζ*E\",0,plot=0)\nsim.add(\"Z'=ζ*E-α*S*Z\",.000347759,plot=1)\nsim.add(\"R'=α*S*Z\",0,plot=False)\nsim.params(α=2.96e-8,β=0.000808995,ζ=60)\nsim.add_data(t=t,Z=zombies,plot=1)\nsim.run(0,50)\n\nmodel=MCMCModel(sim,\n                α=Uniform(0,.01),\n                β=Uniform(0,.01),\n                ζ=Normal(10,10,all_positive=True)\n               )\n\n\n\n\n<Figure size 864x576 with 0 Axes>\n\n\n\nmodel.run_mcmc(800,repeat=2)\nmodel.plot_chains()\n\nSampling Prior...\n\n\n/Users/bblais/opt/anaconda3/lib/python3.9/site-packages/emcee/moves/red_blue.py:99: RuntimeWarning: invalid value encountered in double_scalars\n  lnpdiff = f + nlp - state.log_prob[j]\n\n\nDone.\n0.81 s\nRunning MCMC 1/2...\nDone.\n2 m, 12.73 s\nRunning MCMC 2/2...\nDone.\n2 m, 33.87 s\n\n\n<Figure size 864x576 with 0 Axes>\n\n\n\n\n\n\nmodel.plot_many(0,35,'Z')\n\n\n\n\n\nmodel.plot_distributions()"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Pyndamics3",
+    "section": "",
+    "text": "This file will become your README and also the index of your documentation."
+  },
+  {
+    "objectID": "index.html#install",
+    "href": "index.html#install",
+    "title": "Pyndamics3",
+    "section": "Install",
+    "text": "Install\npip install pyndamics3"
+  },
+  {
+    "objectID": "index.html#how-to-use",
+    "href": "index.html#how-to-use",
+    "title": "Pyndamics3",
+    "section": "How to use",
+    "text": "How to use\nSome simple examples.\n\nfrom pyndamics3 import Simulation\n\npyndamics3  version  0.0.2\n\n\n\nsim=Simulation()\nsim.add(\"p'=a*p*(1-p/K)\",1,plot=True)\nsim.params(a=1,K=50)\nsim.run(50)\n\n\n\n\n<Figure size 432x288 with 0 Axes>"
+  },
+  {
+    "objectID": "debug_stochastic.html",
+    "href": "debug_stochastic.html",
+    "title": "More Debugging Stochastic Models",
+    "section": "",
+    "text": "from pyndamics3 import Simulation,Stochastic_Simulation\n\npyndamics3  version  0.0.29\n\n\n\nSo=5364500\nSo=100\nEo=1\nIo=0\nβ=0.2\nq=2\nρ=1/5\nγ=1/7\nts=130\n\nsim=Simulation()\nsim.add(\"S'=-β*S*I/N\",So)\nsim.add(\"E'=+β*S*I/N-ρ*E\",Eo,plot=1)\nsim.add(\"I'=+ρ*E-γ*I\",Io,plot=1)\nsim.add(\"R'=+γ*I\",0)\nsim.add(\"N=S+E+I+R\")\nsim.params(β=β,γ=γ,q=q,ρ=ρ,ts=ts)\nsim.run(400)\n\n\n\n\n<Figure size 864x576 with 0 Axes>\n\n\n\nSo=5364500\n#So=100000\nEo=1\nIo=0\nβ=0.2\nq=2\nρ=1/5\nγ=1/7\nts=130\n\nsim=Stochastic_Simulation()\nsim.add(\"-S+E\",'β*S*I/N',S=So,E=Eo,I=Io)\nsim.add(\"-E+I\",'ρ*E')\nsim.add(\"-I+R\",'γ*I',R=0)\nsim.add(\"N=S+E+I+R\")\nsim.params(β=β,γ=γ,q=q,ρ=ρ,ts=ts)\nsim.run(500,Nsims=100)\n\n100%|█████████████████████████████████████████████████████████████| 100/100 [00:50<00:00,  1.97it/s]\n\n\n\nfor i in range(100):\n    \n    plot(sim.t,sim.E[i],'bo',alpha=0.05)\n    plot(sim.t,sim.I[i],'ro',alpha=0.05)"
+  },
+  {
+    "objectID": "debug/Week 9 Backlog-Copy1.html",
+    "href": "debug/Week 9 Backlog-Copy1.html",
+    "title": "pyndamics3",
+    "section": "",
+    "text": "df = pd.read_excel('Mobile telephone service.xlsx')\n\n\nx_data=df['Year']\ny_data=df['Americans with Cellular Service (%)']\n\n\nsim=Simulation()\nsim.add(\"y'= a*y*(1-y/k)\",12,plot=True)\nsim.params(a=0.3,k=100)\nsim.add_data(t=x_data,y=y_data,plot=True)\nsim.run(1995,2012)\n\n\n\n\n<Figure size 864x576 with 0 Axes>\n\n\n\nresults=fit(sim,\n           Parameter(\"a\",value=0.5,min=0),\n           Parameter(\"k\",value=100,min=0),\n           )\nsim.run(1995,2012)\n\n\n\n\n<Figure size 864x576 with 0 Axes>\n\n\n\nresults\n\n\nFit Statisticsfitting methodleastsq# function evals7# data points18# variables2chi-square 14627.1940reduced chi-square 914.199625Akaike info crit. 124.604787Bayesian info crit. 126.385530Variables name  value  initial value  min  max  vary  a   0.50000000  0.5   0.00000000          inf  True  k   58.0001111  100   0.00000000          inf  True \n\n\n\nx_data=x_data-min(x_data)\n\n\nsim=Simulation()\nsim.add(\"y'= a*y*(1-y/k)\",12,plot=True)\nsim.params(a=0.3,k=100)\nsim.add_data(t=x_data,y=y_data,plot=True)\nsim.run(20)\n\n\n\n\n<Figure size 864x576 with 0 Axes>\n\n\n\nresults=fit(sim,\n           Parameter(\"a\",value=0.5,min=0),\n           Parameter(\"k\",value=100,min=0),\n           )\nsim.run(20)\n\n\n\n\n<Figure size 864x576 with 0 Axes>\n\n\n\nresults\n\n\nFit Statisticsfitting methodleastsq# function evals16# data points18# variables2chi-square 30.6986915reduced chi-square 1.91866822Akaike info crit. 13.6092689Bayesian info crit. 15.3900124Variables name  value  standard error  relative error  initial value  min  max  vary  a   0.27934262   0.00382039  (1.37%)  0.5   0.00000000          inf  True  k   103.234169   1.20806071  (1.17%)  100   0.00000000          inf  True Correlations (unreported correlations are < 0.100)ak-0.8281\n\n\n\nresults=fit(sim,\n           Parameter(\"a\",value=1,min=0,max=20),\n           Parameter(\"initial_y\",value=1,min=0),\n           Parameter(\"k\",value=30,min=0),\n           )\nresults\n\n\nFit Statisticsfitting methodleastsq# function evals9# data points18# variables3chi-square 14627.1940reduced chi-square 975.146267Akaike info crit. 126.604787Bayesian info crit. 129.275902Variables name  value  initial value  min  max  vary  a   1.00000000  1   0.00000000   20.0000000  True  initial_y   1.00000000  1   0.00000000          inf  True  k   58.0001111  30   0.00000000          inf  True \n\n\n\nsim.run(1995,2012)\n\n\n\n\n<Figure size 864x576 with 0 Axes>\n\n\n\nfishery = pd.read_csv(\"FISH_LAND_08032022184748990.csv\")\n\n\nfishery=fishery[fishery['MEASURE']=='TON']\nfishery=fishery[fishery['Species']=='TOTAL SPECIES']\nfishery=fishery[fishery['LANDINGS']=='LAND_TOTAL']\n\n\nt_fishery=fishery['Year']\ny_fishery=fishery['Value']\n\n\nr=0.13\na=5000\nk=170000\nh=0.1\n\n\nsim=Simulation()\nsim.add(\"n'=r*n*(1-(n/k))-h*(n/(a+n))\",80000,plot=True)\nsim.params(r=0.13,a=5000,k=170000,h=0.1)\nsim.add_data(t=t_fishery,n=y_fishery,plot=True)\nsim.run(2001,2018)\n\n\nresults=fit(sim,\n           Parameter(\"r\",value=1,min=0,max=10),\n           Parameter(\"a\",value=100,min=0),\n           Parameter(\"k\",value=100,min=0),\n           Parameter(\"h\",value=100,min=0),\n        )\n\n\nsim=Simulation()\nsim.add(\"y' = a*y*(1-y/k)\",1,plot=True)\nsim.params(a=1,k=30)\nsim.add_data(t=t_data,y=h_data,plot=True)\nsim.run(80)"
+  }
+]

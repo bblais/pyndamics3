@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.1.251">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="The main simulation functions used for adding, running, and visualizing ODEs">
+
+<title>pyndamics3 - Core Simulation</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="styles.css">
+<meta property="og:title" content="pyndamics3 - Core Simulation">
+<meta property="og:description" content="The main simulation functions used for adding, running, and visualizing ODEs">
+<meta property="og:site-name" content="pyndamics3">
+<meta name="twitter:title" content="pyndamics3 - Core Simulation">
+<meta name="twitter:description" content="The main simulation functions used for adding, running, and visualizing ODEs">
+<meta name="twitter:card" content="summary">
+</head>
+
+<body class="nav-sidebar floating nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">pyndamics3</span>
+    </a>
+  </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/bblais/pyndamics3/tree/master/"><i class="bi bi-github" role="img">
+</i> 
+ </a>
+  </li>  
+</ul>
+              <div class="quarto-toggle-container">
+                  <a href="" class="quarto-reader-toggle nav-link" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+              </div>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+    <div class="container-fluid d-flex justify-content-between">
+      <h1 class="quarto-secondary-nav-title">Core Simulation</h1>
+      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">Pyndamics3</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./core.html" class="sidebar-item-text sidebar-link active">Core Simulation</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./mcmc.html" class="sidebar-item-text sidebar-link">MCMC (using emcee package)</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./tutorial.zombies.html" class="sidebar-item-text sidebar-link">Introduction to MCMC on Dynamical Systems Using Zombies</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./fit.html" class="sidebar-item-text sidebar-link">Parameter Fitting (using lmfit)</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./stochastic.html" class="sidebar-item-text sidebar-link">Exploring Stochastic Models</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./chemical_equations.html" class="sidebar-item-text sidebar-link">Exploring Chemical Equations</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./debug_stochastic_mcmc.html" class="sidebar-item-text sidebar-link">Debugging Stochastic Models</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./debug_stochastic.html" class="sidebar-item-text sidebar-link">More Debugging Stochastic Models</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./099_debug.html" class="sidebar-item-text sidebar-link">Is there a problem with X’=0?</a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">debug</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./debug/Week 9 Backlog-Copy1.html" class="sidebar-item-text sidebar-link">Week 9 Backlog-Copy1.html</a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#preliminaries" id="toc-preliminaries" class="nav-link active" data-scroll-target="#preliminaries">Preliminaries</a>
+  <ul>
+  <li><a href="#patch" id="toc-patch" class="nav-link" data-scroll-target="#patch">patch</a></li>
+  <li><a href="#patch_to" id="toc-patch_to" class="nav-link" data-scroll-target="#patch_to">patch_to</a></li>
+  <li><a href="#copy_func" id="toc-copy_func" class="nav-link" data-scroll-target="#copy_func">copy_func</a></li>
+  <li><a href="#redirectstdstreams" id="toc-redirectstdstreams" class="nav-link" data-scroll-target="#redirectstdstreams">RedirectStdStreams</a></li>
+  <li><a href="#interpfunction" id="toc-interpfunction" class="nav-link" data-scroll-target="#interpfunction">InterpFunction</a></li>
+  <li><a href="#array_wrap" id="toc-array_wrap" class="nav-link" data-scroll-target="#array_wrap">array_wrap</a></li>
+  <li><a href="#from_values" id="toc-from_values" class="nav-link" data-scroll-target="#from_values">from_values</a></li>
+  </ul></li>
+  <li><a href="#supporting-functions-for-solving-ode-and-maps" id="toc-supporting-functions-for-solving-ode-and-maps" class="nav-link" data-scroll-target="#supporting-functions-for-solving-ode-and-maps">Supporting functions for solving ODE and MAPS</a>
+  <ul>
+  <li><a href="#simfunc" id="toc-simfunc" class="nav-link" data-scroll-target="#simfunc">simfunc</a></li>
+  <li><a href="#rk45" id="toc-rk45" class="nav-link" data-scroll-target="#rk45">rk45</a></li>
+  <li><a href="#rkwrapper" id="toc-rkwrapper" class="nav-link" data-scroll-target="#rkwrapper">rkwrapper</a></li>
+  <li><a href="#rk4" id="toc-rk4" class="nav-link" data-scroll-target="#rk4">rk4</a></li>
+  <li><a href="#rk2" id="toc-rk2" class="nav-link" data-scroll-target="#rk2">rk2</a></li>
+  <li><a href="#euler" id="toc-euler" class="nav-link" data-scroll-target="#euler">euler</a></li>
+  <li><a href="#mapsolve" id="toc-mapsolve" class="nav-link" data-scroll-target="#mapsolve">mapsolve</a></li>
+  <li><a href="#vector_field" id="toc-vector_field" class="nav-link" data-scroll-target="#vector_field">vector_field</a></li>
+  <li><a href="#phase_plot" id="toc-phase_plot" class="nav-link" data-scroll-target="#phase_plot">phase_plot</a></li>
+  <li><a href="#component" id="toc-component" class="nav-link" data-scroll-target="#component">Component</a></li>
+  </ul></li>
+  <li><a href="#examples-of-components" id="toc-examples-of-components" class="nav-link" data-scroll-target="#examples-of-components">Examples of Components</a></li>
+  <li><a href="#the-simulation-class-is-the-primary-one-to-use" id="toc-the-simulation-class-is-the-primary-one-to-use" class="nav-link" data-scroll-target="#the-simulation-class-is-the-primary-one-to-use">The <code>Simulation</code> class is the primary one to use</a>
+  <ul>
+  <li><a href="#simulation" id="toc-simulation" class="nav-link" data-scroll-target="#simulation">Simulation</a></li>
+  <li><a href="#an-alternate-way-of-specifying-the-equations---stocks-inflows-and-outflows" id="toc-an-alternate-way-of-specifying-the-equations---stocks-inflows-and-outflows" class="nav-link" data-scroll-target="#an-alternate-way-of-specifying-the-equations---stocks-inflows-and-outflows">An alternate way of specifying the equations - stocks, inflows and outflows</a></li>
+  <li><a href="#some-useful-functions" id="toc-some-useful-functions" class="nav-link" data-scroll-target="#some-useful-functions">Some useful functions</a>
+  <ul class="collapse">
+  <li><a href="#mse_from_sim" id="toc-mse_from_sim" class="nav-link" data-scroll-target="#mse_from_sim">mse_from_sim</a></li>
+  <li><a href="#model" id="toc-model" class="nav-link" data-scroll-target="#model">model</a></li>
+  <li><a href="#repeat" id="toc-repeat" class="nav-link" data-scroll-target="#repeat">repeat</a></li>
+  <li><a href="#this-is-my-solution-to-an-age-old-problem-of-storing-data-in-loops" id="toc-this-is-my-solution-to-an-age-old-problem-of-storing-data-in-loops" class="nav-link" data-scroll-target="#this-is-my-solution-to-an-age-old-problem-of-storing-data-in-loops">This is my solution to an age-old problem of storing data in loops</a></li>
+  <li><a href="#storage" id="toc-storage" class="nav-link" data-scroll-target="#storage">Storage</a></li>
+  <li><a href="#pso_fit_sim" id="toc-pso_fit_sim" class="nav-link" data-scroll-target="#pso_fit_sim">pso_fit_sim</a></li>
+  <li><a href="#swarm" id="toc-swarm" class="nav-link" data-scroll-target="#swarm">swarm</a></li>
+  <li><a href="#particle" id="toc-particle" class="nav-link" data-scroll-target="#particle">particle</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#stochastic-sims" id="toc-stochastic-sims" class="nav-link" data-scroll-target="#stochastic-sims">Stochastic Sims</a>
+  <ul>
+  <li><a href="#stochastic_component" id="toc-stochastic_component" class="nav-link" data-scroll-target="#stochastic_component">Stochastic_Component</a></li>
+  <li><a href="#stochastic_simulation" id="toc-stochastic_simulation" class="nav-link" data-scroll-target="#stochastic_simulation">Stochastic_Simulation</a></li>
+  <li><a href="#struct" id="toc-struct" class="nav-link" data-scroll-target="#struct">Struct</a></li>
+  </ul></li>
+  <li><a href="#some-examples" id="toc-some-examples" class="nav-link" data-scroll-target="#some-examples">Some Examples</a>
+  <ul>
+  <li><a href="#logistic" id="toc-logistic" class="nav-link" data-scroll-target="#logistic">Logistic</a></li>
+  <li><a href="#map" id="toc-map" class="nav-link" data-scroll-target="#map">Map</a></li>
+  <li><a href="#repeat-1" id="toc-repeat-1" class="nav-link" data-scroll-target="#repeat-1">Repeat</a></li>
+  <li><a href="#higher-order" id="toc-higher-order" class="nav-link" data-scroll-target="#higher-order">Higher Order</a></li>
+  <li><a href="#exploring-parameters" id="toc-exploring-parameters" class="nav-link" data-scroll-target="#exploring-parameters">Exploring parameters</a>
+  <ul class="collapse">
+  <li><a href="#explore_parameters" id="toc-explore_parameters" class="nav-link" data-scroll-target="#explore_parameters">explore_parameters</a></li>
+  </ul></li>
+  <li><a href="#functions-of-time" id="toc-functions-of-time" class="nav-link" data-scroll-target="#functions-of-time">Functions of time</a></li>
+  <li><a href="#stochastic-simulation-examples" id="toc-stochastic-simulation-examples" class="nav-link" data-scroll-target="#stochastic-simulation-examples">Stochastic Simulation Examples</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/bblais/pyndamics3/tree/master/issues/new" class="toc-action">Report an issue</a></p></div></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title d-none d-lg-block">Core Simulation</h1>
+</div>
+
+<div>
+  <div class="description">
+    The main simulation functions used for adding, running, and visualizing ODEs
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+    
+  </div>
+  
+
+</header>
+
+<!-- WARNING: THIS FILE WAS AUTOGENERATED! DO NOT EDIT! -->
+<section id="preliminaries" class="level2">
+<h2 class="anchored" data-anchor-id="preliminaries">Preliminaries</h2>
+<p>pyndamics3 version 0.0.31</p>
+<hr>
+<p><a href="https://github.com/bblais/pyndamics3/tree/master/blob/master/pyndamics3/core.py#L57" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="patch" class="level3">
+<h3 class="anchored" data-anchor-id="patch">patch</h3>
+<blockquote class="blockquote">
+<pre><code> patch (f)</code></pre>
+</blockquote>
+<p>Decorator: add <code>f</code> to the first parameter’s class (based on f’s type annotations)</p>
+<hr>
+<p><a href="https://github.com/bblais/pyndamics3/tree/master/blob/master/pyndamics3/core.py#L44" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="patch_to" class="level3">
+<h3 class="anchored" data-anchor-id="patch_to">patch_to</h3>
+<blockquote class="blockquote">
+<pre><code> patch_to (cls, as_prop=False)</code></pre>
+</blockquote>
+<p>Decorator: add <code>f</code> to <code>cls</code></p>
+<hr>
+<p><a href="https://github.com/bblais/pyndamics3/tree/master/blob/master/pyndamics3/core.py#L37" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="copy_func" class="level3">
+<h3 class="anchored" data-anchor-id="copy_func">copy_func</h3>
+<blockquote class="blockquote">
+<pre><code> copy_func (f)</code></pre>
+</blockquote>
+<p>Copy a non-builtin function (NB <code>copy.copy</code> does not work for this)</p>
+<hr>
+<p><a href="https://github.com/bblais/pyndamics3/tree/master/blob/master/pyndamics3/core.py#L76" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="redirectstdstreams" class="level3">
+<h3 class="anchored" data-anchor-id="redirectstdstreams">RedirectStdStreams</h3>
+<blockquote class="blockquote">
+<pre><code> RedirectStdStreams (stdout=None, stderr=None)</code></pre>
+</blockquote>
+<p>Initialize self. See help(type(self)) for accurate signature.</p>
+<hr>
+<p><a href="https://github.com/bblais/pyndamics3/tree/master/blob/master/pyndamics3/core.py#L63" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="interpfunction" class="level3">
+<h3 class="anchored" data-anchor-id="interpfunction">InterpFunction</h3>
+<blockquote class="blockquote">
+<pre><code> InterpFunction (x, y, name)</code></pre>
+</blockquote>
+<p>Initialize self. See help(type(self)) for accurate signature.</p>
+<hr>
+<p><a href="https://github.com/bblais/pyndamics3/tree/master/blob/master/pyndamics3/core.py#L109" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="array_wrap" class="level3">
+<h3 class="anchored" data-anchor-id="array_wrap">array_wrap</h3>
+<blockquote class="blockquote">
+<pre><code> array_wrap (_f)</code></pre>
+</blockquote>
+<hr>
+<p><a href="https://github.com/bblais/pyndamics3/tree/master/blob/master/pyndamics3/core.py#L94" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="from_values" class="level3">
+<h3 class="anchored" data-anchor-id="from_values">from_values</h3>
+<blockquote class="blockquote">
+<pre><code> from_values (var, *args)</code></pre>
+</blockquote>
+</section>
+</section>
+<section id="supporting-functions-for-solving-ode-and-maps" class="level2">
+<h2 class="anchored" data-anchor-id="supporting-functions-for-solving-ode-and-maps">Supporting functions for solving ODE and MAPS</h2>
+<hr>
+<p><a href="https://github.com/bblais/pyndamics3/tree/master/blob/master/pyndamics3/core.py#L264" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="simfunc" class="level3">
+<h3 class="anchored" data-anchor-id="simfunc">simfunc</h3>
+<blockquote class="blockquote">
+<pre><code> simfunc (_vec, t, _sim)</code></pre>
+</blockquote>
+<hr>
+<p><a href="https://github.com/bblais/pyndamics3/tree/master/blob/master/pyndamics3/core.py#L242" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="rk45" class="level3">
+<h3 class="anchored" data-anchor-id="rk45">rk45</h3>
+<blockquote class="blockquote">
+<pre><code> rk45 (function, y0, t_mat, _self, *args, **kwargs)</code></pre>
+</blockquote>
+<hr>
+<p><a href="https://github.com/bblais/pyndamics3/tree/master/blob/master/pyndamics3/core.py#L237" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="rkwrapper" class="level3">
+<h3 class="anchored" data-anchor-id="rkwrapper">rkwrapper</h3>
+<blockquote class="blockquote">
+<pre><code> rkwrapper (function, _self)</code></pre>
+</blockquote>
+<hr>
+<p><a href="https://github.com/bblais/pyndamics3/tree/master/blob/master/pyndamics3/core.py#L202" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="rk4" class="level3">
+<h3 class="anchored" data-anchor-id="rk4">rk4</h3>
+<blockquote class="blockquote">
+<pre><code> rk4 (function, y0, t_mat, *args, **kwargs)</code></pre>
+</blockquote>
+<hr>
+<p><a href="https://github.com/bblais/pyndamics3/tree/master/blob/master/pyndamics3/core.py#L180" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="rk2" class="level3">
+<h3 class="anchored" data-anchor-id="rk2">rk2</h3>
+<blockquote class="blockquote">
+<pre><code> rk2 (function, y0, t_mat, *args, **kwargs)</code></pre>
+</blockquote>
+<hr>
+<p><a href="https://github.com/bblais/pyndamics3/tree/master/blob/master/pyndamics3/core.py#L161" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="euler" class="level3">
+<h3 class="anchored" data-anchor-id="euler">euler</h3>
+<blockquote class="blockquote">
+<pre><code> euler (function, y0, t_mat, *args, **kwargs)</code></pre>
+</blockquote>
+<hr>
+<p><a href="https://github.com/bblais/pyndamics3/tree/master/blob/master/pyndamics3/core.py#L146" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="mapsolve" class="level3">
+<h3 class="anchored" data-anchor-id="mapsolve">mapsolve</h3>
+<blockquote class="blockquote">
+<pre><code> mapsolve (function, y0, t_mat, *args)</code></pre>
+</blockquote>
+<hr>
+<p><a href="https://github.com/bblais/pyndamics3/tree/master/blob/master/pyndamics3/core.py#L355" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="vector_field" class="level3">
+<h3 class="anchored" data-anchor-id="vector_field">vector_field</h3>
+<blockquote class="blockquote">
+<pre><code> vector_field (sim, rescale=False, **kwargs)</code></pre>
+</blockquote>
+<hr>
+<p><a href="https://github.com/bblais/pyndamics3/tree/master/blob/master/pyndamics3/core.py#L324" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="phase_plot" class="level3">
+<h3 class="anchored" data-anchor-id="phase_plot">phase_plot</h3>
+<blockquote class="blockquote">
+<pre><code> phase_plot (sim, x, y, z=None, **kwargs)</code></pre>
+</blockquote>
+<p>Make a Phase Plot of two or three variables.</p>
+<table class="table">
+<colgroup>
+<col style="width: 6%">
+<col style="width: 25%">
+<col style="width: 34%">
+<col style="width: 34%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th><strong>Type</strong></th>
+<th><strong>Default</strong></th>
+<th><strong>Details</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>sim</td>
+<td>Simulation</td>
+<td></td>
+<td>This is a simulation object.</td>
+</tr>
+<tr class="even">
+<td>x</td>
+<td>str</td>
+<td></td>
+<td>Name of the variable to plot on the x-axis</td>
+</tr>
+<tr class="odd">
+<td>y</td>
+<td>str</td>
+<td></td>
+<td>Name of the variable to plot on the y-axis</td>
+</tr>
+<tr class="even">
+<td>z</td>
+<td>NoneType</td>
+<td>None</td>
+<td>Name of the variable to plot on the (optional) z-axis</td>
+</tr>
+<tr class="odd">
+<td>kwargs</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><strong>Returns</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<p><a href="https://github.com/bblais/pyndamics3/tree/master/blob/master/pyndamics3/core.py#L407" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="component" class="level3">
+<h3 class="anchored" data-anchor-id="component">Component</h3>
+<blockquote class="blockquote">
+<pre><code> Component (diffstr, initial_value=0, min=None, max=None, plot=False,
+            save=None)</code></pre>
+</blockquote>
+<p>Initialize self. See help(type(self)) for accurate signature.</p>
+</section>
+</section>
+<section id="examples-of-components" class="level2">
+<h2 class="anchored" data-anchor-id="examples-of-components">Examples of Components</h2>
+</section>
+<section id="the-simulation-class-is-the-primary-one-to-use" class="level1">
+<h1>The <a href="https://bblais.github.io/pyndamics3/core.html#simulation"><code>Simulation</code></a> class is the primary one to use</h1>
+<hr>
+<p><a href="https://github.com/bblais/pyndamics3/tree/master/blob/master/pyndamics3/core.py#L496" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="simulation" class="level3">
+<h3 class="anchored" data-anchor-id="simulation">Simulation</h3>
+<blockquote class="blockquote">
+<pre><code> Simulation (method='odeint', verbose=False, plot_style='.-')</code></pre>
+</blockquote>
+<p>Initialize self. See help(type(self)) for accurate signature.</p>
+</section>
+<section id="an-alternate-way-of-specifying-the-equations---stocks-inflows-and-outflows" class="level2">
+<h2 class="anchored" data-anchor-id="an-alternate-way-of-specifying-the-equations---stocks-inflows-and-outflows">An alternate way of specifying the equations - stocks, inflows and outflows</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="at">@patch</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> inflow(<span class="va">self</span>:Simulation,cname,s):</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    c<span class="op">=</span>[x <span class="cf">for</span> x <span class="kw">in</span> <span class="va">self</span>.components <span class="cf">if</span> x.name<span class="op">==</span>cname]</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> c:</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">'No component named "</span><span class="sc">%s</span><span class="st">"'</span> <span class="op">%</span> cname)</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>    c[<span class="dv">0</span>].inflow(s)</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a><span class="at">@patch</span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> outflow(<span class="va">self</span>:Simulation,cname,s):</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>    c<span class="op">=</span>[x <span class="cf">for</span> x <span class="kw">in</span> <span class="va">self</span>.components <span class="cf">if</span> x.name<span class="op">==</span>cname]</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> c:</span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">'No component named "</span><span class="sc">%s</span><span class="st">"'</span> <span class="op">%</span> cname)</span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>    c[<span class="dv">0</span>].outflow(s)</span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a><span class="at">@patch</span></span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> stock(<span class="va">self</span>:Simulation,name,initial_value<span class="op">=</span><span class="dv">0</span>,</span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a>                <span class="bu">min</span><span class="op">=</span><span class="va">None</span>,<span class="bu">max</span><span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a>                plot<span class="op">=</span><span class="va">False</span>,save<span class="op">=</span><span class="va">None</span>):</span>
+<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a>    c<span class="op">=</span>Component(name<span class="op">+</span><span class="st">"'="</span>,initial_value,<span class="bu">min</span>,<span class="bu">max</span>,plot,save)</span>
+<span id="cb19-27"><a href="#cb19-27" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>.components.append(c)</span>
+<span id="cb19-28"><a href="#cb19-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> c</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>sim<span class="op">=</span>Simulation()</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>sim.add(<span class="st">"y'=a - b*y"</span>,<span class="dv">100</span>)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>sim.params(a<span class="op">=</span><span class="dv">10</span>,b<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(sim.equations())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>y'=a - b*y
+a=10
+b=2
+</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co">#sim.add("y'=a - b*y",100)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>sim<span class="op">=</span>Simulation()</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>sim.stock(<span class="st">"y"</span>,<span class="dv">100</span>)</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>sim.inflow(<span class="st">'y'</span>,<span class="st">'a'</span>)</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>sim.outflow(<span class="st">'y'</span>,<span class="st">'b*y'</span>)</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>sim.params(a<span class="op">=</span><span class="dv">10</span>,b<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(sim.equations())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>y'=+a-(b*y)
+a=10
+b=2
+</code></pre>
+</div>
+</div>
+</section>
+<section id="some-useful-functions" class="level2">
+<h2 class="anchored" data-anchor-id="some-useful-functions">Some useful functions</h2>
+<hr>
+<p><a href="https://github.com/bblais/pyndamics3/tree/master/blob/master/pyndamics3/core.py#L1312" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="mse_from_sim" class="level3">
+<h3 class="anchored" data-anchor-id="mse_from_sim">mse_from_sim</h3>
+<blockquote class="blockquote">
+<pre><code> mse_from_sim (params, extra)</code></pre>
+</blockquote>
+<hr>
+<p><a href="https://github.com/bblais/pyndamics3/tree/master/blob/master/pyndamics3/core.py#L1290" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="model" class="level3">
+<h3 class="anchored" data-anchor-id="model">model</h3>
+<blockquote class="blockquote">
+<pre><code> model (params, xd, sim, varname, parameters)</code></pre>
+</blockquote>
+<hr>
+<p><a href="https://github.com/bblais/pyndamics3/tree/master/blob/master/pyndamics3/core.py#L1266" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="repeat" class="level3">
+<h3 class="anchored" data-anchor-id="repeat">repeat</h3>
+<blockquote class="blockquote">
+<pre><code> repeat (S_orig, t_min, t_max, **kwargs)</code></pre>
+</blockquote>
+</section>
+<section id="this-is-my-solution-to-an-age-old-problem-of-storing-data-in-loops" class="level3">
+<h3 class="anchored" data-anchor-id="this-is-my-solution-to-an-age-old-problem-of-storing-data-in-loops">This is my solution to an age-old problem of storing data in loops</h3>
+<hr>
+<p><a href="https://github.com/bblais/pyndamics3/tree/master/blob/master/pyndamics3/core.py#L1329" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="storage" class="level3">
+<h3 class="anchored" data-anchor-id="storage">Storage</h3>
+<blockquote class="blockquote">
+<pre><code> Storage (save_every=1)</code></pre>
+</blockquote>
+<p>Initialize self. See help(type(self)) for accurate signature.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>y<span class="op">=</span><span class="dv">1</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>x<span class="op">=</span><span class="dv">0</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>dx<span class="op">=</span><span class="fl">0.01</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>a<span class="op">=</span><span class="fl">0.1</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>S<span class="op">=</span>Storage()  <span class="co"># this object will store data</span></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>S<span class="op">+=</span>x,y   <span class="co"># adds this to the store, one data point at a time</span></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> x<span class="op">&lt;=</span><span class="dv">10</span>:</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>    dy<span class="op">=</span>a<span class="op">*</span>y<span class="op">*</span>(<span class="dv">50</span><span class="op">-</span>y)<span class="op">*</span>dx</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>    y<span class="op">+=</span>dy</span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>    x<span class="op">+=</span>dx</span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>    S<span class="op">+=</span>x,y  <span class="co"># adds this to the store, one data point at a time</span></span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>x,y<span class="op">=</span>S.arrays()  <span class="co"># returns an array representation of all those data points</span></span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>plot(x,y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="00_core_files/figure-html/cell-28-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>x,y</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<pre><code>(array([0.000e+00, 1.000e-02, 2.000e-02, ..., 9.990e+00, 1.000e+01,
+        1.001e+01]),
+ array([ 1.       ,  1.049    ,  1.1003496, ..., 50.       , 50.       ,
+        50.       ]))</code></pre>
+</div>
+</div>
+<hr>
+<p><a href="https://github.com/bblais/pyndamics3/tree/master/blob/master/pyndamics3/core.py#L1457" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="pso_fit_sim" class="level3">
+<h3 class="anchored" data-anchor-id="pso_fit_sim">pso_fit_sim</h3>
+<blockquote class="blockquote">
+<pre><code> pso_fit_sim (varname, xd, yd, sim, parameters, n_particles=30,
+              n_iterations=-1, progress_interval=100, plot=False)</code></pre>
+</blockquote>
+<hr>
+<p><a href="https://github.com/bblais/pyndamics3/tree/master/blob/master/pyndamics3/core.py#L1426" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="swarm" class="level3">
+<h3 class="anchored" data-anchor-id="swarm">swarm</h3>
+<blockquote class="blockquote">
+<pre><code> swarm (parameters, fitness, number_of_particles=30, extra=None)</code></pre>
+</blockquote>
+<p>Initialize self. See help(type(self)) for accurate signature.</p>
+<hr>
+<p><a href="https://github.com/bblais/pyndamics3/tree/master/blob/master/pyndamics3/core.py#L1367" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="particle" class="level3">
+<h3 class="anchored" data-anchor-id="particle">particle</h3>
+<blockquote class="blockquote">
+<pre><code> particle (parameters, fitness_function, extra=None)</code></pre>
+</blockquote>
+<p>Initialize self. See help(type(self)) for accurate signature.</p>
+</section>
+</section>
+</section>
+<section id="stochastic-sims" class="level1">
+<h1>Stochastic Sims</h1>
+<hr>
+<p><a href="https://github.com/bblais/pyndamics3/tree/master/blob/master/pyndamics3/core.py#L1512" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="stochastic_component" class="level3">
+<h3 class="anchored" data-anchor-id="stochastic_component">Stochastic_Component</h3>
+<blockquote class="blockquote">
+<pre><code> Stochastic_Component (name, initial_value=0, assignment_str=None,
+                       min=None, max=None, plot=False, save=None)</code></pre>
+</blockquote>
+<p>Initialize self. See help(type(self)) for accurate signature.</p>
+<hr>
+<p><a href="https://github.com/bblais/pyndamics3/tree/master/blob/master/pyndamics3/core.py#L1791" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="stochastic_simulation" class="level3">
+<h3 class="anchored" data-anchor-id="stochastic_simulation">Stochastic_Simulation</h3>
+<blockquote class="blockquote">
+<pre><code> Stochastic_Simulation ()</code></pre>
+</blockquote>
+<p>Initialize self. See help(type(self)) for accurate signature.</p>
+<hr>
+<p><a href="https://github.com/bblais/pyndamics3/tree/master/blob/master/pyndamics3/core.py#L1550" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="struct" class="level3">
+<h3 class="anchored" data-anchor-id="struct">Struct</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>β<span class="op">=</span><span class="fl">0.2</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>γ<span class="op">=</span><span class="fl">0.1</span></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>So<span class="op">=</span><span class="dv">990</span></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>Io<span class="op">=</span><span class="dv">10</span></span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>dynamic_sim<span class="op">=</span>sim<span class="op">=</span>Simulation()</span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>sim.add(<span class="st">"N=S+I+R"</span>)</span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>sim.add(<span class="st">"S'=-β*S*I/N"</span>,So)</span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a>sim.add(<span class="st">"I'=+β*S*I/N-γ*I"</span>,Io)</span>
+<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a>sim.add(<span class="st">"R'=+γ*I"</span>,<span class="dv">0</span>)</span>
+<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a>sim.params(β<span class="op">=</span>β,γ<span class="op">=</span>γ)</span>
+<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a>sim.run(<span class="dv">200</span>)</span>
+<span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-14"><a href="#cb37-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-15"><a href="#cb37-15" aria-hidden="true" tabindex="-1"></a>stoch_sim<span class="op">=</span>sim<span class="op">=</span>Stochastic_Simulation()</span>
+<span id="cb37-16"><a href="#cb37-16" aria-hidden="true" tabindex="-1"></a>sim.add(<span class="st">"-S+I"</span>,<span class="st">'β*S*I/N'</span>,S<span class="op">=</span>So,I<span class="op">=</span>Io)</span>
+<span id="cb37-17"><a href="#cb37-17" aria-hidden="true" tabindex="-1"></a>sim.add(<span class="st">"-I +R"</span>,<span class="st">'γ*I'</span>,R<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb37-18"><a href="#cb37-18" aria-hidden="true" tabindex="-1"></a>sim.add(<span class="st">"N=S+I+R"</span>)</span>
+<span id="cb37-19"><a href="#cb37-19" aria-hidden="true" tabindex="-1"></a>sim.params(β<span class="op">=</span>β,γ<span class="op">=</span>γ)</span>
+<span id="cb37-20"><a href="#cb37-20" aria-hidden="true" tabindex="-1"></a>sim.run(<span class="dv">200</span>,Nsims<span class="op">=</span><span class="dv">100</span>)</span>
+<span id="cb37-21"><a href="#cb37-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-22"><a href="#cb37-22" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">100</span>):</span>
+<span id="cb37-23"><a href="#cb37-23" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb37-24"><a href="#cb37-24" aria-hidden="true" tabindex="-1"></a>    plot(sim.t,sim.S[i],<span class="st">'bo'</span>,alpha<span class="op">=</span><span class="fl">0.05</span>)</span>
+<span id="cb37-25"><a href="#cb37-25" aria-hidden="true" tabindex="-1"></a>    plot(sim.t,sim.I[i],<span class="st">'ro'</span>,alpha<span class="op">=</span><span class="fl">0.05</span>)</span>
+<span id="cb37-26"><a href="#cb37-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-27"><a href="#cb37-27" aria-hidden="true" tabindex="-1"></a>plot(dynamic_sim.t,dynamic_sim.S,<span class="st">'c-'</span>)</span>
+<span id="cb37-28"><a href="#cb37-28" aria-hidden="true" tabindex="-1"></a>plot(dynamic_sim.t,dynamic_sim.I,<span class="st">'m-'</span>)</span>
+<span id="cb37-29"><a href="#cb37-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-30"><a href="#cb37-30" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(sim.func_str)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>100%|██████████| 100/100 [00:00&lt;00:00, 981.58it/s]</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>@numba.jit(nopython=True)
+def _propensity_function(population, args):
+    S,I,R = population
+    β,γ = args
+    
+    N=S+I+R
+    
+    return np.array([
+        β*S*I/N,
+        γ*I,
+    ])
+</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="00_core_files/figure-html/cell-36-output-3.png" class="img-fluid"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>sim.extinction_times</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<pre><code>array([173.34641097, 147.2142087 , 173.25806905, 139.46093989,
+       141.46950986, 184.82415756, 177.24507978, 162.89244257,
+       135.74875203, 142.12308477, 124.1452361 , 103.78449248,
+       136.24764907, 141.64503261, 149.02049576, 154.08471155,
+       144.36046575, 119.08888338, 126.56068263, 150.96714048,
+       185.46651177, 137.75710629, 145.83280943, 161.45092743,
+       135.52623017, 158.22300444, 116.4663216 , 142.45833271,
+       131.58919096, 132.83514533, 158.67032537, 134.80159232,
+       138.67325803, 145.34862087, 175.71694956, 168.1073566 ,
+       138.83605961, 131.97878544, 132.29909228, 136.24188252,
+       141.72408479, 149.24895424, 140.01290625, 134.00439041,
+       128.82634577, 136.28831928, 121.92344439, 157.01860147,
+       130.87983952, 190.04334344,  16.78030852, 175.76630482,
+       116.42534703, 136.68052456,  -1.        , 136.61710555,
+       183.78243168, 159.79643709, 148.65710129, 154.9672915 ,
+       160.71863761, 166.15813836, 127.78792513, 139.85561763,
+       177.64067511, 131.71662539, 126.83004396, 135.63721802,
+       146.22285002, 170.34515699, 129.9729188 , 135.8394829 ,
+       161.82999371, 154.39877207, 165.24073111,  -1.        ,
+       134.46078024, 131.01546673, 121.36461215, 168.43992536,
+       160.32262449, 144.3013475 , 199.74725228, 111.65022834,
+       182.77090173, 113.66447594, 115.29110107, 138.87220524,
+       175.75330356, 127.62963742, 137.38328691, 137.9071455 ,
+       198.34523822, 144.94021945, 136.85662852, 166.1285249 ,
+       176.12888724, 141.47111244, 146.1237378 , 177.42190037])</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>stoch_sim<span class="op">=</span>sim<span class="op">=</span>Stochastic_Simulation()</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>sim.add(<span class="st">"+X"</span>,<span class="st">'X-X**2/N'</span>,X<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>sim.add(<span class="st">"-X"</span>,<span class="st">'X**2/N'</span>)</span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>sim.params(N<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>sim.run(<span class="dv">50</span>,num_iterations<span class="op">=</span><span class="dv">101</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>plot(sim.t,sim.X,<span class="st">'-o'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="00_core_files/figure-html/cell-39-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>sim.extinction_times</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<pre><code>array([-1])</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="some-examples" class="level1">
+<h1>Some Examples</h1>
+<section id="logistic" class="level2">
+<h2 class="anchored" data-anchor-id="logistic">Logistic</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>sim<span class="op">=</span>Simulation()</span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>sim.add(<span class="st">"p'=a*p*(1-p/K)"</span>,<span class="dv">100</span>,plot<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>sim.params(a<span class="op">=</span><span class="fl">1.5</span>,K<span class="op">=</span><span class="dv">300</span>)</span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>sim.run(<span class="dv">0</span>,<span class="dv">50</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="00_core_files/figure-html/cell-41-output-1.png" class="img-fluid"></p>
+</div>
+<div class="cell-output cell-output-display">
+<pre><code>&lt;Figure size 864x576 with 0 Axes&gt;</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>sim<span class="op">=</span>Simulation()</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>sim.add(<span class="st">"x=a*x*(1-x)"</span>,<span class="fl">0.11</span>,plot<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>sim.add(<span class="st">"y=a*y*(1-y)"</span>,<span class="fl">0.12</span>,plot<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>sim.params(a<span class="op">=</span><span class="fl">3.5</span>)</span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a>sim.run(<span class="dv">0</span>,<span class="dv">50</span>,discrete<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="00_core_files/figure-html/cell-42-output-1.png" class="img-fluid"></p>
+</div>
+<div class="cell-output cell-output-display">
+<pre><code>&lt;Figure size 864x576 with 0 Axes&gt;</code></pre>
+</div>
+</div>
+</section>
+<section id="map" class="level2">
+<h2 class="anchored" data-anchor-id="map">Map</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>sim<span class="op">=</span>Simulation(<span class="st">'map'</span>)</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>sim.add(<span class="st">"x=a*x*(1-x)"</span>,<span class="fl">0.11</span>)</span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>figure(figsize<span class="op">=</span>(<span class="dv">12</span>,<span class="dv">8</span>))</span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> a <span class="kw">in</span> linspace(<span class="fl">.1</span>,<span class="dv">4</span>,<span class="dv">1200</span>):</span>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a>    sim.params(a<span class="op">=</span>a)</span>
+<span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a>    sim.run(<span class="dv">0</span>,<span class="dv">1000</span>)</span>
+<span id="cb50-7"><a href="#cb50-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb50-8"><a href="#cb50-8" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span>sim[<span class="st">'x'</span>][<span class="op">-</span><span class="dv">100</span>:]</span>
+<span id="cb50-9"><a href="#cb50-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb50-10"><a href="#cb50-10" aria-hidden="true" tabindex="-1"></a>    plot(a<span class="op">*</span>ones(x.shape),x,<span class="st">'k.'</span>,markersize<span class="op">=</span><span class="fl">.5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="00_core_files/figure-html/cell-43-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>sim<span class="op">=</span>Simulation(<span class="st">'map'</span>)</span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>sim.add(<span class="st">"x=a*x*(1-x)"</span>,<span class="fl">0.11</span>)</span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>figure(figsize<span class="op">=</span>(<span class="dv">12</span>,<span class="dv">8</span>))</span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> a <span class="kw">in</span> linspace(<span class="fl">3.2</span>,<span class="dv">4</span>,<span class="dv">1200</span>):</span>
+<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a>    sim.params(a<span class="op">=</span>a)</span>
+<span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a>    sim.run(<span class="dv">0</span>,<span class="dv">1000</span>)</span>
+<span id="cb51-7"><a href="#cb51-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-8"><a href="#cb51-8" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span>sim[<span class="st">'x'</span>][<span class="op">-</span><span class="dv">100</span>:]</span>
+<span id="cb51-9"><a href="#cb51-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-10"><a href="#cb51-10" aria-hidden="true" tabindex="-1"></a>    plot(a<span class="op">*</span>ones(x.shape),x,<span class="st">'k.'</span>,markersize<span class="op">=</span><span class="fl">.5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="00_core_files/figure-html/cell-44-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+</section>
+<section id="repeat-1" class="level2">
+<h2 class="anchored" data-anchor-id="repeat-1">Repeat</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>sim<span class="op">=</span>Simulation()</span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>sim.add(<span class="st">"growth_rate=a*(1-p/K)"</span>)</span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>sim.add(<span class="st">"p'=growth_rate*p"</span>,<span class="dv">100</span>)</span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a>sim.params(a<span class="op">=</span><span class="fl">1.5</span>,K<span class="op">=</span><span class="dv">300</span>)</span>
+<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-6"><a href="#cb52-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-7"><a href="#cb52-7" aria-hidden="true" tabindex="-1"></a>result<span class="op">=</span>sim.repeat(<span class="dv">0</span>,<span class="dv">10</span>,a<span class="op">=</span>[<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>])</span>
+<span id="cb52-8"><a href="#cb52-8" aria-hidden="true" tabindex="-1"></a>t<span class="op">=</span>sim[<span class="st">'t'</span>]</span>
+<span id="cb52-9"><a href="#cb52-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-10"><a href="#cb52-10" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> res <span class="kw">in</span> result:</span>
+<span id="cb52-11"><a href="#cb52-11" aria-hidden="true" tabindex="-1"></a>    p<span class="op">=</span>res[<span class="st">'p'</span>]</span>
+<span id="cb52-12"><a href="#cb52-12" aria-hidden="true" tabindex="-1"></a>    plot(t,p)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="00_core_files/figure-html/cell-45-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+</section>
+<section id="higher-order" class="level2">
+<h2 class="anchored" data-anchor-id="higher-order">Higher Order</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>sim<span class="op">=</span>Simulation()</span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>sim.add(<span class="st">"x''=-k*x/m -b*x'"</span>,[<span class="dv">10</span>,<span class="dv">0</span>],plot<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a>sim.params(k<span class="op">=</span><span class="fl">1.0</span>,m<span class="op">=</span><span class="fl">1.0</span>,b<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-5"><a href="#cb53-5" aria-hidden="true" tabindex="-1"></a>sim.run(<span class="dv">0</span>,<span class="dv">20</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="00_core_files/figure-html/cell-46-output-1.png" class="img-fluid"></p>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="00_core_files/figure-html/cell-46-output-2.png" class="img-fluid"></p>
+</div>
+<div class="cell-output cell-output-display">
+<pre><code>&lt;Figure size 864x576 with 0 Axes&gt;</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>phase_plot(sim,<span class="st">"x"</span>,<span class="st">"x_p_"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="00_core_files/figure-html/cell-47-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+</section>
+<section id="exploring-parameters" class="level2">
+<h2 class="anchored" data-anchor-id="exploring-parameters">Exploring parameters</h2>
+<hr>
+<p><a href="https://github.com/bblais/pyndamics3/tree/master/blob/master/pyndamics3/core.py#L2161" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="explore_parameters" class="level3">
+<h3 class="anchored" data-anchor-id="explore_parameters">explore_parameters</h3>
+<blockquote class="blockquote">
+<pre><code> explore_parameters (sim, figsize=None, **kwargs)</code></pre>
+</blockquote>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>sim<span class="op">=</span>Simulation()</span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>sim.add(<span class="st">"p'=a*p*(1-p/K)"</span>,<span class="dv">100</span>,plot<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a>sim.add(<span class="st">"K'=(50-K)/Kt"</span>,<span class="dv">300</span>,plot<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a>sim.params(a<span class="op">=</span><span class="fl">1.5</span>,Kt<span class="op">=</span><span class="dv">30</span>)</span>
+<span id="cb57-5"><a href="#cb57-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb57-6"><a href="#cb57-6" aria-hidden="true" tabindex="-1"></a>sim.run(<span class="dv">0</span>,<span class="dv">50</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="00_core_files/figure-html/cell-49-output-1.png" class="img-fluid"></p>
+</div>
+<div class="cell-output cell-output-display">
+<pre><code>&lt;Figure size 864x576 with 0 Axes&gt;</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>explore_parameters(sim,Kt<span class="op">=</span>linspace(<span class="dv">10</span>,<span class="dv">100</span>,<span class="dv">10</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="00_core_files/figure-html/cell-50-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>sim<span class="op">=</span>Simulation()</span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>sim.figsize<span class="op">=</span>(<span class="dv">8</span>,<span class="dv">4</span>)</span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a>sim.add(<span class="st">"S'=-β*S*I/N"</span>,<span class="dv">100</span>,plot<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb60-4"><a href="#cb60-4" aria-hidden="true" tabindex="-1"></a>sim.add(<span class="st">"I'=+β*S*I/N - γ*I"</span>,<span class="dv">1</span>,plot<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb60-5"><a href="#cb60-5" aria-hidden="true" tabindex="-1"></a>sim.add(<span class="st">"R'=+γ*I"</span>,<span class="dv">0</span>,plot<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb60-6"><a href="#cb60-6" aria-hidden="true" tabindex="-1"></a>sim.add(<span class="st">"N=S+I+R"</span>,plot<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb60-7"><a href="#cb60-7" aria-hidden="true" tabindex="-1"></a>sim.params(β<span class="op">=</span><span class="fl">0.2</span>,γ<span class="op">=</span><span class="fl">0.1</span>)</span>
+<span id="cb60-8"><a href="#cb60-8" aria-hidden="true" tabindex="-1"></a>sim.run(<span class="dv">150</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="00_core_files/figure-html/cell-51-output-1.png" class="img-fluid"></p>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="00_core_files/figure-html/cell-51-output-2.png" class="img-fluid"></p>
+</div>
+<div class="cell-output cell-output-display">
+<pre><code>&lt;Figure size 864x576 with 0 Axes&gt;</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>explore_parameters(sim,figsize<span class="op">=</span>(<span class="dv">12</span>,<span class="dv">8</span>),β<span class="op">=</span>linspace(<span class="dv">0</span>,<span class="fl">0.2</span>,<span class="dv">11</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="00_core_files/figure-html/cell-52-output-1.png" class="img-fluid"></p>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="00_core_files/figure-html/cell-52-output-2.png" class="img-fluid"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a>explore_parameters(sim,figsize<span class="op">=</span>(<span class="dv">12</span>,<span class="dv">8</span>),β<span class="op">=</span>[<span class="dv">0</span>,<span class="fl">.1</span>,<span class="fl">.2</span>,<span class="dv">0</span>,<span class="fl">.1</span>,<span class="fl">.2</span>],γ<span class="op">=</span>[<span class="fl">.1</span>,<span class="fl">.1</span>,<span class="fl">.1</span>,<span class="fl">.3</span>,<span class="fl">.3</span>,<span class="fl">.3</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="00_core_files/figure-html/cell-53-output-1.png" class="img-fluid"></p>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="00_core_files/figure-html/cell-53-output-2.png" class="img-fluid"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>β,γ<span class="op">=</span>meshgrid([<span class="dv">0</span>,<span class="fl">.1</span>,<span class="fl">.2</span>],[<span class="dv">0</span>,<span class="fl">.1</span>,<span class="fl">.2</span>])</span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>explore_parameters(sim,figsize<span class="op">=</span>(<span class="dv">12</span>,<span class="dv">8</span>),β<span class="op">=</span>β,γ<span class="op">=</span>γ)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="00_core_files/figure-html/cell-54-output-1.png" class="img-fluid"></p>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="00_core_files/figure-html/cell-54-output-2.png" class="img-fluid"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="functions-of-time" class="level2">
+<h2 class="anchored" data-anchor-id="functions-of-time">Functions of time</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> a_vs_time(t):</span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">20</span><span class="op">*</span>t</span>
+<span id="cb65-3"><a href="#cb65-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb65-4"><a href="#cb65-4" aria-hidden="true" tabindex="-1"></a>sim<span class="op">=</span>Simulation()</span>
+<span id="cb65-5"><a href="#cb65-5" aria-hidden="true" tabindex="-1"></a>sim.add(<span class="st">"a=a_vs_time(t)"</span>,plot<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb65-6"><a href="#cb65-6" aria-hidden="true" tabindex="-1"></a>sim.add(<span class="st">"y'=-a*y"</span>,<span class="dv">100</span>,plot<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb65-7"><a href="#cb65-7" aria-hidden="true" tabindex="-1"></a>sim.functions(a_vs_time)</span>
+<span id="cb65-8"><a href="#cb65-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-9"><a href="#cb65-9" aria-hidden="true" tabindex="-1"></a>sim.run(<span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="00_core_files/figure-html/cell-55-output-1.png" class="img-fluid"></p>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="00_core_files/figure-html/cell-55-output-2.png" class="img-fluid"></p>
+</div>
+<div class="cell-output cell-output-display">
+<pre><code>&lt;Figure size 864x576 with 0 Axes&gt;</code></pre>
+</div>
+</div>
+</section>
+<section id="stochastic-simulation-examples" class="level2">
+<h2 class="anchored" data-anchor-id="stochastic-simulation-examples">Stochastic Simulation Examples</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a>β<span class="op">=</span><span class="fl">0.2</span></span>
+<span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a>γ<span class="op">=</span><span class="fl">0.1</span></span>
+<span id="cb67-3"><a href="#cb67-3" aria-hidden="true" tabindex="-1"></a>So<span class="op">=</span><span class="dv">990</span></span>
+<span id="cb67-4"><a href="#cb67-4" aria-hidden="true" tabindex="-1"></a>Io<span class="op">=</span><span class="dv">10</span></span>
+<span id="cb67-5"><a href="#cb67-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb67-6"><a href="#cb67-6" aria-hidden="true" tabindex="-1"></a>dynamic_sim<span class="op">=</span>sim<span class="op">=</span>Simulation()</span>
+<span id="cb67-7"><a href="#cb67-7" aria-hidden="true" tabindex="-1"></a>sim.add(<span class="st">"N=S+I+R"</span>)</span>
+<span id="cb67-8"><a href="#cb67-8" aria-hidden="true" tabindex="-1"></a>sim.add(<span class="st">"S'=-β*S*I/N"</span>,So)</span>
+<span id="cb67-9"><a href="#cb67-9" aria-hidden="true" tabindex="-1"></a>sim.add(<span class="st">"I'=+β*S*I/N-γ*I"</span>,Io)</span>
+<span id="cb67-10"><a href="#cb67-10" aria-hidden="true" tabindex="-1"></a>sim.add(<span class="st">"R'=+γ*I"</span>,<span class="dv">0</span>)</span>
+<span id="cb67-11"><a href="#cb67-11" aria-hidden="true" tabindex="-1"></a>sim.params(β<span class="op">=</span>β,γ<span class="op">=</span>γ)</span>
+<span id="cb67-12"><a href="#cb67-12" aria-hidden="true" tabindex="-1"></a>sim.run(<span class="dv">200</span>)</span>
+<span id="cb67-13"><a href="#cb67-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb67-14"><a href="#cb67-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb67-15"><a href="#cb67-15" aria-hidden="true" tabindex="-1"></a>stoch_sim<span class="op">=</span>sim<span class="op">=</span>Stochastic_Simulation()</span>
+<span id="cb67-16"><a href="#cb67-16" aria-hidden="true" tabindex="-1"></a>sim.add(<span class="st">"-S+I"</span>,<span class="st">'β*S*I/N'</span>,S<span class="op">=</span>So,I<span class="op">=</span>Io)</span>
+<span id="cb67-17"><a href="#cb67-17" aria-hidden="true" tabindex="-1"></a>sim.add(<span class="st">"-I +R"</span>,<span class="st">'γ*I'</span>,R<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb67-18"><a href="#cb67-18" aria-hidden="true" tabindex="-1"></a>sim.add(<span class="st">"N=S+I+R"</span>)</span>
+<span id="cb67-19"><a href="#cb67-19" aria-hidden="true" tabindex="-1"></a>sim.params(β<span class="op">=</span>β,γ<span class="op">=</span>γ)</span>
+<span id="cb67-20"><a href="#cb67-20" aria-hidden="true" tabindex="-1"></a>sim.run(<span class="dv">200</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a>sim.run(<span class="dv">200</span>,Nsims<span class="op">=</span><span class="dv">100</span>)</span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb68-3"><a href="#cb68-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">100</span>):</span>
+<span id="cb68-4"><a href="#cb68-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb68-5"><a href="#cb68-5" aria-hidden="true" tabindex="-1"></a>    plot(sim.t,sim.S[i],<span class="st">'bo'</span>,alpha<span class="op">=</span><span class="fl">0.005</span>)</span>
+<span id="cb68-6"><a href="#cb68-6" aria-hidden="true" tabindex="-1"></a>    plot(sim.t,sim.I[i],<span class="st">'ro'</span>,alpha<span class="op">=</span><span class="fl">0.005</span>)</span>
+<span id="cb68-7"><a href="#cb68-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb68-8"><a href="#cb68-8" aria-hidden="true" tabindex="-1"></a>plot(dynamic_sim.t,dynamic_sim.S,<span class="st">'c-'</span>)</span>
+<span id="cb68-9"><a href="#cb68-9" aria-hidden="true" tabindex="-1"></a>plot(dynamic_sim.t,dynamic_sim.I,<span class="st">'m-'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>100%|██████████| 100/100 [00:00&lt;00:00, 1006.25it/s]</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="00_core_files/figure-html/cell-57-output-2.png" class="img-fluid"></p>
+</div>
+</div>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

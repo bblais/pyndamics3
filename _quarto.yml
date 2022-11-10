@@ -1,7 +1,7 @@
 
 project:
   type: website
-  output-dir: _docs
+  output-dir: docs
   preview:
     port: 3000
     browser: false
