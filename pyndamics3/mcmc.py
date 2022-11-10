@@ -991,27 +991,47 @@ class MCMCModel(object):
             py.plot(t,v,'bo')  
 
 
-    def percentiles(self,p=[16, 50, 84]):
+    def percentiles(self,p=[16, 50, 84],S=None):
         result={}
-        for i,key in enumerate(self.keys):
-            result[key]=np.percentile(self.samples[:,i], p,axis=0)
-            
+
+
+        if S is None:
+            for i,key in enumerate(self.keys):
+                result[key]=np.percentile(self.samples[:,i], p,axis=0)
+        else:    
+            result[S]=np.percentile(self.get_samples(S),p,axis=0)
+
         return result
         
     def get_samples(self,*args):
-        result=[]
+        from numpy import sqrt,log,sin,cos,tan,exp,array
+        import numpy as np
 
         if not args:
             args=self.keys
-
-        for a in args:
-            i=self.keys.index(a)
-            result.append(self.samples[:,i])
+        
+        result=[]
+        for arg in args:
+            if arg in self.keys:
+                idx=self.keys.index(arg)
+                result.append(self.samples[:,idx])
+            else:
+                D={}
+                for key in self.keys:
+                    v=array(self.get_samples(key))
+                    D[key]=v
+                
+                D['np']=np
+                for name,fun in zip(['sqrt','log','sin','cos','tan','exp','array'],
+                                    [sqrt,log,sin,cos,tan,exp,array]):
+                    D[name]=fun
+                
+                N=float(np.prod(v.shape))
+                D['N']=N
             
-        if len(result)==1:
-            return result[0]
-        else:
-            return result
+                result.append(eval(arg,D).squeeze())
+
+        return np.atleast_2d(array(result)).T
         
     def best_estimates(self):
         self.median_values=np.percentile(self.samples,50,axis=0)

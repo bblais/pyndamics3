@@ -6,7 +6,7 @@
 # In[1]:
 
 
-#hide
+#| hide
 #skip
 get_ipython().system(' [ -e /content ] && pip install -Uqq pyndamics3 emcee # upgrade pyndamics3 on colab')
 
@@ -97,7 +97,7 @@ sim.run(0,10)
 
 # MCMC parameter estimation for $\alpha$ (rate of zombies being permanently removed), $\beta$ (rate of susceptibles becoming infected), $\zeta$ (the rate of infected into becoming zombies), and $\delta$ (suicide rate among susceptibles)
 
-# In[10]:
+# In[18]:
 
 
 model=MCMCModel(sim,
@@ -109,33 +109,45 @@ model=MCMCModel(sim,
                 
 
 
-# In[69]:
+# In[19]:
 
 
-number_of_iterations=5. # use 500 or so for the figures below, but for CI timeout reasons I include only 5
+number_of_iterations=500 # use 500 or so for the figures below, but for CI timeout reasons I include only 5
 model.run_mcmc(number_of_iterations,repeat=3)
 model.plot_chains()
 
 
-# In[70]:
+# In[20]:
 
 
 sim.run(0,10)
 
 
-# In[71]:
+# In[22]:
+
+
+Ro=model.eval('β/α')
+
+
+# In[23]:
+
+
+model.plot_distributions(Ro)
+
+
+# In[24]:
 
 
 model.plot_many(0,13,'Z')
 
 
-# In[72]:
+# In[25]:
 
 
 model.triangle_plot()
 
 
-# In[74]:
+# In[26]:
 
 
 model.plot_distributions()
@@ -145,14 +157,14 @@ model.plot_distributions()
 # 
 # Data from Shaun of the Dead
 
-# In[75]:
+# In[5]:
 
 
 t=array([0,3,5,6,8,10,22,22.2,22.5,24,25.5,26,26.5,27.5,27.75,28.5,29,29.5,31.5])
 zombies=array([0,1,2,2,3,3,4,6,2,3,5,12,15,25,37,25,65,80,100])
 
 
-# In[77]:
+# In[6]:
 
 
 sim=Simulation()
@@ -198,6 +210,49 @@ model.plot_many(0,35,'Z')
 
 
 model.triangle_plot()
+
+
+# ## With different priors
+
+# In[5]:
+
+
+t=array([0,3,5,6,8,10,22,22.2,22.5,24,25.5,26,26.5,27.5,27.75,28.5,29,29.5,31.5])
+zombies=array([0,1,2,2,3,3,4,6,2,3,5,12,15,25,37,25,65,80,100])
+
+sim=Simulation()
+sim.add("S'=-β*S*Z",508.2,plot=1)
+sim.add("E'=β*S*Z-ζ*E",0,plot=0)
+sim.add("Z'=ζ*E-α*S*Z",.000347759,plot=1)
+sim.add("R'=α*S*Z",0,plot=False)
+sim.params(α=2.96e-8,β=0.000808995,ζ=60)
+sim.add_data(t=t,Z=zombies,plot=1)
+sim.run(0,50)
+
+model=MCMCModel(sim,
+                α=Uniform(0,.01),
+                β=Uniform(0,.01),
+                ζ=Normal(10,10,all_positive=True)
+               )
+
+
+# In[6]:
+
+
+model.run_mcmc(800,repeat=2)
+model.plot_chains()
+
+
+# In[9]:
+
+
+model.plot_many(0,35,'Z')
+
+
+# In[8]:
+
+
+model.plot_distributions()
 
 
 # In[ ]:

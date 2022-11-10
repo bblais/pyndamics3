@@ -30,7 +30,6 @@ rc('figure',figsize=(12,8))
 import os
 import sys
 
-
 # %% ../00_core.ipynb 4
 import functools
 from types import FunctionType
@@ -91,7 +90,6 @@ class RedirectStdStreams(object):
 
 devnull = open(os.devnull, 'w')
 
-
 # %% ../00_core.ipynb 6
 def from_values(var,*args):
     if len(args)==1:        
@@ -143,7 +141,6 @@ def array_wrap(_f):
         return val
         
     return what
-
 
 # %% ../00_core.ipynb 8
 def mapsolve(function,y0,t_mat,*args):
@@ -322,7 +319,6 @@ def simfunc(_vec,t,_sim):
             _l[_c.name]=_val
 
     return _diff
-
 
 # %% ../00_core.ipynb 9
 def phase_plot(sim,x,y,z=None,**kwargs):
@@ -1266,7 +1262,6 @@ class Simulation(object):
             else:
                 raise IndexError("Unknown Index %s" % str(y))
 
-
 # %% ../00_core.ipynb 21
 def repeat(S_orig,t_min,t_max,**kwargs):
     keys=list(kwargs.keys())
@@ -1327,7 +1322,6 @@ def mse_from_sim(params,extra):
     mse=((array(yd)-y)**2).mean()
             
     return mse     
-
 
 
 # %% ../00_core.ipynb 23
@@ -2231,6 +2225,5 @@ def explore_parameters(sim,figsize=None,**kwargs):
 
 
         legend()
-
 
 

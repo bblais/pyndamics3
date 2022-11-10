@@ -7,8 +7,6 @@
 get_ipython().run_line_magic('pylab', 'inline')
 
 
-# # Debugging
-
 # In[2]:
 
 
@@ -323,7 +321,7 @@ class Stochastic_Simulation(object):
   
 
 
-# In[12]:
+# In[10]:
 
 
 # β=0.2
@@ -340,7 +338,7 @@ class Stochastic_Simulation(object):
 #     plot(sim.t,sim.A[i],'b-o',alpha=0.05)
 
 
-# In[13]:
+# In[11]:
 
 
 # β=0.2
@@ -357,13 +355,13 @@ class Stochastic_Simulation(object):
 #     plot(sim.t,sim.A[i],'b-o',alpha=0.05)
 
 
-# In[14]:
+# In[12]:
 
 
 print(sim.func_str)
 
 
-# In[15]:
+# In[13]:
 
 
 @numba.jit(nopython=True)
@@ -380,13 +378,13 @@ def _propensity_function_abcde(population, args):
 
 # ## Is there a problem with X'=0?
 
-# In[3]:
+# In[14]:
 
 
 from pyndamics3 import Simulation
 
 
-# In[4]:
+# In[15]:
 
 
 sim=Simulation()
@@ -395,19 +393,19 @@ sim.params(α=5)
 sim.run(10)
 
 
-# In[5]:
+# In[16]:
 
 
 sim.original_params
 
 
-# In[6]:
+# In[17]:
 
 
 from pyndamics3.chem import ChemSimulation
 
 
-# In[7]:
+# In[18]:
 
 
 sim=ChemSimulation(
@@ -419,50 +417,46 @@ P --k4--> ϕ
 """,D=1,M=0,ϕ=0,P=0,k1=.01,k3=0.00577,k4=0.0001925,k2=20*0.00577)
 
 
-# In[8]:
+# In[19]:
 
 
 sim.myparams
 
 
-# In[9]:
+# In[20]:
 
 
 sim.run(10)
 
 
-# In[10]:
+# In[21]:
 
 
 sim.equations()
 
 
-# In[11]:
+# In[22]:
 
 
 print(sim.func_str)
 
 
-# In[9]:
+# In[23]:
 
 
 print(sim.equations())
 
 
-# In[13]:
+# In[24]:
 
 
 sim.params()
 
 
-# In[10]:
+# In[ ]:
 
 
-sim=Simulation()
-sim.add("D'=0",1,plot=True)
-sim.add("M'=+k1*D -k3*M",0,plot=True)
-sim.params(
-sim.run(10)
+
 
 
 # In[ ]:

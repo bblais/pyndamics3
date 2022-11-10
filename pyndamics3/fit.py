@@ -3,13 +3,12 @@
 # %% auto 0
 __all__ = ['Parameter', 'residual', 'fit']
 
-# %% ../03_fit.ipynb 2
+# %% ../03_fit.ipynb 3
 import lmfit
 
 # %% ../03_fit.ipynb 6
 import numpy as np
 from lmfit import minimize, Parameters, report_fit
-
 
 # %% ../03_fit.ipynb 11
 def Parameter(name,**kwargs):
@@ -18,7 +17,6 @@ def Parameter(name,**kwargs):
     params.add(name, **kwargs)
     
     return params
-
 
 # %% ../03_fit.ipynb 12
 def residual(ps, sim):
@@ -106,5 +104,4 @@ def fit(sim,
     
     
     return result
-
 

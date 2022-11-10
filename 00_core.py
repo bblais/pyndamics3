@@ -4,7 +4,7 @@
 # In[1]:
 
 
-# default_exp core
+#| default_exp core
 
 
 # # Core Simulation
@@ -16,7 +16,7 @@
 # In[2]:
 
 
-#export
+#| export
 from scipy.integrate import odeint,ode
 from pylab import *
 from numpy import *
@@ -43,7 +43,7 @@ import sys
 # In[3]:
 
 
-#export
+#| export
 import functools
 from types import FunctionType
 
@@ -76,7 +76,7 @@ def patch(f):
 # In[4]:
 
 
-#export
+#| export
 class InterpFunction(object):
     
     def __init__(self,x,y,name):
@@ -111,7 +111,7 @@ devnull = open(os.devnull, 'w')
 # In[5]:
 
 
-#export
+#| export
 def from_values(var,*args):
     if len(args)==1:        
         y=[v[1] for v in args[0]]
@@ -169,7 +169,7 @@ def array_wrap(_f):
 # In[6]:
 
 
-#export
+#| export
 def mapsolve(function,y0,t_mat,*args):
 
     y=array(y0)
@@ -351,7 +351,7 @@ def simfunc(_vec,t,_sim):
 # In[7]:
 
 
-#export
+#| export
 def phase_plot(sim,x,y,z=None,**kwargs):
     """
     Make a Phase Plot of two or three variables.
@@ -438,7 +438,7 @@ def vector_field(sim,rescale=False,**kwargs):
 # In[8]:
 
 
-#export
+#| export
 class Component(object):
     
     def __init__(self,diffstr,initial_value=0,
@@ -526,7 +526,7 @@ class Component(object):
 # In[9]:
 
 
-#export
+#| export
 numpy_functions=(sin,cos,exp,tan,abs,floor,ceil,radians,degrees,
                          sinh,cosh,tanh,arccos,arcsin,arctan,arctan2,
                          min,max,sqrt,log,log10,mean,median)
@@ -539,7 +539,7 @@ numpy_functions=(sin,cos,exp,tan,abs,floor,ceil,radians,degrees,
 # In[10]:
 
 
-# export
+#| export
 class Simulation(object):
     
     def __init__(self,method='odeint',verbose=False,plot_style='.-'):
@@ -1376,7 +1376,7 @@ print(sim.equations())
 # In[15]:
 
 
-#export
+#| export
 def repeat(S_orig,t_min,t_max,**kwargs):
     keys=list(kwargs.keys())
     if kwargs:
@@ -1443,7 +1443,7 @@ def mse_from_sim(params,extra):
 # In[16]:
 
 
-#export
+#| export
 import numpy as np
 class Storage(object):
     def __init__(self,save_every=1):
@@ -1513,7 +1513,7 @@ x,y
 # In[19]:
 
 
-#export
+#| export
 class particle(object):
 
     def __init__(self,parameters,fitness_function,extra=None):
@@ -1664,7 +1664,7 @@ def pso_fit_sim(varname,xd,yd,sim,parameters,
 # In[1]:
 
 
-#export
+#| export
 class Stochastic_Component(object):
     
     def __init__(self,name,initial_value=0,assignment_str=None,
@@ -1706,7 +1706,7 @@ class Stochastic_Component(object):
 # In[20]:
 
 
-#export
+#| export
 
 class Struct(dict):
     
@@ -2481,7 +2481,7 @@ phase_plot(sim,"x","x_p_")
 # In[29]:
 
 
-#export
+#| export
 def explore_parameters(sim,figsize=None,**kwargs):
 
     if figsize is None:
