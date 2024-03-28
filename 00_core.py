@@ -1,19 +1,23 @@
 #!/usr/bin/env python
 # coding: utf-8
+---
+description: The main simulation functions used for adding, running, and visualizing
+  ODEs
+output-file: core.html
+title: Core Simulation
 
-# In[1]:
+---
+
+
+# In[ ]:
 
 
 #| default_exp core
 
 
-# # Core Simulation
-# 
-# > The main simulation functions used for adding, running, and visualizing ODEs
-
 # ## Preliminaries
 
-# In[2]:
+# In[ ]:
 
 
 #| export
@@ -40,7 +44,7 @@ import os
 import sys
 
 
-# In[3]:
+# In[ ]:
 
 
 #| export
@@ -73,7 +77,7 @@ def patch(f):
     return patch_to(cls)(f)
 
 
-# In[4]:
+# In[ ]:
 
 
 #| export
@@ -108,7 +112,7 @@ class RedirectStdStreams(object):
 devnull = open(os.devnull, 'w')
 
 
-# In[5]:
+# In[ ]:
 
 
 #| export
@@ -166,7 +170,7 @@ def array_wrap(_f):
 
 # ## Supporting functions for solving ODE and MAPS
 
-# In[6]:
+# In[ ]:
 
 
 #| export
@@ -348,7 +352,7 @@ def simfunc(_vec,t,_sim):
     return _diff
 
 
-# In[7]:
+# In[ ]:
 
 
 #| export
@@ -435,7 +439,7 @@ def vector_field(sim,rescale=False,**kwargs):
     
 
 
-# In[8]:
+# In[ ]:
 
 
 #| export
@@ -523,7 +527,7 @@ class Component(object):
   
 
 
-# In[9]:
+# In[ ]:
 
 
 #| export
@@ -536,7 +540,7 @@ numpy_functions=(sin,cos,exp,tan,abs,floor,ceil,radians,degrees,
 
 # # The `Simulation` class is the primary one to use
 
-# In[10]:
+# In[ ]:
 
 
 #| export
@@ -576,6 +580,7 @@ class Simulation(object):
         self.maximum_t=-1e500
         self.noplots=False
         
+        self.data_components={}
         self.figures=[]
  
     def delay(self,var,t):
@@ -775,6 +780,17 @@ class Simulation(object):
 
         self.myparams.update(kwargs)
         self.original_params.update(kwargs)
+        
+        
+        for key in kwargs:
+            if 'initial_' in key:
+                name=key.split('initial_')[1]
+                _c=self.get_component(name)
+                _c.initial_value=kwargs[key]
+            
+        
+        
+        
         
     def functions(self,*args,**kwargs):
         
@@ -1207,6 +1223,29 @@ class Simulation(object):
 
         self.functions(InterpFunction(t,value,name))
 
+    def err(self,**kwargs):
+
+        self.params(**kwargs)
+        for key in kwargs:
+            if 'initial_' in key:
+                name=key.split('initial_')[1]
+                _c=self.get_component(name)
+                _c.initial_value=kwargs[key]
+
+
+        self.run_fast()
+
+        value=[]
+        for name in self.data_components:
+            t=np.array(_c.data['t']).ravel()
+            y=np.array(_c.data['value']).ravel()
+            y_fit=self.interpolate(t,name)
+
+            value.extend(y-y_fit)
+
+        return array(value)
+
+        
 
     def add_data(self,t,plot=False,**kwargs):
         for key in kwargs:
@@ -1217,6 +1256,8 @@ class Simulation(object):
             c=self.get_component(key)
                 
             c.data={'t':t,'plot':plot,'value':kwargs[key]}
+            self.data_components[key]=c
+            
             mx=max(t)
             if mx>self.maximum_data_t:
                 self.maximum_data_t=mx
@@ -1312,7 +1353,7 @@ class Simulation(object):
 
 # ## An alternate way of specifying the equations - stocks, inflows and outflows
 
-# In[11]:
+# In[ ]:
 
 
 @patch
@@ -1345,7 +1386,7 @@ def stock(self:Simulation,name,initial_value=0,
     return c
 
 
-# In[12]:
+# In[ ]:
 
 
 sim=Simulation()
@@ -1354,13 +1395,13 @@ sim.params(a=10,b=2)
 print(sim.equations())
 
 
-# In[13]:
+# In[ ]:
 
 
 #sim.add("y'=a - b*y",100)
 
 
-# In[14]:
+# In[ ]:
 
 
 sim=Simulation()
@@ -1373,7 +1414,7 @@ print(sim.equations())
 
 # ## Some useful functions
 
-# In[15]:
+# In[ ]:
 
 
 #| export
@@ -1440,7 +1481,7 @@ def mse_from_sim(params,extra):
 
 # ### This is my solution to an age-old problem of storing data in loops
 
-# In[16]:
+# In[ ]:
 
 
 #| export
@@ -1483,7 +1524,7 @@ class Storage(object):
         return vstack(self.arrays())
 
 
-# In[17]:
+# In[ ]:
 
 
 y=1
@@ -1504,13 +1545,13 @@ x,y=S.arrays()  # returns an array representation of all those data points
 plot(x,y)
 
 
-# In[18]:
+# In[ ]:
 
 
 x,y
 
 
-# In[19]:
+# In[ ]:
 
 
 #| export
@@ -1661,7 +1702,7 @@ def pso_fit_sim(varname,xd,yd,sim,parameters,
 
 # # Stochastic Sims
 
-# In[1]:
+# In[ ]:
 
 
 #| export
@@ -1703,7 +1744,7 @@ class Stochastic_Component(object):
         return s
 
 
-# In[20]:
+# In[ ]:
 
 
 #| export
@@ -2319,7 +2360,7 @@ class Stochastic_Simulation(object):
         
 
 
-# In[22]:
+# In[ ]:
 
 
 β=0.2
@@ -2354,13 +2395,13 @@ plot(dynamic_sim.t,dynamic_sim.I,'m-')
 print(sim.func_str)
 
 
-# In[23]:
+# In[ ]:
 
 
 sim.extinction_times
 
 
-# In[24]:
+# In[ ]:
 
 
 stoch_sim=sim=Stochastic_Simulation()
@@ -2370,13 +2411,13 @@ sim.params(N=10)
 sim.run(50,num_iterations=101)
 
 
-# In[25]:
+# In[ ]:
 
 
 plot(sim.t,sim.X,'-o')
 
 
-# In[74]:
+# In[ ]:
 
 
 sim.extinction_times
@@ -2386,7 +2427,7 @@ sim.extinction_times
 
 # ## Logistic
 
-# In[21]:
+# In[ ]:
 
 
 sim=Simulation()
@@ -2396,7 +2437,7 @@ sim.params(a=1.5,K=300)
 sim.run(0,50)
 
 
-# In[22]:
+# In[ ]:
 
 
 sim=Simulation()
@@ -2409,7 +2450,7 @@ sim.run(0,50,discrete=True)
 
 # ## Map
 
-# In[24]:
+# In[ ]:
 
 
 sim=Simulation('map')
@@ -2424,7 +2465,7 @@ for a in linspace(.1,4,1200):
     plot(a*ones(x.shape),x,'k.',markersize=.5)
 
 
-# In[25]:
+# In[ ]:
 
 
 sim=Simulation('map')
@@ -2441,7 +2482,7 @@ for a in linspace(3.2,4,1200):
 
 # ## Repeat
 
-# In[26]:
+# In[ ]:
 
 
 sim=Simulation()
@@ -2460,7 +2501,7 @@ for res in result:
 
 # ## Higher Order
 
-# In[27]:
+# In[ ]:
 
 
 sim=Simulation()
@@ -2470,7 +2511,7 @@ sim.params(k=1.0,m=1.0,b=0.5)
 sim.run(0,20)
 
 
-# In[28]:
+# In[ ]:
 
 
 phase_plot(sim,"x","x_p_")
@@ -2478,7 +2519,7 @@ phase_plot(sim,"x","x_p_")
 
 # ## Exploring parameters
 
-# In[29]:
+# In[ ]:
 
 
 #| export
@@ -2552,7 +2593,7 @@ def explore_parameters(sim,figsize=None,**kwargs):
 
 
 
-# In[30]:
+# In[ ]:
 
 
 sim=Simulation()
@@ -2563,13 +2604,13 @@ sim.params(a=1.5,Kt=30)
 sim.run(0,50)
 
 
-# In[31]:
+# In[ ]:
 
 
 explore_parameters(sim,Kt=linspace(10,100,10))
 
 
-# In[32]:
+# In[ ]:
 
 
 sim=Simulation()
@@ -2582,19 +2623,19 @@ sim.params(β=0.2,γ=0.1)
 sim.run(150)
 
 
-# In[33]:
+# In[ ]:
 
 
 explore_parameters(sim,figsize=(12,8),β=linspace(0,0.2,11))
 
 
-# In[34]:
+# In[ ]:
 
 
 explore_parameters(sim,figsize=(12,8),β=[0,.1,.2,0,.1,.2],γ=[.1,.1,.1,.3,.3,.3])
 
 
-# In[35]:
+# In[ ]:
 
 
 β,γ=meshgrid([0,.1,.2],[0,.1,.2])
@@ -2603,7 +2644,7 @@ explore_parameters(sim,figsize=(12,8),β=β,γ=γ)
 
 # ## Functions of time
 
-# In[36]:
+# In[ ]:
 
 
 def a_vs_time(t):
@@ -2619,7 +2660,7 @@ sim.run(10)
 
 # ## Stochastic Simulation Examples
 
-# In[26]:
+# In[ ]:
 
 
 β=0.2
@@ -2644,7 +2685,7 @@ sim.params(β=β,γ=γ)
 sim.run(200)
 
 
-# In[27]:
+# In[ ]:
 
 
 sim.run(200,Nsims=100)

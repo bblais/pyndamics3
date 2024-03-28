@@ -529,6 +529,7 @@ class Simulation(object):
         self.maximum_t=-1e500
         self.noplots=False
         
+        self.data_components={}
         self.figures=[]
  
     def delay(self,var,t):
@@ -728,6 +729,17 @@ class Simulation(object):
 
         self.myparams.update(kwargs)
         self.original_params.update(kwargs)
+        
+        
+        for key in kwargs:
+            if 'initial_' in key:
+                name=key.split('initial_')[1]
+                _c=self.get_component(name)
+                _c.initial_value=kwargs[key]
+            
+        
+        
+        
         
     def functions(self,*args,**kwargs):
         
@@ -1160,6 +1172,29 @@ class Simulation(object):
 
         self.functions(InterpFunction(t,value,name))
 
+    def err(self,**kwargs):
+
+        self.params(**kwargs)
+        for key in kwargs:
+            if 'initial_' in key:
+                name=key.split('initial_')[1]
+                _c=self.get_component(name)
+                _c.initial_value=kwargs[key]
+
+
+        self.run_fast()
+
+        value=[]
+        for name in self.data_components:
+            t=np.array(_c.data['t']).ravel()
+            y=np.array(_c.data['value']).ravel()
+            y_fit=self.interpolate(t,name)
+
+            value.extend(y-y_fit)
+
+        return array(value)
+
+        
 
     def add_data(self,t,plot=False,**kwargs):
         for key in kwargs:
@@ -1170,6 +1205,8 @@ class Simulation(object):
             c=self.get_component(key)
                 
             c.data={'t':t,'plot':plot,'value':kwargs[key]}
+            self.data_components[key]=c
+            
             mx=max(t)
             if mx>self.maximum_data_t:
                 self.maximum_data_t=mx
