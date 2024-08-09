@@ -1186,6 +1186,7 @@ class Simulation(object):
 
         value=[]
         for name in self.data_components:
+            _c=self.get_component(name)
             t=np.array(_c.data['t']).ravel()
             y=np.array(_c.data['value']).ravel()
             y_fit=self.interpolate(t,name)
