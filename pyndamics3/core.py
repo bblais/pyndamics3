@@ -472,7 +472,7 @@ class Component(object):
             return s2
             
         for i in range(10,0,-1):
-            s2=re.sub("(\w*)"+"'"*i,"\\1_"+"p"*i+"_",s2)
+            s2=re.sub("(\\w*)"+"'"*i,"\\1_"+"p"*i+"_",s2)
         
         
         return s2
@@ -965,7 +965,7 @@ class Simulation(object):
     
         if t_max is None:
             try:
-                t_array=t_min
+                t_array=arange(t_min)
                 t_max=max(t_array)
                 t_min=min(t_array)
             except TypeError:  # an int or a float
@@ -1300,7 +1300,7 @@ class Simulation(object):
             else:
                 raise IndexError("Unknown Index %s" % str(y))
 
-# %% ../00_core.ipynb 21
+# %% ../00_core.ipynb 22
 def repeat(S_orig,t_min,t_max,**kwargs):
     keys=list(kwargs.keys())
     if kwargs:
@@ -1362,7 +1362,7 @@ def mse_from_sim(params,extra):
     return mse     
 
 
-# %% ../00_core.ipynb 23
+# %% ../00_core.ipynb 24
 import numpy as np
 class Storage(object):
     def __init__(self,save_every=1):
@@ -1401,7 +1401,7 @@ class Storage(object):
         from numpy import vstack
         return vstack(self.arrays())
 
-# %% ../00_core.ipynb 26
+# %% ../00_core.ipynb 27
 class particle(object):
 
     def __init__(self,parameters,fitness_function,extra=None):
@@ -1546,7 +1546,7 @@ def pso_fit_sim(varname,xd,yd,sim,parameters,
 
       
 
-# %% ../00_core.ipynb 28
+# %% ../00_core.ipynb 29
 class Stochastic_Component(object):
     
     def __init__(self,name,initial_value=0,assignment_str=None,
@@ -1584,7 +1584,7 @@ class Stochastic_Component(object):
             s="%s\n%s" % (self.name,str(self.values))
         return s
 
-# %% ../00_core.ipynb 29
+# %% ../00_core.ipynb 30
 class Struct(dict):
     
     def __getattr__(self,name):
@@ -2195,7 +2195,7 @@ class Stochastic_Simulation(object):
             
         
 
-# %% ../00_core.ipynb 48
+# %% ../00_core.ipynb 49
 def explore_parameters(sim,figsize=None,**kwargs):
 
     if figsize is None:
